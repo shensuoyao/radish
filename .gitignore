@@ -8,6 +8,7 @@ tmp/
 *~.nib
 local.properties
 .settings/
+.classpath
 .loadpath
 .recommenders
 
@@ -20,8 +21,7 @@ local.properties
 # PyDev specific (Python IDE for Eclipse)
 *.pydevproject
 
-# CDT-specific (C/C++ Development Tooling)
-.cproject
+.project
 
 # Java annotation processor (APT)
 .factorypath
@@ -30,7 +30,7 @@ local.properties
 .buildpath
 
 # sbteclipse plugin
-.target
+/target/
 
 # Tern plugin
 .tern-project
