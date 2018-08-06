@@ -1,0 +1,18 @@
+server:
+    port: 8081
+    servlet: 
+        context-path: /${spring.application.name}
+
+spring:
+    application: 
+        name: radish-agent
+
+scheduing:
+    server: http://localhost:8888/radish-scheduing
+
+agent:
+    ip: 127.0.0.1
+    port: 8081
+    name: test
+    logpath: /tmp/log/radish
+    
