@@ -1,8 +1,5 @@
 package org.sam.shen.scheduing.controller.core;
 
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.sam.shen.core.constants.HandlerTypeEnum;
 import org.sam.shen.core.handler.CallBackParam;
 import org.sam.shen.core.model.AgentInfo;
@@ -66,8 +63,7 @@ public class AgentController {
 	public Resp<CallBackParam> triggerCall(@RequestParam("agentName") String agentName) {
 		// 根据Agent机器性能决定是否能抢到任务
 		CallBackParam callBackParam = new CallBackParam();
-		DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyyMMddHHmmss");
-		callBackParam.setJobId(fmt.print(new DateTime()));
+		callBackParam.setJobId(String.valueOf(System.currentTimeMillis()));
 		callBackParam.setRegistryHandler("scriptHandler");
 		callBackParam.setCmd("ls -al /run/media/suoyao/develop");
 		callBackParam.setHandlerType(HandlerTypeEnum.H_SHELL);

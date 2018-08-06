@@ -51,7 +51,7 @@ public class RadishLogFileAppender {
 	 *  创建日志文件
 	 */
 	public static String makeLogFile(String logId) {
-		File logFilePath = new File(getLogBasePath(), new DateTime().toString("yyyyMMdd"));
+		File logFilePath = new File(getLogBasePath(), new DateTime(Long.valueOf(logId)).toString("yyyyMMdd"));
 		try {
 			FileUtils.forceMkdir(logFilePath);
 		} catch (IOException e) {
@@ -88,7 +88,10 @@ public class RadishLogFileAppender {
 	 * @return
 	 *   读取日志文件
 	 */
-	public static LogReader readLog(String logFileName, int beginLineNum) {
+	public static LogReader readLog(String logFileName, Integer beginLineNum) {
+		if(null == beginLineNum) {
+			beginLineNum = 0;
+		}
 		if(StringUtils.isEmpty(logFileName)) {
 			return new LogReader(beginLineNum, 0, Arrays.asList("readLog fail, logFile not found"));
 		}
@@ -124,7 +127,7 @@ public class RadishLogFileAppender {
 		}
 
 		// result
-		LogReader logReader = new LogReader(beginLineNum, endLineNum, lines);
+		LogReader logReader = new LogReader(beginLineNum, (endLineNum + 1), lines);
 		return logReader;
 	}
 	
