@@ -5,14 +5,24 @@ import java.util.Map;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
+/**
+ *  Agent客户端信息
+ * @author suoyao
+ * @date 2018年8月7日 上午9:16:07
+  *  
+ */
 public class AgentInfo {
 
+	// Agent 管理名(需要唯一)
 	private String agentName;
 	
+	// ip
 	private String agentIp;
 	
+	// Rest RPC 端口
 	private int agentPort;
 	
+	// Agent中注册的Handler处理器集合
 	private Map<String, String> registryHandlerMap;
 
 	public String getAgentName() {

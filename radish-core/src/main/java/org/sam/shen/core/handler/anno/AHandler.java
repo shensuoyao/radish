@@ -14,6 +14,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 public @interface AHandler {
-    String name() default "";
+    String name();
     String description() default "";
 }

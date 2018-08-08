@@ -1,0 +1,49 @@
+{
+	"data": [
+		{
+			"text": "Dashboard",
+			"icon": "&#xe68e;",
+			"href": "/radish-scheduing/portal/dashboard"
+		},
+		{
+			"text": "Agent 客户端",
+			"icon": "&#xe653;",
+			"subset": [
+				{
+					"text": "Agent Group",
+					"icon": "&#xe621;",
+					"href": "/radish-scheduing/portal/agent-group"
+				},
+				{
+					"text": "Agent",
+					"icon": "&#xe621;",
+					"href": "demo/form.html"
+				}
+			]
+		},
+		{
+			"text": "Job 任务",
+			"icon": "&#xe635;",
+			"href": "",
+			"subset": [
+				{
+					"text": "Job",
+					"icon": "&#xe621;",
+					"href": "demo/login.html"
+				}
+			]
+		},
+		{
+			"text": "Monitor 监控",
+			"icon": "&#xe62c;",
+			"href": "",
+			"subset": [
+				{
+					"text": "报警",
+					"icon": "&#xe621;",
+					"href": "demo/login.html"
+				}
+			]
+		}
+	]
+}

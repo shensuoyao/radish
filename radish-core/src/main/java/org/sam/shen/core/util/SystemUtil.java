@@ -70,7 +70,6 @@ public class SystemUtil {
 	 * @return
 	 *  获取物理内存
 	 */
-	@SuppressWarnings("restriction")
 	public static Long physicalMemory(Memory memory, Binary binary) {
 		OperatingSystemMXBean osmxb = (OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
 		Long mem = 0L;

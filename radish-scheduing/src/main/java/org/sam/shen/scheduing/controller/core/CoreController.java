@@ -22,8 +22,8 @@ import io.swagger.annotations.ApiOperation;
  */
 @RestController
 @RequestMapping(value = "/core")
-public class AgentController {
-	Logger logger = LoggerFactory.getLogger(AgentController.class);
+public class CoreController {
+	Logger logger = LoggerFactory.getLogger(CoreController.class);
 
 	/**
 	 * @author suoyao

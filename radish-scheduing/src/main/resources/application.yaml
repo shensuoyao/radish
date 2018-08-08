@@ -3,6 +3,71 @@ server:
     servlet:
         context-path: /${spring.application.name}
     
-spring:
+spring: 
+    devtools: 
+        restart: 
+            enabled: false
+    mvc: 
+        static-path-pattern: /static/**
+    freemarker: 
+        request-context-attribute: request
+        enabled: true
+        suffix: .ftl
+        allow-request-override: false
+        cache: true
+        check-template-location: true
+        charset: UTF-8
+        content-type: text/html
+        expose-request-attributes: false
+        expose-session-attributes: false
+        expose-spring-macro-helpers: true
+        template-loader-path: classpath:/templates/
+        order: 1
     application: 
         name: radish-scheduing
+    datasource: 
+        driver-class-name: com.mysql.jdbc.Driver
+        type: com.alibaba.druid.pool.DruidDataSource
+        username: root
+        password: 111111
+        url: jdbc:mysql://192.168.140.215:3306/test?useUnicode=true&characterEncoding=UTF-8
+        initial-size: 1
+        max-active: 20
+        min-idle: 1
+        max-wait: 60000
+        validation-query: SELECT 1 FROM DUAL
+        pool-prepared-statements: true
+        validationQueryTimeout: 5
+        test-on-borrow: false
+        test-on-return: false
+        test-while-idle: true
+        time-between-eviction-runs-millis: 60000
+        min-evictable-idle-time-millis: 300000
+        filters: stat
+
+#mybatis
+mybatis-plus:
+    mapper-locations: classpath:/mapper/*Mapper.xml
+    global-config:
+                # 数据库相关配置
+        db-config:
+                          #主键类型  AUTO:"数据库ID自增", INPUT:"用户输入ID",ID_WORKER:"全局唯一ID (数字类型唯一ID)", UUID:"全局唯一ID UUID";
+            id-type: auto
+                          #字段策略 IGNORED:"忽略判断",NOT_NULL:"非 NULL 判断"),NOT_EMPTY:"非空判断"
+            field-strategy: not_empty
+                          #驼峰下划线转换
+            column-underline: true
+                          #数据库大写下划线转换
+            #capital-mode: true
+                          #逻辑删除配置
+            logic-delete-value: 0
+            logic-not-delete-value: 1
+            db-type: h2
+                  #刷新mapper 调试神器
+        refresh: true
+        # 原生配置
+    configuration:
+        map-underscore-to-camel-case: true
+        cache-enabled: false
+        jdbc-type-for-null: 'null'
+        

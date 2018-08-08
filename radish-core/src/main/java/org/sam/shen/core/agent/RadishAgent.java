@@ -161,7 +161,7 @@ public class RadishAgent implements ApplicationContextAware {
 	
 	public void destroy() {
 		// TODO
-		logger.info("destory SsyJobAgent ...");
+		logger.info("Destory RadishAgent ...");
 	}
 
 }
