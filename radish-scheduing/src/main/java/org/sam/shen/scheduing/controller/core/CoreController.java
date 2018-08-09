@@ -5,8 +5,10 @@ import org.sam.shen.core.handler.CallBackParam;
 import org.sam.shen.core.model.AgentInfo;
 import org.sam.shen.core.model.AgentPerformance;
 import org.sam.shen.core.model.Resp;
+import org.sam.shen.scheduing.service.AgentService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -24,18 +26,26 @@ import io.swagger.annotations.ApiOperation;
 @RequestMapping(value = "/core")
 public class CoreController {
 	Logger logger = LoggerFactory.getLogger(CoreController.class);
+	
+	@Autowired
+	private AgentService agentService;
 
 	/**
 	 * @author suoyao
 	 * @date 下午12:58:09
-	 * @param agent
+	 * @param agentInfo
 	 * @return
 	 * Agent Registry 
 	 */
 	@RequestMapping(value="/registry", method = RequestMethod.PUT)
-	public Resp<String> registry(@RequestBody AgentInfo agent) {
-		logger.info("Agent Registry : {}", agent.toString());
-		return Resp.SUCCESS;
+	public Resp<String> registry(@RequestBody AgentInfo agentInfo) {
+		if(logger.isInfoEnabled()) {
+			logger.info("Agent Registry : {}", agentInfo.toString());
+		}
+		if(agentService.registry(agentInfo)) {
+			return Resp.SUCCESS;
+		}
+		return Resp.FAIL;
 	}
 	
 	/**

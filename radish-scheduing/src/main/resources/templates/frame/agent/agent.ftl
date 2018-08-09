@@ -50,25 +50,27 @@
         var tableIns = table.render({
             elem: '#dateTable'                  //指定原始表格元素选择器（推荐id选择器）
             , height: vipTable.getFullHeight()    //容器高度
-            , cols: [[                  //标题栏
-                {field: 'id', title: 'ID', width: 80}
-                , {field: 'account', title: '用户名', width: 120}
-                , {field: 'auth_group_name', title: '权限组', width: 120}
-                , {field: 'last_login_time', title: '最后登录时间', width: 180}
-                , {field: 'last_login_ip', title: '最后登录IP', width: 180}
-                , {field: 'create_time', title: '创建时间', width: 180}
-                , {field: 'status', title: '状态', width: 70}
-                , {fixed: 'right', title: '操作', width: 220, align: 'center', toolbar: '#barOption'} //这里的toolbar值是模板元素的选择器
-            ]]
+            , cols: [[
+                {field: 'id', title: 'ID', width: 60}
+                , {field: 'agentName', title: '客户机名称', width: 100}
+                , {field: 'agentIp', title: '客户机IP', width: 120}
+                , {field: 'agentPort', title: '客户机端口', width: 100}
+                , {field: 'admin', title: '管理员', width: 180}
+                , {field: 'adminEmail', title: '管理员邮箱', width: 180}
+                , {field: 'adminPhone', title: '管理员电话', width: 180}
+                , {field: 'regTime', title: '注册时间', width: 260}
+                , {fixed: 'right', title: '操作', width: 200, align: 'center', toolbar: '#barOption'}
+                            ]]
             , id: 'dateTable'
-            , url: '${base}/static/json/data_table.json'
+            , url: '${base}/portal/agent/json'
             , method: 'get'
-            , page: false
+            , where: {agentName: 'sss'}
+            , page: true
             , loading: false
             , done: function (res, curr, count) {
                 //如果是异步请求数据方式，res即为你接口返回的信息。
                 //如果是直接赋值的方式，res即为：{data: [], count: 99} data为当前页数据、count为数据总长度
-                // console.log(res);
+                 console.log(res);
 
                 //得到当前页码
                 // console.log(curr);

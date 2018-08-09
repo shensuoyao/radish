@@ -28,11 +28,9 @@ public class AgentGroup extends Identity {
 		this.groupName = groupName;
 	}
 
-
 	public Date getCreateTime() {
 		return createTime;
 	}
-
 
 	public void setCreateTime(Date createTime) {
 		this.createTime = createTime;

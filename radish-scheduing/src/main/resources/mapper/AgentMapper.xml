@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Mapper接口 -->
+<mapper namespace="org.sam.shen.scheduing.mapper.AgentMapper">
+    <resultMap type="Agent" id="agentMap">
+        <result column="id" property="id"/>
+        <result column="agent_name" property="agentName"/>
+        <result column="agent_ip" property="agentIp"/>
+        <result column="agent_port" property="agentPort"/>
+        <result column="admin" property="admin"/>
+        <result column="admin_email" property="adminEmail"/>
+        <result column="admin_phone" property="adminPhone"/>
+        <result column="reg_time" property="regTime"/>
+    </resultMap>
+
+	<select id="findAgentByName" parameterType="java.lang.String" resultMap="agentMap">
+		<![CDATA[
+			SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time 
+			  FROM agent
+		]]>
+	  <where>
+      <![CDATA[
+          agent_name = #{agentName}
+              ]]>
+	  </where>
+	</select>
+	
+	<select id="queryAgentForPager" resultMap="agentMap">
+     <![CDATA[
+         SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time 
+           FROM agent
+     ]]>
+ </select>
+	
+	<insert id="saveAgent" parameterType="Agent" useGeneratedKeys="true" keyProperty="id">
+	   <![CDATA[
+        INSERT INTO agent(agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time) 
+        VALUES (#{agentName}, #{agentIp}, #{agentPort},  
+                #{admin}, #{adminEmail}, #{adminPhone}, #{regTime}) 
+        ]]>
+  </insert>
+	
+</mapper>

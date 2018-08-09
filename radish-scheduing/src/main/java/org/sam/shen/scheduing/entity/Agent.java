@@ -23,9 +23,6 @@ public class Agent extends Identity {
 	//Agent 端口号
 	private Integer agentPort;
 	
-	// Agent 注册的handler处理器 多个用 英文半角 逗号(,)隔开 
-	private String regHandler;
-	
 	// Agent 管理员
 	private String admin;
 	
@@ -37,6 +34,17 @@ public class Agent extends Identity {
 	
 	// Agent注册时间
 	private Date regTime;
+	
+	public Agent() {
+		super();
+	}
+	
+	public Agent(String agentName, String agentIp, Integer agentPort) {
+		this.agentName = agentName;
+		this.agentIp = agentIp;
+		this.agentPort = agentPort;
+		this.regTime = new Date();
+	}
 	
 	public String getAgentName() {
 		return agentName;
@@ -55,12 +63,6 @@ public class Agent extends Identity {
 	}
 	public void setAgentPort(Integer agentPort) {
 		this.agentPort = agentPort;
-	}
-	public String getRegHandler() {
-		return regHandler;
-	}
-	public void setRegHandler(String regHandler) {
-		this.regHandler = regHandler;
 	}
 	public String getAdmin() {
 		return admin;
