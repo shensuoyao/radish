@@ -18,6 +18,8 @@ public class AgentHandler extends Identity {
 	
 	private String description;
 	
+	private int enable = 1;
+	
 	public AgentHandler() {
 		super();
 	}
@@ -50,6 +52,14 @@ public class AgentHandler extends Identity {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public int getEnable() {
+		return enable;
+	}
+
+	public void setEnable(int enable) {
+		this.enable = enable;
 	}
 
 	@Override

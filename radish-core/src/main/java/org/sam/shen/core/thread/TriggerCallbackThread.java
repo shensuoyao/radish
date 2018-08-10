@@ -48,9 +48,9 @@ public class TriggerCallbackThread {
 						} else {
 							Resp<CallBackParam> resp = RestRequest.get(rpcUrl, CallBackParam.class, "agentName=".concat(agentName));
 							if(Resp.SUCCESS.getCode() == resp.getCode()) {
-								logger.info("Agent Trigger Callback {}", resp.getBody().toString());
+								logger.info("Agent Trigger Callback {}", resp.getData().toString());
 								
-								CallbackThreadPool.pushCallbackQueue(resp.getBody());
+								CallbackThreadPool.pushCallbackQueue(resp.getData());
 							}
 						}
 					} catch (Exception e) {

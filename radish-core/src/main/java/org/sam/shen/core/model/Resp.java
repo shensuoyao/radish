@@ -32,7 +32,7 @@ public class Resp<T> implements Serializable {
 	/**
 	 *  returned object body
 	 */
-	private T body;
+	private T data;
 
 	public Resp() {
 		super();
@@ -50,11 +50,11 @@ public class Resp<T> implements Serializable {
 	
 	public Resp(String msg, T t) {
 		this.msg = msg;
-		this.body = t;
+		this.data = t;
 	}
 	
 	public Resp(T t) {
-		this.body = t;
+		this.data = t;
 	}
 
 	public int getCode() {
@@ -73,12 +73,12 @@ public class Resp<T> implements Serializable {
 		this.msg = msg;
 	}
 
-	public T getBody() {
-		return body;
+	public T getData() {
+		return data;
 	}
 
-	public void setBody(T body) {
-		this.body = body;
+	public void setData(T data) {
+		this.data = data;
 	}
 
 	@Override
@@ -87,7 +87,7 @@ public class Resp<T> implements Serializable {
 	}
 	
 	public String toJsonBody() {
-		return JSON.toJSONString(body);
+		return JSON.toJSONString(data);
 	}
 	
 }

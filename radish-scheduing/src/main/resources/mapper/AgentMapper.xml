@@ -14,7 +14,19 @@
         <result column="reg_time" property="regTime"/>
     </resultMap>
 
-	<select id="findAgentByName" parameterType="java.lang.String" resultMap="agentMap">
+  <select id="findAgentById" parameterType="Long" resultMap="agentMap">
+      <![CDATA[
+          SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time 
+            FROM agent
+      ]]>
+    <where>
+    <![CDATA[
+        id = #{agentName}
+            ]]>
+    </where>
+  </select>
+
+	<select id="findAgentByName" parameterType="String" resultMap="agentMap">
 		<![CDATA[
 			SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time 
 			  FROM agent
@@ -26,11 +38,16 @@
 	  </where>
 	</select>
 	
-	<select id="queryAgentForPager" resultMap="agentMap">
-     <![CDATA[
-         SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time 
-           FROM agent
+	<select id="queryAgentForPager" resultMap="agentMap" parameterType="string">
+  <![CDATA[
+	  SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time 
+	    FROM agent 
      ]]>
+  <if test="agentName != null">
+    <where>
+        agent_name LIKE CONCAT(#{agentName}, '%')
+    </where>
+  </if>
  </select>
 	
 	<insert id="saveAgent" parameterType="Agent" useGeneratedKeys="true" keyProperty="id">

@@ -1,35 +1,22 @@
 package org.sam.shen.scheduing.entity;
 
-public class RespPager<T> {
+import org.sam.shen.core.model.Resp;
 
-	private int code;
-	
-	private String msg;
-	
+public class RespPager<T> extends Resp<T> {
+	private static final long serialVersionUID = 5933017493760651628L;
+
 	private int limit;
 	
-	private int count;
-	
-	private T data;
+	private long count;
 	
 	public RespPager(T t) {
-		this.data = t;
+		super(t);
 	}
-
-	public int getCode() {
-		return code;
-	}
-
-	public void setCode(int code) {
-		this.code = code;
-	}
-
-	public String getMsg() {
-		return msg;
-	}
-
-	public void setMsg(String msg) {
-		this.msg = msg;
+	
+	public RespPager(int limit, long count, T t) {
+		super(t);
+		this.limit = limit;
+		this.count = count;
 	}
 
 	public int getLimit() {
@@ -40,20 +27,12 @@ public class RespPager<T> {
 		this.limit = limit;
 	}
 
-	public int getCount() {
+	public long getCount() {
 		return count;
 	}
 
-	public void setCount(int count) {
+	public void setCount(long count) {
 		this.count = count;
-	}
-
-	public T getData() {
-		return data;
-	}
-
-	public void setData(T data) {
-		this.data = data;
 	}
 	
 }

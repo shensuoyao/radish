@@ -8,4 +8,5 @@ layui.config({
     vip_nav: 'vip_nav'
     , vip_tab: 'vip_tab'
     , vip_table: 'vip_table'
+    , formSelects: 'formSelects-v4'
 });

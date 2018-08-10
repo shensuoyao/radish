@@ -52,7 +52,7 @@ public class AgentHeartBeatThread extends Thread {
 						Resp<Object> resp = RestRequest.post(rpcUrl, performanceBuilder.buildMemory().buildThread().build());
 						if(Resp.SUCCESS.getCode() != resp.getCode()) {
 							logger.error(JSON.toJSONString(resp));
-							logger.error("HeartBeat failed the reason is: {}, detail: {}", resp.getMsg(), resp.getBody());
+							logger.error("HeartBeat failed the reason is: {}, detail: {}", resp.getMsg(), resp.getData());
 						}
 					} catch (Exception ex) {
 						logger.error(ex.getMessage(), ex);

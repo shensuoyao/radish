@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Mapper接口 -->
+<mapper namespace="org.sam.shen.scheduing.mapper.AgentHandlerMapper">
+    <resultMap type="AgentHandler" id="agentHandlerMap">
+        <result column="id" property="id"/>
+        <result column="agent_id" property="agentId"/>
+        <result column="handler" property="handler"/>
+        <result column="description" property="description"/>
+        <result column="enable" property="enable"/>
+    </resultMap>
+
+    <select id="queryAgentHandlerByAgentId" parameterType="Long" resultMap="agentHandlerMap">
+      <![CDATA[
+         SELECT id, agent_id, handler, description, enable 
+           FROM agent_handler
+            ]]>
+      <where>
+      <![CDATA[
+          agent_id = #{agentId}
+              ]]>
+      </where>
+    </select>
+    
+    <insert id="saveAgentHandlerBatch" parameterType="list">
+       <![CDATA[
+        INSERT INTO agent_handler(agent_id, handler, description, enable) 
+        VALUES 
+            ]]>
+     <foreach collection="list" item="item" index="index" separator=",">
+         (#{item.agentId}, #{item.handler}, #{item.description}, #{item.enable})
+     </foreach>
+  </insert>
+    
+</mapper>

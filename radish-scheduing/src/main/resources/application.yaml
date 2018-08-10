@@ -9,20 +9,18 @@ spring:
             enabled: false
     mvc: 
         static-path-pattern: /static/**
-    freemarker: 
-        request-context-attribute: request
-        enabled: true
-        suffix: .ftl
-        allow-request-override: false
-        cache: true
-        check-template-location: true
-        charset: UTF-8
+    thymeleaf: 
+        prefix: classpath:/templates/
+        suffix: .html
         content-type: text/html
-        expose-request-attributes: false
-        expose-session-attributes: false
-        expose-spring-macro-helpers: true
-        template-loader-path: classpath:/templates/
-        order: 1
+        mode: LEGACYHTML5
+        encoding: UTF-8
+        cache: false
+        chain: 
+            strategy: 
+                content: 
+                    enabled: true
+                    paths: /**
     application: 
         name: radish-scheduing
     datasource: 
