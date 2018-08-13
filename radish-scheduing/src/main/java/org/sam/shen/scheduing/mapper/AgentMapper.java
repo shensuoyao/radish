@@ -17,4 +17,6 @@ public interface AgentMapper {
 	
 	void saveAgent(Agent agent);
 	
+	void upgradeAgent(Agent agent);
+	
 }

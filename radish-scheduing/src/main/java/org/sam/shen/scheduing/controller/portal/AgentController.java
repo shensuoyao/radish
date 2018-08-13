@@ -1,5 +1,6 @@
 package org.sam.shen.scheduing.controller.portal;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.sam.shen.scheduing.entity.Agent;
@@ -81,7 +82,7 @@ public class AgentController {
 			AgentEditVo agentView = agentService.agentEditView(id);
 			model.addObject("agentView", agentView);
 		} else {
-			model.addObject("agentView", new AgentEditVo());
+			model.addObject("agentView", new AgentEditVo(new Agent(), Collections.emptyList()));
 		}
 		model.setViewName("frame/agent/agent_edit");
 		return model;
@@ -89,13 +90,13 @@ public class AgentController {
 	
 	@RequestMapping(value = "agent-edit-save", method = RequestMethod.POST)
 	public String agentEditSave(ModelAndView model, @ModelAttribute Agent agent, 
-	        @RequestParam("handlers") List<String> handlers) {
-		return "redirect:/portal/agent-edit/";
+	        @RequestParam(value = "handlers", required = false) List<String> handlers) {
+		agentService.upgradeAgent(agent, handlers);
+		return "redirect:/portal/agent-edit/" + agent.getId();
 	}
 
 	@RequestMapping(value = "agent-group", method = RequestMethod.GET)
 	public ModelAndView queryAgentGroup(ModelAndView model) {
-		
 		model.setViewName("frame/agent/agent_group");
 		return model;
 	}

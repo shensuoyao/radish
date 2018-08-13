@@ -26,19 +26,19 @@
     <div class="layui-form-item">
         <label class="layui-form-label">Agent Name</label>
         <div class="layui-input-block">
-            <input type="text" name="agentName" lay-verify="title" th:value="${agentView.agent.agentName}" autocomplete="off" placeholder="Group Name" class="layui-input">
+            <input type="text" name="agentName" readonly lay-verify="title" th:value="${agentView.agent.agentName}" autocomplete="off" placeholder="Group Name" class="layui-input">
         </div>
     </div>
     <div class="layui-form-item">
         <label class="layui-form-label">Agent IP</label>
         <div class="layui-input-block">
-            <input type="text" name="agentIp" lay-verify="th:value" th:value="${agentView.agent.agentIp}" autocomplete="off" placeholder="Group Name" class="layui-input">
+            <input type="text" name="agentIp" readonly lay-verify="th:value" th:value="${agentView.agent.agentIp}" autocomplete="off" placeholder="Group Name" class="layui-input">
         </div>
     </div>
     <div class="layui-form-item">
         <label class="layui-form-label">Agent Port</label>
         <div class="layui-input-block">
-            <input type="text" name="agentPort" lay-verify="title" th:value="${agentView.agent.agentPort}" autocomplete="off" placeholder="Group Name" class="layui-input">
+            <input type="text" name="agentPort" readonly lay-verify="title" th:value="${agentView.agent.agentPort}" autocomplete="off" placeholder="Group Name" class="layui-input">
         </div>
     </div>
     <div class="layui-form-item">
@@ -84,17 +84,14 @@
 
 <script th:src="@{/static/layui/layui.js}" charset="utf-8"></script>
 <script th:inline="javascript">
-    layui.use(['form', 'layedit', 'laydate'], function(){
+    layui.use(['form', 'layedit', 'layer', 'laydate'], function(){
         var form = layui.form
                 ,layer = layui.layer
                 ,layedit = layui.layedit;
 
         //监听提交
     form.on('submit(agentSave)', function(data){
-        layer.alert(JSON.stringify(data.field), {
-            title: '最终的提交信息'
-                  });
-        // return false;
+        layer.msg('数据正在提交 ...');
           });
 
     });

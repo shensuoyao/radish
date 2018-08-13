@@ -1,6 +1,7 @@
 package org.sam.shen.scheduing.service;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -17,7 +18,13 @@ import org.springframework.transaction.annotation.Transactional;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
+/**
+ * @author suoyao
+ * @date 2018年8月13日 上午10:16:16
+  * 
+ */
 @Service("agentService")
 public class AgentService {
 
@@ -81,6 +88,23 @@ public class AgentService {
 		Agent agent = agentMapper.findAgentById(agentId);
 		List<AgentHandler> handlers = agentHandlerMapper.queryAgentHandlerByAgentId(agentId);
 		return new AgentEditVo(agent, handlers);
+	}
+	
+	public void upgradeAgent(Agent agent, List<String> handlers) {
+		// 更新Agent admin
+		agentMapper.upgradeAgent(agent);
+		// 更新 Agent Handler
+		Map<String, Object> param = Maps.newHashMap();
+		param.put("enable", 0);
+		param.put("agentId", agent.getId());
+		// 全部更新成禁用
+		agentHandlerMapper.upgradeAgentHandler(param);
+		if(null != handlers && handlers.size() > 0) {
+			param.put("enable", 1);
+			param.put("handlers", handlers);
+			// 启用修改的部分
+			agentHandlerMapper.upgradeAgentHandler(param);
+		}
 	}
 	
 }

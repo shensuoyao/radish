@@ -57,5 +57,13 @@
                 #{admin}, #{adminEmail}, #{adminPhone}, #{regTime}) 
         ]]>
   </insert>
+  
+  <update id="upgradeAgent" parameterType="Agent">
+       <![CDATA[
+        UPDATE agent 
+           SET admin = #{admin}, admin_email = #{adminEmail}, admin_phone = #{adminPhone} 
+         WHERE id = #{id} 
+        ]]>
+  </update>
 	
 </mapper>
