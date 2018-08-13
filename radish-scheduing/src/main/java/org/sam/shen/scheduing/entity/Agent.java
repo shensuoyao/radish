@@ -35,6 +35,9 @@ public class Agent extends Identity {
 	// Agent注册时间
 	private Date regTime;
 	
+	// 状态
+	private int stat;
+	
 	public Agent() {
 		super();
 	}
@@ -44,6 +47,7 @@ public class Agent extends Identity {
 		this.agentIp = agentIp;
 		this.agentPort = agentPort;
 		this.regTime = new Date();
+		this.stat = 1;
 	}
 	
 	public String getAgentName() {
@@ -88,6 +92,15 @@ public class Agent extends Identity {
 	public void setRegTime(Date regTime) {
 		this.regTime = regTime;
 	}
+	
+	public int getStat() {
+		return stat;
+	}
+
+	public void setStat(int stat) {
+		this.stat = stat;
+	}
+
 	@Override
 	public String toString() {
 		return JSON.toJSONString(this, SerializerFeature.WriteNullStringAsEmpty);

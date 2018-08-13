@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Mapper接口 -->
+<mapper namespace="org.sam.shen.scheduing.mapper.AgentGroupMapper">
+    <resultMap type="AgentGroup" id="agentGroupMap">
+        <result column="id" property="id"/>
+        <result column="group_name" property="groupName"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <insert id="saveAgentGroup" parameterType="AgentGroup" useGeneratedKeys="true" keyProperty="id">
+     <![CDATA[
+	        INSERT INTO agent_group(group_name, create_time) 
+	        VALUES (#{groupName}, #{createTime}) 
+	        ]]>
+    </insert>
+
+    <select id="queryAgentGroup" resultMap="agentGroupMap">
+      <![CDATA[
+          SELECT id, group_name, create_time 
+            FROM agent_group 
+            ]]>
+    </select>
+</mapper>

@@ -1,5 +1,6 @@
 package org.sam.shen.scheduing.service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -7,8 +8,11 @@ import javax.annotation.Resource;
 
 import org.sam.shen.core.model.AgentInfo;
 import org.sam.shen.scheduing.entity.Agent;
+import org.sam.shen.scheduing.entity.AgentGroup;
+import org.sam.shen.scheduing.entity.AgentGroupRef;
 import org.sam.shen.scheduing.entity.AgentHandler;
 import org.sam.shen.scheduing.mapper.AgentGroupMapper;
+import org.sam.shen.scheduing.mapper.AgentGroupRefMapper;
 import org.sam.shen.scheduing.mapper.AgentHandlerMapper;
 import org.sam.shen.scheduing.mapper.AgentMapper;
 import org.sam.shen.scheduing.vo.AgentEditVo;
@@ -36,6 +40,9 @@ public class AgentService {
 	
 	@Resource
 	private AgentHandlerMapper agentHandlerMapper;
+	
+	@Resource
+	private AgentGroupRefMapper agentGroupRefMapper;
 	
 	/**
 	 *  Agent客户端注册
@@ -77,6 +84,10 @@ public class AgentService {
 		return agentMapper.queryAgentForPager(agentName);
 	}
 	
+	public List<Agent> queryAgentNoPager(String agentName) {
+		return agentMapper.queryAgentNoPager(agentName);
+	}
+	
 	/**
 	 *  Agent 客户端编辑视图业务
 	 * @author suoyao
@@ -90,6 +101,14 @@ public class AgentService {
 		return new AgentEditVo(agent, handlers);
 	}
 	
+	/**
+	 *  更新Agent客户端信息
+	 * @author suoyao
+	 * @date 上午11:17:15
+	 * @param agent
+	 * @param handlers
+	 */
+	@Transactional
 	public void upgradeAgent(Agent agent, List<String> handlers) {
 		// 更新Agent admin
 		agentMapper.upgradeAgent(agent);
@@ -107,4 +126,34 @@ public class AgentService {
 		}
 	}
 	
+	/**
+	 *  查询AgentGroup
+	 * @author suoyao
+	 * @date 下午4:56:14
+	 * @return
+	 */
+	public List<AgentGroup> queryAgentGroup() {
+		List<AgentGroup> result = agentGroupMapper.queryAgentGroup();
+		if(null == result) {
+			return Collections.emptyList();
+		}
+		return result;
+	}
+	
+	/** 
+	 *  保存Agent Group 组
+	 * @author suoyao
+	 * @date 下午4:50:30
+	 * @param agentGroup
+	 * @param agents
+	 */
+	@Transactional
+	public void saveAgentGroup(AgentGroup agentGroup, List<Long> agents) {
+		agentGroupMapper.saveAgentGroup(agentGroup);
+		if(null != agents && agents.size() > 0) {
+			List<AgentGroupRef> agentGroupRefList = Lists.newArrayList();
+			agents.forEach(agentId -> agentGroupRefList.add(new AgentGroupRef(agentId, agentGroup.getId())));
+			agentGroupRefMapper.saveAgentGroupRefBatch(agentGroupRefList);
+		}
+	}
 }

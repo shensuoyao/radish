@@ -11,24 +11,24 @@
 			"subset": [
 				{
 					"text": "Agent Group",
-					"icon": "&#xe621;",
+					"icon": "&#xe656;",
 					"href": "/radish-scheduing/portal/agent-group"
 				},
 				{
 					"text": "Agent",
-					"icon": "&#xe621;",
+					"icon": "&#xe857;",
 					"href": "/radish-scheduing/portal/agent"
 				}
 			]
 		},
 		{
 			"text": "Job 任务",
-			"icon": "&#xe635;",
+			"icon": "&#xe64e;",
 			"href": "",
 			"subset": [
 				{
 					"text": "Job",
-					"icon": "&#xe621;",
+					"icon": "&#xe635;",
 					"href": "demo/login.html"
 				}
 			]
@@ -40,7 +40,7 @@
 			"subset": [
 				{
 					"text": "报警",
-					"icon": "&#xe621;",
+					"icon": "&#xe667;",
 					"href": "demo/login.html"
 				}
 			]

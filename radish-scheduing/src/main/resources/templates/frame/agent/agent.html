@@ -57,9 +57,10 @@
            , {field: 'adminEmail', title: '管理员邮箱'}
            , {field: 'adminPhone', title: '管理员电话'}
            , {field: 'regTime', title: '注册时间'}
+           , {field: 'stat', title: '状态'}
            , {fixed: 'right', title: '操作', align: 'center', toolbar: '#barOption'} ]]
        , id: 'dateTable'
-       , url: [[@{/portal/agent/json}]]
+       , url: [[@{/portal/agent/json-pager}]]
        , method: 'get'
        , page: {
            layout: ['count', 'prev', 'page', 'next'] //自定义分页布局
@@ -84,7 +85,13 @@
         // 获取选中行
     table.on('tool(agent)', function (obj) {
         // layer.msg('123');
-        window.location.href = [[@{/portal/agent-edit/}]] + obj.data.id;
+        if(obj.event == 'edit') {
+        	window.location.href = [[@{/portal/agent-edit/}]] + obj.data.id;
+		    } else if(obj.event == 'del') {
+		    	console.log("下线Agent机器, 暂时先不做");
+		    	layer.msg('下线Agent机器, 暂时先不做');
+		    }
+        // 
             });
 
         // 刷新

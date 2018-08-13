@@ -1,8 +1,10 @@
 package org.sam.shen.scheduing.controller.portal;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
+import org.sam.shen.core.model.Resp;
 import org.sam.shen.scheduing.entity.Agent;
 import org.sam.shen.scheduing.entity.AgentGroup;
 import org.sam.shen.scheduing.entity.RespPager;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.alibaba.druid.util.StringUtils;
 import com.github.pagehelper.Page;
 
 /**
@@ -53,9 +56,9 @@ public class AgentController {
 	 * @param agentName
 	 * @return
 	 */
-	@RequestMapping(value = "agent/json", method = RequestMethod.GET)
+	@RequestMapping(value = "agent/json-pager", method = RequestMethod.GET)
 	@ResponseBody
-	public RespPager<Page<Agent>> queryAgentForJson(@RequestParam("page") Integer page,
+	public RespPager<Page<Agent>> queryAgentForJsonPager(@RequestParam("page") Integer page,
 	        @RequestParam("limit") Integer limit,
 	        @RequestParam(value = "agentName", required = false, defaultValue = "") String agentName) {
 		if(null == page) {
@@ -67,6 +70,23 @@ public class AgentController {
 		Page<Agent> pager = agentService.queryAgentForPager(page, limit, agentName);
 		return new RespPager<>(pager.getPageSize(), pager.getTotal(), pager);
 	}
+	
+	/**
+	 *  不分页的数据查询
+	 * @author suoyao
+	 * @date 下午3:45:35
+	 * @param agentName
+	 * @return
+	 */
+	@RequestMapping(value = "agent/json", method = RequestMethod.GET)
+	@ResponseBody
+	public Resp<List<Agent>> queryAgentForJson(
+	        @RequestParam(value = "agentName", required = false, defaultValue = "") String agentName) {
+		if (StringUtils.isEmpty(agentName)) {
+			return new Resp<>(Collections.emptyList());
+		}
+		return new Resp<>(agentService.queryAgentNoPager(agentName));
+	} 
 	
 	/**
 	 * Agent 编辑
@@ -88,6 +108,15 @@ public class AgentController {
 		return model;
 	}
 	
+	/**
+	 *  修改Agent客户端
+	 * @author suoyao
+	 * @date 下午4:32:22
+	 * @param model
+	 * @param agent
+	 * @param handlers
+	 * @return
+	 */
 	@RequestMapping(value = "agent-edit-save", method = RequestMethod.POST)
 	public String agentEditSave(ModelAndView model, @ModelAttribute Agent agent, 
 	        @RequestParam(value = "handlers", required = false) List<String> handlers) {
@@ -101,17 +130,44 @@ public class AgentController {
 		return model;
 	}
 	
+	/**
+	 *  查询AgentGroup Json数据集
+	 * @author suoyao
+	 * @date 下午4:58:24
+	 * @return
+	 */
+	@RequestMapping(value = "agent-group/json", method = RequestMethod.GET)
+	@ResponseBody
+	public Resp<List<AgentGroup>> queryAgentGroupForJson() {
+		return new Resp<>(agentService.queryAgentGroup());
+	}
+	
+	/**
+	 *  跳转到AgentGroup添加页面
+	 * @author suoyao
+	 * @date 下午4:33:16
+	 * @param model
+	 * @return
+	 */
 	@RequestMapping(value = "agent-group-add", method = RequestMethod.GET)
 	public ModelAndView agentGroupAdd(ModelAndView model) {
-		
 		model.setViewName("frame/agent/agent_group_add");
 		return model;
 	} 
 	
+	@RequestMapping(value = { "agent-group-edit/", "agent-group-edit/{agentGroupId}" }, method = RequestMethod.GET)
+	public ModelAndView agentGroupEdit(ModelAndView model,
+	        @PathVariable(value = "agentGroupId", required = false) Long agentGroupId) {
+		model.setViewName("frame/agent/agent_group_edit");
+		return model;
+	}
+	
 	@RequestMapping(value = "agent-group-save", method = RequestMethod.POST)
-	public ModelAndView agentGroupSave(ModelAndView model, AgentGroup agentGroup) {
-		
-		return null;
+	public String agentGroupSave(@ModelAttribute AgentGroup agentGroup,
+	        @RequestParam("agents") List<Long> agents) {
+		agentGroup.setCreateTime(new Date());
+		agentService.saveAgentGroup(agentGroup, agents);
+		return "redirect:/portal/agent-group-edit/" + agentGroup.getId();
 	}
 	
 }

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Mapper接口 -->
+<mapper namespace="org.sam.shen.scheduing.mapper.AgentGroupRefMapper">
+    <resultMap type="AgentGroupRef" id="agentGroupRefMap">
+        <result column="id" property="id"/>
+        <result column="agent_id" property="agentId"/>
+        <result column="agent_group_id" property="agentGroupId"/>
+    </resultMap>
+	
+	<select id="queryAgentGroupRefByAgentGroup" resultMap="agentGroupRefMap" parameterType="long">
+  <![CDATA[
+	  SELECT id, agent_id, agent_group_id  
+	    FROM agent_group_ref 
+     ]]>
+  <where>
+      <![CDATA[ agent_group_id = #{agentGroupId} ]]>
+  </where>
+ </select>
+ 
+ <insert id="saveAgentGroupRefBatch" parameterType="list">
+       <![CDATA[
+        INSERT INTO agent_group_ref(agent_id, agent_group_id) 
+        VALUES 
+            ]]>
+     <foreach collection="list" item="item" index="index" separator=",">
+         (#{item.agentId}, #{item.agentGroupId})
+     </foreach>
+  </insert>
+	
+</mapper>

@@ -12,11 +12,12 @@
         <result column="admin_email" property="adminEmail"/>
         <result column="admin_phone" property="adminPhone"/>
         <result column="reg_time" property="regTime"/>
+        <result column="stat" property="stat"/>
     </resultMap>
 
   <select id="findAgentById" parameterType="Long" resultMap="agentMap">
       <![CDATA[
-          SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time 
+          SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat 
             FROM agent
       ]]>
     <where>
@@ -28,7 +29,7 @@
 
 	<select id="findAgentByName" parameterType="String" resultMap="agentMap">
 		<![CDATA[
-			SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time 
+			SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat 
 			  FROM agent
 		]]>
 	  <where>
@@ -40,7 +41,7 @@
 	
 	<select id="queryAgentForPager" resultMap="agentMap" parameterType="string">
   <![CDATA[
-	  SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time 
+	  SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat 
 	    FROM agent 
      ]]>
   <if test="agentName != null">
@@ -49,12 +50,23 @@
     </where>
   </if>
  </select>
-	
+ <select id="queryAgentNoPager" resultMap="agentMap" parameterType="string">
+  <![CDATA[
+      SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat 
+        FROM agent 
+     ]]>
+  <if test="agentName != null">
+    <where>
+        agent_name LIKE CONCAT(#{agentName}, '%')
+    </where>
+  </if>
+ </select>
+ 
 	<insert id="saveAgent" parameterType="Agent" useGeneratedKeys="true" keyProperty="id">
 	   <![CDATA[
-        INSERT INTO agent(agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time) 
-        VALUES (#{agentName}, #{agentIp}, #{agentPort},  
-                #{admin}, #{adminEmail}, #{adminPhone}, #{regTime}) 
+        INSERT INTO agent(agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat) 
+        VALUES (#{agentName}, #{agentIp}, #{agentPort}, #{admin}, 
+                #{adminEmail}, #{adminPhone}, #{regTime}, #{stat}) 
         ]]>
   </insert>
   

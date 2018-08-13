@@ -1,5 +1,7 @@
 package org.sam.shen.scheduing.mapper;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.sam.shen.scheduing.entity.Agent;
@@ -14,6 +16,7 @@ public interface AgentMapper {
 	Agent findAgentById(Long id);
 	
 	Page<Agent> queryAgentForPager(@Param("agentName") String agentName);
+	List<Agent> queryAgentNoPager(@Param("agentName") String agentName);
 	
 	void saveAgent(Agent agent);
 	

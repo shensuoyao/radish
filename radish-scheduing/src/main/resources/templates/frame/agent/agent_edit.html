@@ -66,6 +66,12 @@
         </div>
     </div>
     <div class="layui-form-item">
+        <label class="layui-form-label">状态</label>
+        <div class="layui-input-block">
+            <input type="text" name="stat" readonly th:value="${agentView.agent.stat}" lay-verify="title" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
         <label class="layui-form-label">处理器</label>
         <div class="layui-input-block">
           <input name="handlers" th:each="handler : ${agentView.handlers}" th:title="${handler.handler}" type="checkbox" th:checked="${handler.enable} eq 1 ? true : false" th:value="${handler.handler}">
@@ -84,7 +90,7 @@
 
 <script th:src="@{/static/layui/layui.js}" charset="utf-8"></script>
 <script th:inline="javascript">
-    layui.use(['form', 'layedit', 'layer', 'laydate'], function(){
+    layui.use(['form', 'layedit', 'laydate'], function(){
         var form = layui.form
                 ,layer = layui.layer
                 ,layedit = layui.layedit;
