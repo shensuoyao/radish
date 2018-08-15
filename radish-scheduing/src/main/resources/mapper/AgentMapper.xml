@@ -77,5 +77,21 @@
          WHERE id = #{id} 
         ]]>
   </update>
+  
+  <select id="countAgent" parameterType="int" resultType="long">
+    <![CDATA[
+        SELECT count(*) cnt FROM agent WHERE stat = #{stat}
+         ]]>
+  </select>
+  
+  <select id="queryAgentByAgentGroup" resultMap="agentMap" parameterType="long">
+  <![CDATA[
+      SELECT a.id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat 
+        FROM agent a 
+       INNER JOIN agent_group_ref agr 
+          ON a.id = agr.agent_id 
+       WHERE agr.agent_group_id = #{agentGroupId}
+     ]]>
+ </select>
 	
 </mapper>

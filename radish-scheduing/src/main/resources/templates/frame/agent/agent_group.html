@@ -66,10 +66,13 @@
         });
 
         // 获取选中行
-        table.on('tool(agentGroupTable)', function (obj) {
-            layer.msg('123');
-            console.log(obj.data); //选中行的相关数据
-            console.log(obj.event); //如果触发的是全选，则为：all，如果触发的是单选，则为：one
+	   table.on('tool(agentGroupTable)', function (obj) {
+		     if(obj.event == 'edit') {
+	           window.location.href = [[@{/portal/agent-group-edit/}]] + obj.data.id;
+	       } else if(obj.event == 'del') {
+	           console.log("删除Agent Group, 暂时先不做");
+	           layer.msg('删除Agent Group, 暂时先不做');
+	           }
         });
 
         // 刷新
@@ -83,8 +86,8 @@
 </script>
 <!-- 表格操作按钮集 -->
 <script type="text/html" id="barOption">
-    <a class="layui-btn layui-btn-mini layui-btn-normal" lay-event="edit"><i class="layui-icon">&#xe642;</i></a>
-    <a class="layui-btn layui-btn-mini layui-btn-danger" lay-event="del"><i class="layui-icon">&#xe640;</i></a>
+    <a class="layui-btn layui-btn-sm layui-btn-normal" lay-event="edit"><i class="layui-icon">&#xe642;</i></a>
+    <a class="layui-btn layui-btn-sm layui-btn-danger" lay-event="del"><i class="layui-icon">&#xe640;</i></a>
 </script>
 </body>
 </html>

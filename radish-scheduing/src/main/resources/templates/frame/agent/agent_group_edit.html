@@ -15,13 +15,19 @@
 
 <div class="layui-row layui-col-space10 my-index-main">
 	  <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
-		    <legend>添加 Agent Group</legend>
+		    <legend>编辑 Agent Group</legend>
 		</fieldset>
 		<form class="layui-form" th:action="@{/portal/agent-group-save}" method="post">
 		    <div class="layui-form-item">
+            <label class="layui-form-label">ID</label>
+            <div class="layui-input-block">
+                <input type="text" name="id" readonly="readonly" th:value="${view.agentGroup.id}" lay-verify="title" autocomplete="off" placeholder="Group ID" class="layui-input">
+            </div>
+        </div>
+		    <div class="layui-form-item">
 		        <label class="layui-form-label">组名</label>
 		        <div class="layui-input-block">
-		            <input type="text" name="groupName" lay-verify="title" autocomplete="off" placeholder="Group Name" class="layui-input">
+		            <input type="text" name="groupName" th:value="${view.agentGroup.groupName}" lay-verify="title" autocomplete="off" placeholder="Group Name" class="layui-input">
 		        </div>
 		    </div>
 		    <div class="layui-form-item">
@@ -29,6 +35,7 @@
            <div class="layui-input-block">
             <select name="agents" xm-select="agent-select" xm-select-search="">
               <option value=""></option>
+              <option th:value="${agent.id}" th:each="agent : ${view.agents}" selected="selected" th:text="${agent.agentName}"></option>
             </select>
            </div>
        </div>

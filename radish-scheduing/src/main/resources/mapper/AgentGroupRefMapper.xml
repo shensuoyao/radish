@@ -28,5 +28,11 @@
          (#{item.agentId}, #{item.agentGroupId})
      </foreach>
   </insert>
+  
+  <delete id="deleteAgentGroupRef" parameterType="long">
+    <![CDATA[
+        DELETE FROM agent_group_ref WHERE agent_group_id = #{agentGroupId}
+         ]]>
+  </delete>
 	
 </mapper>

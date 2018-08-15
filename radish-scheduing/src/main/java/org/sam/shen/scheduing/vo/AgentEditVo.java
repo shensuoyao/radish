@@ -22,6 +22,7 @@ public class AgentEditVo {
 	}
 	
 	public AgentEditVo(Agent agent, List<AgentHandler> handlers) {
+		this();
 		this.agent = agent;
 		this.handlers = handlers;
 	}

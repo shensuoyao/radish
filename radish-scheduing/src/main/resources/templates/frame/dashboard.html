@@ -16,66 +16,66 @@
     <div class="layui-col-xs4 layui-col-sm2 layui-col-md2">
         <div class="my-nav-btn layui-clear" data-href="./demo/btn.html">
             <div class="layui-col-md5">
-                <button class="layui-btn layui-btn-big layui-btn-danger layui-icon">&#xe756;</button>
+                <button class="layui-btn layui-icon">&#xe656;</button>
             </div>
             <div class="layui-col-md7 tc">
-                <p class="my-nav-text">40</p>
-                <p class="my-nav-text layui-elip">按钮</p>
+                <p class="my-nav-text" th:text="${agentGroupCount}"></p>
+                <p class="my-nav-text layui-elip">Agent Group</p>
             </div>
         </div>
     </div>
     <div class="layui-col-xs4 layui-col-sm2 layui-col-md2">
         <div class="my-nav-btn layui-clear" data-href="./demo/form.html">
             <div class="layui-col-md5">
-                <button class="layui-btn layui-btn-big layui-btn-warm layui-icon">&#xe735;</button>
+                <button class="layui-btn layui-icon" style="background-color: #01AAED">&#xe857;</button>
             </div>
             <div class="layui-col-md7 tc">
-                <p class="my-nav-text">40</p>
-                <p class="my-nav-text layui-elip">表单</p>
+                <p class="my-nav-text" th:text="${agentOnlineCount}"></p>
+                <p class="my-nav-text layui-elip">Agent Online</p>
             </div>
         </div>
     </div>
     <div class="layui-col-xs4 layui-col-sm2 layui-col-md2">
         <div class="my-nav-btn layui-clear" data-href="./demo/table.html">
             <div class="layui-col-md5">
-                <button class="layui-btn layui-btn-big layui-icon">&#xe715;</button>
+                <button class="layui-btn layui-icon" style="background-color: #c2c2c2">&#xe857;</button>
             </div>
             <div class="layui-col-md7 tc">
-                <p class="my-nav-text">40</p>
-                <p class="my-nav-text layui-elip">表格</p>
+                <p class="my-nav-text" th:text="${agentOfflineCount}"></p>
+                <p class="my-nav-text layui-elip">Agent Offline</p>
             </div>
         </div>
     </div>
     <div class="layui-col-xs4 layui-col-sm2 layui-col-md2">
         <div class="my-nav-btn layui-clear" data-href="./demo/tab-card.html">
             <div class="layui-col-md5">
-                <button class="layui-btn layui-btn-big layui-btn-normal layui-icon">&#xe705;</button>
+                <button class="layui-btn layui-btn-big layui-bg-cyan layui-icon">&#xe635;</button>
             </div>
             <div class="layui-col-md7 tc">
-                <p class="my-nav-text">40</p>
-                <p class="my-nav-text layui-elip">选项卡</p>
+                <p class="my-nav-text">0</p>
+                <p class="my-nav-text layui-elip">Job Total</p>
             </div>
         </div>
     </div>
     <div class="layui-col-xs4 layui-col-sm2 layui-col-md2">
         <div class="my-nav-btn layui-clear" data-href="./demo/progress-bar.html">
             <div class="layui-col-md5">
-                <button class="layui-btn layui-btn-big layui-bg-cyan layui-icon">&#xe6b2;</button>
+                <button class="layui-btn layui-icon" style="background-color: #5FB878">&#xe635;</button>
             </div>
             <div class="layui-col-md7 tc">
-                <p class="my-nav-text">40</p>
-                <p class="my-nav-text layui-elip">进度条</p>
+                <p class="my-nav-text">0</p>
+                <p class="my-nav-text layui-elip">Job Success</p>
             </div>
         </div>
     </div>
     <div class="layui-col-xs4 layui-col-sm2 layui-col-md2">
         <div class="my-nav-btn layui-clear" data-href="./demo/folding-panel.html">
             <div class="layui-col-md5">
-                <button class="layui-btn layui-btn-big layui-bg-black layui-icon">&#xe698;</button>
+                <button class="layui-btn layui-icon" style="background-color: #FF5722">&#xe635;</button>
             </div>
             <div class="layui-col-md7 tc">
-                <p class="my-nav-text">40</p>
-                <p class="my-nav-text layui-elip">折叠面板</p>
+                <p class="my-nav-text">0</p>
+                <p class="my-nav-text layui-elip">Job Fail</p>
             </div>
         </div>
     </div>
@@ -130,21 +130,6 @@
                         </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>${record.fullname}</td>
-                                <td>${record.phone}</td>
-                                <td>${record.email}</td>
-                            </tr>
-                            <tr>
-                                <td>${record.fullname}</td>
-                                <td>${record.phone}</td>
-                                <td>${record.email}</td>
-                            </tr>
-                            <tr>
-                                <td>${record.fullname}</td>
-                                <td>${record.phone}</td>
-                                <td>${record.email}</td>
-                            </tr>
                             <tr>
                                 <td>${record.fullname}</td>
                                 <td>${record.phone}</td>

@@ -16,6 +16,7 @@ import org.sam.shen.scheduing.mapper.AgentGroupRefMapper;
 import org.sam.shen.scheduing.mapper.AgentHandlerMapper;
 import org.sam.shen.scheduing.mapper.AgentMapper;
 import org.sam.shen.scheduing.vo.AgentEditVo;
+import org.sam.shen.scheduing.vo.AgentGroupEditView;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -97,7 +98,12 @@ public class AgentService {
 	 */
 	public AgentEditVo agentEditView(Long agentId) {
 		Agent agent = agentMapper.findAgentById(agentId);
-		List<AgentHandler> handlers = agentHandlerMapper.queryAgentHandlerByAgentId(agentId);
+		List<AgentHandler> handlers = Lists.newArrayList();
+		if(null != agent) {
+			handlers = agentHandlerMapper.queryAgentHandlerByAgentId(agentId);
+		} else {
+			agent = new Agent();
+		}
 		return new AgentEditVo(agent, handlers);
 	}
 	
@@ -149,11 +155,51 @@ public class AgentService {
 	 */
 	@Transactional
 	public void saveAgentGroup(AgentGroup agentGroup, List<Long> agents) {
-		agentGroupMapper.saveAgentGroup(agentGroup);
+		if(null == agentGroup.getId()) {
+			// 新增
+			agentGroupMapper.saveAgentGroup(agentGroup);
+		} else {
+			// 修改
+			agentGroupMapper.upgradeAgentGroup(agentGroup);
+			if(null != agents && agents.size() > 0) {
+				// 删除原来的关联
+				agentGroupRefMapper.deleteAgentGroupRef(agentGroup.getId());
+			}
+		}
 		if(null != agents && agents.size() > 0) {
 			List<AgentGroupRef> agentGroupRefList = Lists.newArrayList();
 			agents.forEach(agentId -> agentGroupRefList.add(new AgentGroupRef(agentId, agentGroup.getId())));
 			agentGroupRefMapper.saveAgentGroupRefBatch(agentGroupRefList);
 		}
 	}
+	
+	public Long countAgentGroup() {
+		Long count = agentGroupMapper.countAgentGroup();
+		return null == count ? 0 : count;
+	}
+	
+	public Long countAgent(int stat) {
+		Long count = agentMapper.countAgent(stat);
+		return null == count ? 0 : count;
+	}
+	
+	/**
+	 *  客户端组编辑视图
+	 * @author suoyao
+	 * @date 下午2:03:27
+	 * @param agentGroupId
+	 * @return
+	 */
+	@Transactional
+	public AgentGroupEditView agentGroupEditView(Long agentGroupId) {
+		AgentGroup agentGroup = agentGroupMapper.findAgentGroupById(agentGroupId);
+		List<Agent> agents = Lists.newArrayList();
+		if(null != agentGroup) {
+			agents = agentMapper.queryAgentByAgentGroup(agentGroupId);
+		} else {
+			agentGroup = new AgentGroup();
+		}
+		return new AgentGroupEditView(agentGroup, agents);
+	}
+	
 }

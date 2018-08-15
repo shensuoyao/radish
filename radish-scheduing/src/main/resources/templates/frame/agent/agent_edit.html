@@ -20,61 +20,61 @@
     <div class="layui-form-item">
         <label class="layui-form-label">ID</label>
         <div class="layui-input-inline layui-col-xs6">
-            <input type="text" name="id" readonly lay-verify="title" th:value="${agentView.agent.id}" autocomplete="off" class="layui-input layui-col-xs6">
+            <input type="text" name="id" disabled="disabled" lay-verify="title" th:value="${view.agent.id}" autocomplete="off" class="layui-input layui-col-xs6">
         </div>
     </div>
     <div class="layui-form-item">
         <label class="layui-form-label">Agent Name</label>
         <div class="layui-input-block">
-            <input type="text" name="agentName" readonly lay-verify="title" th:value="${agentView.agent.agentName}" autocomplete="off" placeholder="Group Name" class="layui-input">
+            <input type="text" name="agentName" disabled="disabled" lay-verify="title" th:value="${view.agent.agentName}" autocomplete="off" placeholder="Group Name" class="layui-input">
         </div>
     </div>
     <div class="layui-form-item">
         <label class="layui-form-label">Agent IP</label>
         <div class="layui-input-block">
-            <input type="text" name="agentIp" readonly lay-verify="th:value" th:value="${agentView.agent.agentIp}" autocomplete="off" placeholder="Group Name" class="layui-input">
+            <input type="text" name="agentIp" disabled="disabled" lay-verify="th:value" th:value="${view.agent.agentIp}" autocomplete="off" placeholder="Group Name" class="layui-input">
         </div>
     </div>
     <div class="layui-form-item">
         <label class="layui-form-label">Agent Port</label>
         <div class="layui-input-block">
-            <input type="text" name="agentPort" readonly lay-verify="title" th:value="${agentView.agent.agentPort}" autocomplete="off" placeholder="Group Name" class="layui-input">
+            <input type="text" name="agentPort" disabled="disabled" lay-verify="title" th:value="${view.agent.agentPort}" autocomplete="off" placeholder="Group Name" class="layui-input">
         </div>
     </div>
     <div class="layui-form-item">
         <label class="layui-form-label">管理员</label>
         <div class="layui-input-block">
-            <input type="text" name="admin" lay-verify="title" th:value="${agentView.agent.admin}" autocomplete="off" placeholder="管理员" class="layui-input">
+            <input type="text" name="admin" lay-verify="title" th:value="${view.agent.admin}" autocomplete="off" placeholder="管理员" class="layui-input">
         </div>
     </div>
     <div class="layui-form-item">
         <label class="layui-form-label">管理员邮箱</label>
         <div class="layui-input-block">
-            <input type="text" name="adminEmail" th:value="${agentView.agent.adminEmail}" lay-verify="title" autocomplete="off" placeholder="管理员邮箱" class="layui-input">
+            <input type="text" name="adminEmail" th:value="${view.agent.adminEmail}" lay-verify="title" autocomplete="off" placeholder="管理员邮箱" class="layui-input">
         </div>
     </div>
     <div class="layui-form-item">
         <label class="layui-form-label">管理员手机</label>
         <div class="layui-input-block">
-            <input type="text" name="adminPhone" th:value="${agentView.agent.adminPhone}" lay-verify="title" autocomplete="off" placeholder="管理员手机号" class="layui-input">
+            <input type="text" name="adminPhone" th:value="${view.agent.adminPhone}" lay-verify="title" autocomplete="off" placeholder="管理员手机号" class="layui-input">
         </div>
     </div>
     <div class="layui-form-item">
         <label class="layui-form-label">注册时间</label>
         <div class="layui-input-block">
-            <input type="text" name="regTime" readonly th:value="${agentView.agent.regTime}" lay-verify="title" autocomplete="off" class="layui-input">
+            <input type="text" name="regTime" disabled="disabled" th:value="${view.agent.regTime}" lay-verify="title" autocomplete="off" class="layui-input">
         </div>
     </div>
     <div class="layui-form-item">
         <label class="layui-form-label">状态</label>
         <div class="layui-input-block">
-            <input type="text" name="stat" readonly th:value="${agentView.agent.stat}" lay-verify="title" autocomplete="off" class="layui-input">
+            <input type="checkbox" disabled="disabled" name="stat" lay-skin="switch" lay-text="Online|Offline" th:checked="${view.agent.stat} eq 1 ? true : false" />
         </div>
     </div>
     <div class="layui-form-item">
         <label class="layui-form-label">处理器</label>
         <div class="layui-input-block">
-          <input name="handlers" th:each="handler : ${agentView.handlers}" th:title="${handler.handler}" type="checkbox" th:checked="${handler.enable} eq 1 ? true : false" th:value="${handler.handler}">
+          <input name="handlers" th:each="handler : ${view.handlers}" th:title="${handler.handler}" type="checkbox" th:checked="${handler.enable} eq 1 ? true : false" th:value="${handler.handler}">
         </div>
     </div>
 

@@ -9,6 +9,14 @@
         <result column="create_time" property="createTime"/>
     </resultMap>
 
+    <select id="findAgentGroupById" parameterType="long" resultMap="agentGroupMap">
+      <![CDATA[
+          SELECT id, group_name, create_time 
+            FROM agent_group 
+           WHERE id = #{id}
+            ]]>
+    </select>
+
     <insert id="saveAgentGroup" parameterType="AgentGroup" useGeneratedKeys="true" keyProperty="id">
      <![CDATA[
 	        INSERT INTO agent_group(group_name, create_time) 
@@ -22,4 +30,18 @@
             FROM agent_group 
             ]]>
     </select>
+    
+    <select id="countAgentGroup" resultType="long">
+       <![CDATA[
+           SELECT count(*) cnt FROM agent_group;
+                ]]>
+    </select>
+    
+    <update id="upgradeAgentGroup" parameterType="AgentGroup">
+        <![CDATA[
+           UPDATE agent_group 
+              SET group_name = #{groupName}, create_time = #{createTime} 
+            WHERE id = #{id} 
+                ]]>
+    </update>
 </mapper>

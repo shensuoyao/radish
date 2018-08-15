@@ -10,6 +10,7 @@ import org.sam.shen.scheduing.entity.AgentGroup;
 import org.sam.shen.scheduing.entity.RespPager;
 import org.sam.shen.scheduing.service.AgentService;
 import org.sam.shen.scheduing.vo.AgentEditVo;
+import org.sam.shen.scheduing.vo.AgentGroupEditView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -99,10 +100,9 @@ public class AgentController {
 	@RequestMapping(value = {"agent-edit/", "agent-edit/{id}"}, method = RequestMethod.GET)
 	public ModelAndView agentEdit(ModelAndView model, @PathVariable(value = "id", required = false) Long id) {
 		if(null != id) {
-			AgentEditVo agentView = agentService.agentEditView(id);
-			model.addObject("agentView", agentView);
+			model.addObject("view", agentService.agentEditView(id));
 		} else {
-			model.addObject("agentView", new AgentEditVo(new Agent(), Collections.emptyList()));
+			model.addObject("view", new AgentEditVo(new Agent(), Collections.emptyList()));
 		}
 		model.setViewName("frame/agent/agent_edit");
 		return model;
@@ -155,9 +155,22 @@ public class AgentController {
 		return model;
 	} 
 	
-	@RequestMapping(value = { "agent-group-edit/", "agent-group-edit/{agentGroupId}" }, method = RequestMethod.GET)
+	/**
+	 *   编辑Agent Group
+	 * @author suoyao
+	 * @date 下午2:09:40
+	 * @param model
+	 * @param id
+	 * @return
+	 */
+	@RequestMapping(value = { "agent-group-edit/", "agent-group-edit/{id}" }, method = RequestMethod.GET)
 	public ModelAndView agentGroupEdit(ModelAndView model,
-	        @PathVariable(value = "agentGroupId", required = false) Long agentGroupId) {
+	        @PathVariable(value = "id", required = false) Long id) {
+		if(null != id) {
+			model.addObject("view", agentService.agentGroupEditView(id));
+		} else {
+			model.addObject("view", new AgentGroupEditView(new AgentGroup(), Collections.emptyList()));
+		}
 		model.setViewName("frame/agent/agent_group_edit");
 		return model;
 	}
