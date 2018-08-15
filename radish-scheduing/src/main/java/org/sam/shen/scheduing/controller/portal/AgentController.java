@@ -125,7 +125,7 @@ public class AgentController {
 	}
 
 	@RequestMapping(value = "agent-group", method = RequestMethod.GET)
-	public ModelAndView queryAgentGroup(ModelAndView model) {
+	public ModelAndView toAgentGroupPage(ModelAndView model) {
 		model.setViewName("frame/agent/agent_group");
 		return model;
 	}

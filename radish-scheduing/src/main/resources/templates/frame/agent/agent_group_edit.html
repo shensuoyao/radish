@@ -13,7 +13,7 @@
 </head>
 <body class="body">
 
-<div class="layui-row layui-col-space10 my-index-main">
+<div class="layui-row layui-col-space10 my-index-main layui-col-md8">
 	  <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
 		    <legend>编辑 Agent Group</legend>
 		</fieldset>
@@ -33,7 +33,7 @@
 		    <div class="layui-form-item">
            <label class="layui-form-label">选择机组</label>
            <div class="layui-input-block">
-            <select name="agents" xm-select="agent-select" xm-select-search="">
+            <select name="agents" xm-select="agent-select" xm-select-search="" xm-select-search-type="dl">
               <option value=""></option>
               <option th:value="${agent.id}" th:each="agent : ${view.agents}" selected="selected" th:text="${agent.agentName}"></option>
             </select>
@@ -73,8 +73,7 @@
            if(!searchVal){//如果搜索内容为空,就不触发搜索
               return false;
 			      } else if(searchVal.length < 3) {
-			    	    console.log(searchVal.length);
-			    	  return false;
+			    	   return false;
 			             }
 			      return true;
 			         },

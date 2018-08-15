@@ -29,7 +29,7 @@
 				{
 					"text": "Job",
 					"icon": "&#xe635;",
-					"href": "demo/login.html"
+					"href": "/radish-scheduing/job"
 				}
 			]
 		},
