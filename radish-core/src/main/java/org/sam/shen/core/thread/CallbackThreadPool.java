@@ -54,7 +54,7 @@ public class CallbackThreadPool {
 	}
 	
 	public static void registryCallbackThread(CallbackThread callbackThread) {
-		callbackThreadRepository.put(callbackThread.getJobId(), callbackThread);
+		callbackThreadRepository.put(callbackThread.getCallId(), callbackThread);
 	}
 	
 	/**

@@ -11,21 +11,21 @@ public abstract class AbsHandler implements IHandler {
 	Logger logger = LoggerFactory.getLogger(AbsHandler.class);
 	
 	/**
-	 *  任务ID
+	 *  任务调用ID
 	 */
-	protected String jobId;
+	protected String callId;
 	
 	/**
 	 *  日志文件名
 	 */
 	protected String logFileName;
 
-	public String getJobId() {
-		return jobId;
+	public String getCallId() {
+		return callId;
 	}
 
-	public void setJobId(String jobId) {
-		this.jobId = jobId;
+	public void setCallId(String callId) {
+		this.callId = callId;
 	}
 
 	public String getLogFileName() {
@@ -46,16 +46,16 @@ public abstract class AbsHandler implements IHandler {
 
 	@Override
 	public Resp<String> destory() {
-		logger.info("RADISH ------------> 清理任务:  {}",  jobId);
-		setJobId(null);
+		logger.info("RADISH ------------> 清理任务:  {}",  callId);
+		setCallId(null);
 		setLogFileName(null);
 		return null;
 	}
 
 	@Override
 	public Resp<String> start(CallBackParam param) throws Exception {
-		this.jobId = param.getJobId();
-		this.logFileName = RadishLogFileAppender.makeLogFile(this.jobId);
+		this.callId = param.getJobId();
+		this.logFileName = RadishLogFileAppender.makeLogFile(this.callId);
 		return execute(param);
 	}
 

@@ -48,5 +48,15 @@
         </if>
     </where>
   </update>
+  
+  <select id="queryAgentHandlerByAgentName" parameterType="string" resultType="map">
+	   <![CDATA[
+	        SELECT ah.id, agent_id agentId, handler, description, enable, a.agent_name agentName  
+           FROM agent_handler ah 
+          INNER JOIN agent a 
+             ON a.id = ah.agent_id
+          WHERE ah.enable = 1 AND a.agent_name LIKE CONCAT(#{agentName}, '%')
+	       ]]>
+  </select>
     
 </mapper>

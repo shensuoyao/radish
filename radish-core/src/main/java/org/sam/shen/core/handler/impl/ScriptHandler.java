@@ -34,7 +34,7 @@ public class ScriptHandler extends AbsHandler {
 	public Resp<String> execute(CallBackParam param) throws Exception {
 
 		// make script file
-		scriptFileName = FilenameUtils.getFullPath(getLogFileName()).concat(getJobId())
+		scriptFileName = FilenameUtils.getFullPath(getLogFileName()).concat(getCallId())
 		        .concat(param.getHandlerType().getSuffix());
 		ScriptUtil.markScriptFile(scriptFileName, param.getCmd());
 

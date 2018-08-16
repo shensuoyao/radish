@@ -2,7 +2,10 @@ package org.sam.shen.scheduing.controller.portal;
 
 import java.util.Arrays;
 
+import org.quartz.SchedulerException;
 import org.sam.shen.core.constants.HandlerTypeEnum;
+import org.sam.shen.scheduing.entity.JobInfo;
+import org.sam.shen.scheduing.scheduler.RadishDynamicScheduler;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -35,6 +38,15 @@ public class JobController {
 	@RequestMapping(value = "job-save", method = RequestMethod.POST)
 	public ModelAndView jobSave(ModelAndView model, @RequestParam("cmd") String cmd) {
 		model.setViewName("frame/job/job_add");
+		try {
+			JobInfo jobInfo = new JobInfo();
+			jobInfo.setId(1L);
+			jobInfo.setJobName("测试");
+			jobInfo.setCron("*/5 * * * * ?");
+			RadishDynamicScheduler.addJob(jobInfo);
+		} catch (SchedulerException e) {
+			e.printStackTrace();
+		}
 		return model;
 	}
 	

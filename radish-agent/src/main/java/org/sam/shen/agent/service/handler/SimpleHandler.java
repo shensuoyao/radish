@@ -19,8 +19,8 @@ public class SimpleHandler extends AbsHandler {
 	@Override
 	public Resp<String> execute(CallBackParam param) throws Exception {
 		for(String p : param.getParams()) {
-			logger.info(getJobId() + " 处理任务 p : {}", p);
-			log(Arrays.asList("jobId = " + getJobId() + " ====>>> " + p));
+			logger.info(getCallId() + " 处理任务 p : {}", p);
+			log(Arrays.asList("jobId = " + getCallId() + " ====>>> " + p));
 			TimeUnit.SECONDS.sleep(10);
 		}
 		return null;

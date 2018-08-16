@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.swagger.annotations.ApiOperation;
-
 /**
  * @author suoyao
  * @date 2018年7月31日 下午3:23:54
@@ -55,7 +53,6 @@ public class CoreController {
 	 * Agent heartbeat call
 	 */
 	@RequestMapping(value = "/heartbeat", method = RequestMethod.POST)
-	@ApiOperation(value="Registry Agent Machines", notes="Agent Registry heartbeat to Scheduing")
 	public Resp<AgentPerformance> heartbeat(@RequestBody AgentPerformance agent) {
 		logger.info("agent {} heartbeat: {}", agent.getAgentName(), agent.toString());
 		return new Resp<>(agent);
@@ -69,7 +66,6 @@ public class CoreController {
 	 *   触发任务接口
 	 */
 	@RequestMapping(value = "/triggercall", method = RequestMethod.GET)
-	@ApiOperation(value="Registry Agent Machines", notes="Agent Trigger Task from Scheduing")
 	public Resp<CallBackParam> triggerCall(@RequestParam("agentName") String agentName) {
 		// 根据Agent机器性能决定是否能抢到任务
 		CallBackParam callBackParam = new CallBackParam();

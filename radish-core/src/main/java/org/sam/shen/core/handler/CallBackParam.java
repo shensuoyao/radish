@@ -13,6 +13,10 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 public class CallBackParam implements Serializable {
 	private static final long serialVersionUID = 7917928400746337287L;
 	
+	// 执行调用ID
+	private String callId;
+	
+	// 配置的Job任务ID
 	private String jobId;
 
 	private String registryHandler;
@@ -22,6 +26,14 @@ public class CallBackParam implements Serializable {
 	private HandlerTypeEnum handlerType;
 
 	private String[] params;
+
+	public String getCallId() {
+		return callId;
+	}
+
+	public void setCallId(String callId) {
+		this.callId = callId;
+	}
 
 	public String getJobId() {
 		return jobId;

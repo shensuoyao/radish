@@ -15,4 +15,6 @@ public interface AgentHandlerMapper {
 	
 	void upgradeAgentHandler(Map<String, Object> param);
 	
+	List<Map<String, ?>> queryAgentHandlerByAgentName(String agentName);
+	
 }

@@ -11,7 +11,7 @@
     <link rel="stylesheet" th:href="@{/static/layui/css/modules/formSelects-v4.css}"/>
     <link rel="stylesheet" th:href="@{/static/js/codemirror/lib/codemirror.css}"/>
     <link rel="stylesheet" th:href="@{/static/js/codemirror/addon/display/fullscreen.css}" />
-    <link rel="stylesheet" th:href="@{/static/js/codemirror/theme/solarized.css}"/>
+    <link rel="stylesheet" th:href="@{/static/js/codemirror/theme/idea.css}"/>
     <link rel="icon" th:href="@{/static/image/code.png}">
 </head>
 <body class="body">
@@ -67,13 +67,13 @@
 	    <div class="layui-form-item">
           <label class="layui-form-label">选择处理器</label>
           <div class="layui-input-block">
-              <select name="agents" xm-select="agent-select" xm-select-search="">
+              <select name="agents" xm-select="agent-select" xm-select-search="" xm-select-search-type="dl">
 	              <option value=""></option>
 	            </select>
           </div>
       </div>
 	    <div class="layui-form-item">
-	        <label class="layui-form-label">状态</label>
+	        <label class="layui-form-label">启用 / 禁用</label>
 	        <div class="layui-input-block">
 	            <input type="checkbox" name="stat" lay-skin="switch" lay-text="启用|禁用" th:checked="true" />
 	        </div>
@@ -124,7 +124,7 @@
 
         formSelects.config('agent-select', {
             type: 'get',
-            searchUrl: [[@{/portal/agent/json}]],
+            searchUrl: [[@{/common/agent-handler-group}]],
             searchName: 'agentName',
             searchVal: '',
             delay: 500,
@@ -151,14 +151,14 @@
             indentUnit: 4,
             styleActiveLine: true,
             lineNumbers: true,
-            theme: "solarized light"
+            theme: "idea"
             	 });
 		    var codeEditor = CodeMirror.fromTextArea(document.getElementById("cmdCode"), {
 		    	indentUnit: 4,
 		    	styleActiveLine: true,
 		    	lineNumbers: true,
 		    	matchBrackets: true,
-		    	theme: "solarized light",
+		    	theme: "idea",
 		    	mode: "shell"
 		    	//mode: "python",
 		    	//mode: "text/x-java",

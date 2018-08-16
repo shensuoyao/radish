@@ -14,19 +14,19 @@ import org.slf4j.LoggerFactory;
 public class CallbackThread extends Thread {
 	Logger logger = LoggerFactory.getLogger(CallbackThread.class);
 	
-	private String jobId;
+	private String callId;
 	
 	private CallBackParam callbackParam;
 	
 	private IHandler handler;
-	
-	public String getJobId() {
-		return jobId;
+
+	public String getCallId() {
+		return callId;
 	}
 
 	public CallbackThread(CallBackParam callbackParam) {
 		this.callbackParam = callbackParam;
-		this.jobId = callbackParam.getJobId();
+		this.callId = callbackParam.getCallId();
 	}
 	
 	@Override
@@ -59,7 +59,7 @@ public class CallbackThread extends Thread {
 	
 	public void close() {
 		this.handler = null;
-		CallbackThreadPool.unRegistryCallback(jobId);
+		CallbackThreadPool.unRegistryCallback(callId);
 		CallbackThreadPool.loadHandlerNow(callbackParam.getRegistryHandler());
 	}
 	
