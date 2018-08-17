@@ -30,8 +30,13 @@ public class PerformanceBuilder {
 		performance.setAgentName(IpUtil.getHostName());
 	}
 	
-	public PerformanceBuilder(String agentName) {
+	public PerformanceBuilder(Long agentId) {
 		this();
+		performance.setAgentId(agentId);
+	}
+	
+	public PerformanceBuilder(Long agentId, String agentName) {
+		this(agentId);
 		performance.setAgentName(agentName);
 	}
 	

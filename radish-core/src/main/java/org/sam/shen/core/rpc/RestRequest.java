@@ -1,5 +1,6 @@
 package org.sam.shen.core.rpc;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +17,14 @@ import org.apache.http.message.BasicHeader;
 import org.sam.shen.core.model.Resp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.util.MimeType;
+import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -118,9 +126,41 @@ public class RestRequest {
 			}
 			url = url.concat(Joiner.on("&").join(variables));
 		}
-		
 		Resp<Object> resp = restTemplate.getForObject(url, Resp.class, uriVariables);
 		
+		return new Resp<T>(JSON.parseObject(resp.toJsonBody(), clazz));
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static <T> Resp<T> get(String url, Class<T> clazz, Object... uriVariables) throws Exception {
+		Resp<Object> resp = restTemplate.getForObject(url, Resp.class, uriVariables);
+		return new Resp<T>(JSON.parseObject(resp.toJsonBody(), clazz));
+	}
+	
+	/**
+	 * 发送/获取 服务端数据(主要用于解决发送put,delete方法无返回值问题).
+	 * @author suoyao
+	 * @date 下午12:50:47
+	 * @param url          绝对地址
+	 * @param method       请求方法
+	 * @param request      请求参数
+	 * @param bodyType     返回类型
+	 * @param              <T> 返回类型
+	 * @return             返回结果(响应体)
+	 */
+	@SuppressWarnings("rawtypes")
+	public static <T> Resp<T> exchange(String url, HttpMethod method, Object request, Class<T> clazz) {
+		// 请求头
+		HttpHeaders headers = new HttpHeaders();
+		MimeType mimeType = MimeTypeUtils.parseMimeType("application/json");
+		MediaType mediaType = new MediaType(mimeType.getType(), mimeType.getSubtype(), Charset.forName("UTF-8"));
+		// 请求体
+		headers.setContentType(mediaType);
+		// 发送请求
+		HttpEntity<Object> entity = new HttpEntity<>(request, headers);
+		ResponseEntity<Resp> resultEntity = restTemplate.exchange(url, method, entity, Resp.class);
+		
+		Resp<?> resp = resultEntity.getBody();
 		return new Resp<T>(JSON.parseObject(resp.toJsonBody(), clazz));
 	}
 	

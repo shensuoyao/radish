@@ -58,5 +58,11 @@
           WHERE ah.enable = 1 AND a.agent_name LIKE CONCAT(#{agentName}, '%')
 	       ]]>
   </select>
+  
+  <delete id="deleteAgentHandler" parameterType="long">
+    <![CDATA[
+         DELETE FROM agent_handler WHERE agent_id = #{agentId} 
+           ]]>
+  </delete>
     
 </mapper>

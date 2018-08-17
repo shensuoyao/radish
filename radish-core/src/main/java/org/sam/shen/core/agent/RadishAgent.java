@@ -8,14 +8,16 @@ import org.sam.shen.core.handler.IHandler;
 import org.sam.shen.core.handler.anno.AHandler;
 import org.sam.shen.core.log.RadishLogFileAppender;
 import org.sam.shen.core.model.AgentInfo;
+import org.sam.shen.core.model.Resp;
 import org.sam.shen.core.rpc.RestRequest;
 import org.sam.shen.core.thread.AgentHeartBeatThread;
-import org.sam.shen.core.thread.TriggerCallbackThread;
+import org.sam.shen.core.thread.TriggerEventThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Maps;
@@ -138,7 +140,10 @@ public class RadishAgent implements ApplicationContextAware {
 			
 			// Registry Agent to Scheduing
 			try {
-				RestRequest.put(scheduingServer.concat("/core/registry"), agentInfo);
+				Resp<Long> resp = RestRequest.exchange(scheduingServer.concat("/core/registry"), HttpMethod.PUT, agentInfo, Long.class);
+				if(Resp.SUCCESS.getCode() == resp.getCode()) {
+					agentInfo.setAgentId(resp.getData());
+				}
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 				return 1;
@@ -149,14 +154,14 @@ public class RadishAgent implements ApplicationContextAware {
 	
 	// ---------------------- Init Agent HeartBeat ----------------------
 	public void initHeartBeat() {
-		AgentHeartBeatThread.getInstance().start(scheduingServer.concat("/core/heartbeat"),
+		AgentHeartBeatThread.getInstance().start(scheduingServer.concat("/core/heartbeat"), agentInfo.getAgentId(),
 		        agentInfo.getAgentName());
 	}
 	
 	// ---------------------- Init Agent Trigger Callback ----------------------
 	public void initTriggerCallback() {
-		TriggerCallbackThread.getInstance().start(scheduingServer.concat("/core/triggercall"),
-		        agentInfo.getAgentName());
+		TriggerEventThread.getInstance().start(scheduingServer.concat("/core/triggercall/{agentId}"),
+		        agentInfo.getAgentId());
 	}
 	
 	public void destroy() {

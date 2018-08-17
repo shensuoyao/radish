@@ -3,7 +3,7 @@ package org.sam.shen.core.thread;
 import java.util.concurrent.TimeUnit;
 
 import org.sam.shen.core.constants.Constant;
-import org.sam.shen.core.handler.CallBackParam;
+import org.sam.shen.core.event.HandlerEvent;
 import org.sam.shen.core.model.Resp;
 import org.sam.shen.core.rpc.RestRequest;
 import org.slf4j.Logger;
@@ -14,12 +14,12 @@ import org.slf4j.LoggerFactory;
  * @date 2018年8月1日 下午5:06:18
   *  触发任务线程
  */
-public class TriggerCallbackThread {
-	private static Logger logger = LoggerFactory.getLogger(TriggerCallbackThread.class);
+public class TriggerEventThread {
+	private static Logger logger = LoggerFactory.getLogger(TriggerEventThread.class);
 	
-	private static TriggerCallbackThread instance = new TriggerCallbackThread();
+	private static TriggerEventThread instance = new TriggerEventThread();
 
-	public static TriggerCallbackThread getInstance() {
+	public static TriggerEventThread getInstance() {
 		return instance;
 	}
 	
@@ -35,7 +35,7 @@ public class TriggerCallbackThread {
 	
 	private volatile boolean toStop = false;
 	
-	public void start(String rpcUrl, String agentName) {
+	public void start(String rpcUrl, Long agentId) {
 		triggerThread = new Thread(new Runnable() {
 			
 			@Override
@@ -46,7 +46,7 @@ public class TriggerCallbackThread {
 						if (CallbackThreadPool.isCallbackQueueFull()) {
 							logger.error("Callback Queue is Full.");
 						} else {
-							Resp<CallBackParam> resp = RestRequest.get(rpcUrl, CallBackParam.class, "agentName=".concat(agentName));
+							Resp<HandlerEvent> resp = RestRequest.get(rpcUrl, HandlerEvent.class, agentId);
 							if(Resp.SUCCESS.getCode() == resp.getCode()) {
 								logger.info("Agent Trigger Callback {}", resp.getData().toString());
 								

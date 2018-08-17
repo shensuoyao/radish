@@ -1,8 +1,8 @@
-package org.sam.shen.core.handler;
+package org.sam.shen.core.event;
 
 import java.io.Serializable;
 
-import org.sam.shen.core.constants.HandlerTypeEnum;
+import org.sam.shen.core.constants.HandlerType;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
@@ -10,7 +10,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 /**
  * @author suoyao Job execution parameters
  */
-public class CallBackParam implements Serializable {
+public class HandlerEvent implements Serializable {
 	private static final long serialVersionUID = 7917928400746337287L;
 	
 	// 执行调用ID
@@ -23,7 +23,7 @@ public class CallBackParam implements Serializable {
 
 	private String cmd;
 	
-	private HandlerTypeEnum handlerType;
+	private HandlerType handlerType;
 
 	private String[] params;
 
@@ -59,11 +59,11 @@ public class CallBackParam implements Serializable {
 		this.cmd = cmd;
 	}
 
-	public HandlerTypeEnum getHandlerType() {
+	public HandlerType getHandlerType() {
 		return handlerType;
 	}
 
-	public void setHandlerType(HandlerTypeEnum handlerType) {
+	public void setHandlerType(HandlerType handlerType) {
 		this.handlerType = handlerType;
 	}
 

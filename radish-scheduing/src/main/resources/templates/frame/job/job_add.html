@@ -24,7 +24,7 @@
 	    <div class="layui-form-item">
 	        <label class="layui-form-label">任务名</label>
 	        <div class="layui-input-block">
-	            <input type="text" name="jobName" lay-verify="title" autocomplete="off" placeholder="任务名" class="layui-input">
+	            <input type="input" name="jobName" lay-verify="title" autocomplete="off" placeholder="任务名" class="layui-input">
 	        </div>
 	    </div>
 	    <div class="layui-form-item">
@@ -33,14 +33,14 @@
 	            <div class="layui-input-inline">
 	                <select name="jobType" class="layui-input" lay-filter="jobType">
 										  <option value=""></option>
-										  <option th:each="enum : ${jobType}" th:value="${enum}" th:text="${enum}" />
+										  <option th:each="enum : ${jobType}" th:value="${enum}" th:text="${enum.desc}" />
 										</select>
 	            </div>
 	        </div>
 	        <div class="layui-inline">
-              <label class="layui-form-label">定时器</label>
+              <label class="layui-form-label" id="crontab-tips"><i class="layui-icon">&#xe60b;</i> 调度规则</label>
               <div class="layui-input-inline">
-                  <input type="tel" name="phone" autocomplete="off" placeholder="0 * 1 * * ?" class="layui-input">
+                  <input type="input" name="crontab" autocomplete="off" placeholder="0 * 1 * * ?" class="layui-input">
               </div>
           </div>
 	    </div>
@@ -48,34 +48,59 @@
 	       <div class="layui-inline">
 	           <label class="layui-form-label">管理员</label>
 	           <div class="layui-input-inline">
-	               <input type="text" name="admin" autocomplete="off" placeholder="管理员" class="layui-input">
+	               <input type="input" name="admin" autocomplete="off" placeholder="管理员" class="layui-input">
 	           </div>
 	       </div>
 	       <div class="layui-inline">
 	           <label class="layui-form-label">管理员手机</label>
 	           <div class="layui-input-inline">
-                <input type="text" name="adminPhone" autocomplete="off" placeholder="管理员手机号" class="layui-input">
+                <input type="input" name="adminPhone" autocomplete="off" placeholder="管理员手机号" class="layui-input">
             </div>
 	       </div>
 	    </div>
 	    <div class="layui-form-item">
 	        <label class="layui-form-label">管理员邮箱</label>
 	        <div class="layui-input-block">
-	            <input type="text" name="adminEmail" lay-verify="title" autocomplete="off" placeholder="管理员邮箱" class="layui-input">
+	            <input type="input" name="adminEmail" lay-verify="title" autocomplete="off" placeholder="管理员邮箱" class="layui-input">
 	        </div>
 	    </div>
 	    <div class="layui-form-item">
-          <label class="layui-form-label">选择处理器</label>
+          <label class="layui-form-label">父节点任务</label>
           <div class="layui-input-block">
-              <select name="agents" xm-select="agent-select" xm-select-search="" xm-select-search-type="dl">
+              <select name="parentJob" xm-select="parent-select" xm-select-search="" xm-select-search-type="dl">
+                  <option value=""></option>
+                </select>
+          </div>
+      </div>
+      <div class="layui-form-item">
+          <label class="layui-form-label">子节点任务</label>
+          <div class="layui-input-block">
+              <select name="chidJob" xm-select="child-select" xm-select-search="" xm-select-search-type="dl">
+                  <option value=""></option>
+                </select>
+          </div>
+      </div>
+	    <div class="layui-form-item">
+          <label class="layui-form-label">处理器</label>
+          <div class="layui-input-block">
+              <select name="agentHandlers" xm-select="agent-select" xm-select-search="" xm-select-search-type="dl">
 	              <option value=""></option>
 	            </select>
+          </div>
+      </div>
+      <div class="layui-form-item">
+          <label class="layui-form-label">失败策略</label>
+          <div class="layui-input-block">
+              <select name="handlerFailStrategy" class="layui-input" lay-filter="handlerFailStrategy">
+               <option value=""></option>
+               <option th:each="enum : ${handlerFailStrategy}" th:value="${enum}" th:text="${enum.desc}" />
+              </select>
           </div>
       </div>
 	    <div class="layui-form-item">
 	        <label class="layui-form-label">启用 / 禁用</label>
 	        <div class="layui-input-block">
-	            <input type="checkbox" name="stat" lay-skin="switch" lay-text="启用|禁用" th:checked="true" />
+	            <input type="checkbox" name="enable" lay-skin="switch" value="1" lay-text="启用|禁用"  th:checked="true" />
 	        </div>
 	    </div>
 	    <div class="layui-form-item">
@@ -89,7 +114,7 @@
 	    <div class="layui-form-item">
          <label class="layui-form-label" id="param-tips"><i class="layui-icon">&#xe60b;</i> 附加参数</label>
          <div class="layui-input-block layui-collapse">
-            <textarea class="layui-textarea" id="params" name="params"></textarea>
+            <textarea class="layui-textarea" id="parameter" name="parameter"></textarea>
          </div>
       </div>
 	
@@ -122,7 +147,26 @@
                 ,formSelects = layui.formSelects
                 ,$ = layui.jquery;
 
+                    // 处理器下拉选择框
         formSelects.config('agent-select', {
+            type: 'get',
+            searchUrl: [[@{/common/agent-handler-group}]],
+            searchName: 'agentName',
+            searchVal: '',
+            delay: 500,
+            beforeSearch: function(id, url, searchVal){         //搜索前调用此方法, return true将触发搜索, 否则不触发
+                // console.log(searchVal);
+           if(!searchVal){//如果搜索内容为空,就不触发搜索
+              return false;
+                  } else if(searchVal.length < 3) {
+                      return false;
+                         }
+                  return true;
+                     },
+                clearInput: true,
+        }, false);
+                    // 父节点任务下拉选择
+        formSelects.config('parent-select', {
             type: 'get',
             searchUrl: [[@{/common/agent-handler-group}]],
             searchName: 'agentName',
@@ -138,16 +182,40 @@
                   return true;
                      },
                 clearInput: true,
-        }, false)
-        
+        }, false);
+                  // 子节点任务下拉选择
+        formSelects.config('child-select', {
+            type: 'get',
+            searchUrl: [[@{/common/agent-handler-group}]],
+            searchName: 'agentName',
+            searchVal: '',
+            delay: 500,
+            beforeSearch: function(id, url, searchVal){         //搜索前调用此方法, return true将触发搜索, 否则不触发
+                console.log(searchVal);
+           if(!searchVal){//如果搜索内容为空,就不触发搜索
+              return false;
+                  } else if(searchVal.length < 3) {
+                      return false;
+                         }
+                  return true;
+                     },
+                clearInput: true,
+        }, false);
+
         $("#param-tips").on('click', function() {
         	  var tip = "如 Handler 处理器需要附加参数, 请为每一条参数独立一行, 多行将会作为多条参数处理...";
 	        	layer.tips(tip,  '#param-tips', {
 	                tips: [3, '#78BA32']
 	                    });
                   }); 
+        $("#crontab-tips").on('click', function() {
+            var tip = "crontab 可以不填写, 如果不填写, 则该Job为手动触发任务, 需要手动触发执行.";
+              layer.tips(tip,  '#crontab-tips', {
+                  tips: [1, '#78BA32']
+                      });
+                }); 
         
-        var paramsEditor = CodeMirror.fromTextArea(document.getElementById("params"), {
+        var paramsEditor = CodeMirror.fromTextArea(document.getElementById("parameter"), {
             indentUnit: 4,
             styleActiveLine: true,
             lineNumbers: true,

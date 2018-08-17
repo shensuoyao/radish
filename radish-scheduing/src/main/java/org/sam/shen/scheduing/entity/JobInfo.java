@@ -3,7 +3,8 @@ package org.sam.shen.scheduing.entity;
 import java.util.Date;
 import java.util.List;
 
-import org.sam.shen.core.constants.HandlerTypeEnum;
+import org.sam.shen.core.constants.HandlerFailStrategy;
+import org.sam.shen.core.constants.HandlerType;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
@@ -15,9 +16,12 @@ public class JobInfo extends Identity {
 	
 	private String jobName;    // quartz group is jobName.hashCode()
 	
-	private String cron;	// quartz 表达式
+	private String crontab;	// quartz 表达式
 	
-	private HandlerTypeEnum jobType;    // job 类型
+	private HandlerType jobType;    // job 类型
+	
+	// 任务事件处理失败策略 {丢弃 / 重试 / 告警}
+	private HandlerFailStrategy handlerFailStrategy;
 	
 	private String admin;
 	
@@ -25,9 +29,15 @@ public class JobInfo extends Identity {
 	
 	private String adminEmail;
 	
+	private String agentIds;    // 任务执行的Agent客户端ID, 多个用逗号分隔
+	
 	private List<String> executorHandlers;	    // 执行任务的Handler处理器
 	
+	private String cmd;    // 执行命令
+	
 	private List<String> params;    // 附加参数
+	
+	private String parentJobId;    // 父任务ID
 	
 	private String childJobId;    // 子任务Id
 	
@@ -49,20 +59,28 @@ public class JobInfo extends Identity {
 		this.jobName = jobName;
 	}
 
-	public String getCron() {
-		return cron;
+	public String getCrontab() {
+		return crontab;
 	}
 
-	public void setCron(String cron) {
-		this.cron = cron;
+	public void setCrontab(String crontab) {
+		this.crontab = crontab;
 	}
 
-	public HandlerTypeEnum getJobType() {
+	public HandlerType getJobType() {
 		return jobType;
 	}
 
-	public void setJobType(HandlerTypeEnum jobType) {
+	public void setJobType(HandlerType jobType) {
 		this.jobType = jobType;
+	}
+
+	public HandlerFailStrategy getHandlerFailStrategy() {
+		return handlerFailStrategy;
+	}
+
+	public void setHandlerFailStrategy(HandlerFailStrategy handlerFailStrategy) {
+		this.handlerFailStrategy = handlerFailStrategy;
 	}
 
 	public String getAdmin() {
@@ -89,12 +107,28 @@ public class JobInfo extends Identity {
 		this.adminEmail = adminEmail;
 	}
 
+	public String getAgentIds() {
+		return agentIds;
+	}
+
+	public void setAgentIds(String agentIds) {
+		this.agentIds = agentIds;
+	}
+
 	public List<String> getExecutorHandlers() {
 		return executorHandlers;
 	}
 
 	public void setExecutorHandlers(List<String> executorHandlers) {
 		this.executorHandlers = executorHandlers;
+	}
+
+	public String getCmd() {
+		return cmd;
+	}
+
+	public void setCmd(String cmd) {
+		this.cmd = cmd;
 	}
 
 	public List<String> getParams() {
@@ -111,6 +145,14 @@ public class JobInfo extends Identity {
 
 	public void setChildJobId(String childJobId) {
 		this.childJobId = childJobId;
+	}
+
+	public String getParentJobId() {
+		return parentJobId;
+	}
+
+	public void setParentJobId(String parentJobId) {
+		this.parentJobId = parentJobId;
 	}
 
 	public Date getCreateTime() {

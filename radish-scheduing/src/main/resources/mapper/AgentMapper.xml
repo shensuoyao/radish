@@ -70,6 +70,14 @@
         ]]>
   </insert>
   
+  <update id="upgradeAgentAdmin" parameterType="Agent">
+       <![CDATA[
+        UPDATE agent 
+           SET admin = #{admin}, admin_email = #{adminEmail}, admin_phone = #{adminPhone} 
+         WHERE id = #{id} 
+        ]]>
+  </update>
+  
   <update id="upgradeAgent" parameterType="Agent">
        <![CDATA[
         UPDATE agent 

@@ -13,6 +13,9 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
  */
 public class AgentInfo {
 
+	// Agent注册之后获得, 全局唯一
+	private Long agentId;
+	
 	// Agent 管理名(需要唯一)
 	private String agentName;
 	
@@ -24,6 +27,14 @@ public class AgentInfo {
 	
 	// Agent中注册的Handler处理器集合
 	private Map<String, String> registryHandlerMap;
+
+	public Long getAgentId() {
+		return agentId;
+	}
+
+	public void setAgentId(Long agentId) {
+		this.agentId = agentId;
+	}
 
 	public String getAgentName() {
 		return agentName;

@@ -5,8 +5,8 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.sam.shen.core.event.HandlerEvent;
 import org.sam.shen.core.handler.AbsHandler;
-import org.sam.shen.core.handler.CallBackParam;
 import org.sam.shen.core.handler.anno.AHandler;
 import org.sam.shen.core.model.Resp;
 import org.sam.shen.core.util.ScriptUtil;
@@ -31,15 +31,15 @@ public class ScriptHandler extends AbsHandler {
 	}
 
 	@Override
-	public Resp<String> execute(CallBackParam param) throws Exception {
+	public Resp<String> execute(HandlerEvent event) throws Exception {
 
 		// make script file
 		scriptFileName = FilenameUtils.getFullPath(getLogFileName()).concat(getCallId())
-		        .concat(param.getHandlerType().getSuffix());
-		ScriptUtil.markScriptFile(scriptFileName, param.getCmd());
+		        .concat(event.getHandlerType().getSuffix());
+		ScriptUtil.markScriptFile(scriptFileName, event.getCmd());
 
 		// invoke
-		int exitValue = ScriptUtil.execToFile(param.getHandlerType().getCmd(), scriptFileName, getLogFileName(), param.getParams());
+		int exitValue = ScriptUtil.execToFile(event.getHandlerType().getCmd(), scriptFileName, getLogFileName(), event.getParams());
 
 		if (exitValue == 0) {
 			return Resp.SUCCESS;

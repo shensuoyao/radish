@@ -66,7 +66,7 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 		// CronTrigger : TriggerKey + cronExpression //
 		// withMisfireHandlingInstructionDoNothing 忽略掉调度终止过程中忽略的调度
 		TriggerKey triggerKey = TriggerKey.triggerKey(qz_name, qz_group);
-		CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(jobInfo.getCron())
+		CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(jobInfo.getCrontab())
 		        .withMisfireHandlingInstructionDoNothing();
 		CronTrigger cronTrigger = TriggerBuilder.newTrigger().withIdentity(triggerKey).withSchedule(cronScheduleBuilder)
 		        .build();

@@ -31,6 +31,7 @@
 <script type="text/javascript" th:src="@{/static/js/index.js}"></script>
 <!-- 表格操作按钮集 -->
 <script type="text/html" id="barOption">
+    <a class="layui-btn layui-btn-sm" lay-event="view"><i class="layui-icon">&#xe621;</i></a>
     <a class="layui-btn layui-btn-sm layui-btn-normal" lay-event="edit"><i class="layui-icon">&#xe642;</i></a>
     <a class="layui-btn layui-btn-sm layui-btn-danger" lay-event="del"><i class="layui-icon">&#xe640;</i></a>
 </script>
@@ -86,7 +87,9 @@
         // 获取选中行
     table.on('tool(agent)', function (obj) {
         // layer.msg('123');
-        if(obj.event == 'edit') {
+        if(obj.event == 'view') {
+        	layer.msg('查看任务视图');
+        } else if(obj.event == 'edit') {
         	window.location.href = [[@{/portal/agent-edit/}]] + obj.data.id;
 		    } else if(obj.event == 'del') {
 		    	console.log("下线Agent机器, 暂时先不做");

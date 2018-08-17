@@ -20,6 +20,8 @@ public interface AgentMapper {
 	
 	void saveAgent(Agent agent);
 	
+	void upgradeAgentAdmin(Agent agent);
+	
 	void upgradeAgent(Agent agent);
 	
 	Long countAgent(int stat);

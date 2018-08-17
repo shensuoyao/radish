@@ -14,6 +14,11 @@ public class AgentPerformance implements Serializable {
 	private static final long serialVersionUID = 3571458226767022113L;
 
 	/**
+	 *  客户端唯一Id
+	 */
+	private Long agentId;
+	
+	/**
 	 * 客户端名称
 	 */
 	private String agentName;
@@ -72,6 +77,14 @@ public class AgentPerformance implements Serializable {
 	 * 总线程数
 	 */
 	private int totalThread;
+
+	public Long getAgentId() {
+		return agentId;
+	}
+
+	public void setAgentId(Long agentId) {
+		this.agentId = agentId;
+	}
 
 	public String getAgentName() {
 		return agentName;

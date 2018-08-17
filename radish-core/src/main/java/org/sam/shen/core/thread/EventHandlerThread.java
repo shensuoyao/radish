@@ -1,7 +1,7 @@
 package org.sam.shen.core.thread;
 
 import org.sam.shen.core.agent.RadishAgent;
-import org.sam.shen.core.handler.CallBackParam;
+import org.sam.shen.core.event.HandlerEvent;
 import org.sam.shen.core.handler.IHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,12 +11,12 @@ import org.slf4j.LoggerFactory;
  * @date 2018年8月2日 下午2:06:44
   *  执行任务线程
  */
-public class CallbackThread extends Thread {
-	Logger logger = LoggerFactory.getLogger(CallbackThread.class);
+public class EventHandlerThread extends Thread {
+	Logger logger = LoggerFactory.getLogger(EventHandlerThread.class);
 	
 	private String callId;
 	
-	private CallBackParam callbackParam;
+	private HandlerEvent event;
 	
 	private IHandler handler;
 
@@ -24,9 +24,9 @@ public class CallbackThread extends Thread {
 		return callId;
 	}
 
-	public CallbackThread(CallBackParam callbackParam) {
-		this.callbackParam = callbackParam;
-		this.callId = callbackParam.getCallId();
+	public EventHandlerThread(HandlerEvent event) {
+		this.event = event;
+		this.callId = event.getCallId();
 	}
 	
 	@Override
@@ -36,7 +36,7 @@ public class CallbackThread extends Thread {
 		}
 		try {
 			handler.init();
-			handler.start(callbackParam);
+			handler.start(event);
 		} catch (Exception e) {
 			logger.error("Start Handler Error.", e);
 		} finally {
@@ -46,21 +46,21 @@ public class CallbackThread extends Thread {
 	}
 	
 	public boolean runable() {
-		IHandler registryHandler = RadishAgent.loadJobHandler(callbackParam.getRegistryHandler());
+		IHandler registryHandler = RadishAgent.loadJobHandler(event.getRegistryHandler());
 		if(null == registryHandler) {
-			logger.error("Callback Handler Is Not Found. {}", callbackParam.getRegistryHandler());
+			logger.error("Callback Handler Is Not Found. {}", event.getRegistryHandler());
 			return Boolean.FALSE;
 		}
 		this.handler = registryHandler;
 		CallbackThreadPool.registryCallbackThread(this);
-		CallbackThreadPool.registryHandlerNow(callbackParam.getRegistryHandler(), handler);
+		CallbackThreadPool.registryHandlerNow(event.getRegistryHandler(), handler);
 		return Boolean.TRUE;
 	}
 	
 	public void close() {
 		this.handler = null;
 		CallbackThreadPool.unRegistryCallback(callId);
-		CallbackThreadPool.loadHandlerNow(callbackParam.getRegistryHandler());
+		CallbackThreadPool.loadHandlerNow(event.getRegistryHandler());
 	}
 	
 }

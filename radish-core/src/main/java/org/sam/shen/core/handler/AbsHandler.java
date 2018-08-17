@@ -2,6 +2,7 @@ package org.sam.shen.core.handler;
 
 import java.util.List;
 
+import org.sam.shen.core.event.HandlerEvent;
 import org.sam.shen.core.log.RadishLogFileAppender;
 import org.sam.shen.core.model.Resp;
 import org.slf4j.Logger;
@@ -36,7 +37,7 @@ public abstract class AbsHandler implements IHandler {
 		this.logFileName = logFileName;
 	}
 
-	public abstract Resp<String> execute(CallBackParam param) throws Exception;
+	public abstract Resp<String> execute(HandlerEvent event) throws Exception;
 
 	@Override
 	public Resp<String> init() {
@@ -53,7 +54,7 @@ public abstract class AbsHandler implements IHandler {
 	}
 
 	@Override
-	public Resp<String> start(CallBackParam param) throws Exception {
+	public Resp<String> start(HandlerEvent param) throws Exception {
 		this.callId = param.getJobId();
 		this.logFileName = RadishLogFileAppender.makeLogFile(this.callId);
 		return execute(param);

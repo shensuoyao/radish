@@ -34,13 +34,13 @@ public class AgentHeartBeatThread extends Thread {
 	
 	private volatile boolean toStop = false;
 	
-	public void start(final String rpcUrl, String agentName) {
+	public void start(final String rpcUrl, Long agentId, String agentName) {
 		//必须设置客户端名称, 否则无法判断是哪一台机器的心跳
 		if(StringUtils.isEmpty(agentName)) {
 			logger.warn(">>>>>>>>>>> radish, agent heartbeat fail, agentName is null.");
 		}
 		
-		PerformanceBuilder performanceBuilder = new PerformanceBuilder(agentName);
+		PerformanceBuilder performanceBuilder = new PerformanceBuilder(agentId, agentName);
 		
 		beatThread = new Thread(new Runnable() {
 			

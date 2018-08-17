@@ -53,12 +53,10 @@ public class AgentService {
 	 * @return
 	 */
 	@Transactional
-	public Boolean registry(AgentInfo agentInfo) {
+	public Long registry(AgentInfo agentInfo) {
 		Agent agent = agentMapper.findAgentByName(agentInfo.getAgentName());
-		if(null != agent && agent.getAgentName().equals(agentInfo.getAgentName())) {
-			return Boolean.FALSE;
-		}
 		if(null == agent) {
+			// null的时候为新注册客户端
 			agent = new Agent(agentInfo.getAgentName(), agentInfo.getAgentIp(), agentInfo.getAgentPort());
 			agentMapper.saveAgent(agent);
 			List<AgentHandler> agentHandlerList = Lists.newArrayList();
@@ -67,8 +65,24 @@ public class AgentService {
 				        .add(new AgentHandler(agent.getId(), handler, agentInfo.getRegistryHandlerMap().get(handler)));
 			}
 			agentHandlerMapper.saveAgentHandlerBatch(agentHandlerList);
+		} else if(agent.getAgentName().equals(agentInfo.getAgentName()) && agent.getAgentIp().equals(agentInfo.getAgentIp()) ) {
+			// Agent不为空, 并且客户端的IP相同, 则判断为同一Agent 更新
+			agent.setAgentPort(agentInfo.getAgentPort());
+			agentMapper.upgradeAgent(agent);
+			// 删除所有的 Agent Handler
+			agentHandlerMapper.deleteAgentHandler(agent.getId());
+			// 新增Agent Handler
+			List<AgentHandler> agentHandlerList = Lists.newArrayList();
+			for (String handler : agentInfo.getRegistryHandlerMap().keySet()) {
+				agentHandlerList
+				        .add(new AgentHandler(agent.getId(), handler, agentInfo.getRegistryHandlerMap().get(handler)));
+			}
+			agentHandlerMapper.saveAgentHandlerBatch(agentHandlerList);
+		} else {
+			// 客户端名重复
+			return -1L;
 		}
-		return Boolean.TRUE;
+		return agent.getId();
 	}
 	
 	/**
@@ -117,7 +131,7 @@ public class AgentService {
 	@Transactional
 	public void upgradeAgent(Agent agent, List<String> handlers) {
 		// 更新Agent admin
-		agentMapper.upgradeAgent(agent);
+		agentMapper.upgradeAgentAdmin(agent);
 		// 更新 Agent Handler
 		Map<String, Object> param = Maps.newHashMap();
 		param.put("enable", 0);

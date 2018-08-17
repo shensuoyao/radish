@@ -1,5 +1,6 @@
 package org.sam.shen.core.handler;
 
+import org.sam.shen.core.event.HandlerEvent;
 import org.sam.shen.core.model.Resp;
 
 /**
@@ -8,7 +9,7 @@ import org.sam.shen.core.model.Resp;
  */
 public interface IHandler {
 	
-	Resp<String> start(CallBackParam param) throws Exception;
+	Resp<String> start(HandlerEvent event) throws Exception;
 	
 	/**
 	 * @return

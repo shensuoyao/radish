@@ -5,7 +5,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 
-import org.sam.shen.core.handler.CallBackParam;
+import org.apache.commons.lang3.StringUtils;
+import org.sam.shen.core.event.HandlerEvent;
 import org.sam.shen.core.handler.IHandler;
 import org.sam.shen.core.util.SystemUtil;
 import org.slf4j.Logger;
@@ -24,7 +25,7 @@ public class CallbackThreadPool {
 	/**
 	 *  执行任务线程注册容器
 	 */
-	private static ConcurrentHashMap<String, CallbackThread> callbackThreadRepository = new ConcurrentHashMap<>();
+	private static ConcurrentHashMap<String, EventHandlerThread> callbackThreadRepository = new ConcurrentHashMap<>();
 	
 	static {
 		fixedThreadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(SystemUtil.cpuCount() + 1);
@@ -45,15 +46,13 @@ public class CallbackThreadPool {
 	}
 	
 	public static void run() {
-		CallBackParam callBackParam = takeCallbackQueue();
-		if(null != callBackParam) {
-			/*CallbackThread callbackThread = new CallbackThread(callBackParam);
-			registryCallbackThread(callbackThread);*/
-			fixedThreadPool.execute(new CallbackThread(callBackParam));
+		HandlerEvent callBackParam = takeCallbackQueue();
+		if(null != callBackParam && StringUtils.isNotEmpty(callBackParam.getCallId())) {
+			fixedThreadPool.execute(new EventHandlerThread(callBackParam));
 		}
 	}
 	
-	public static void registryCallbackThread(CallbackThread callbackThread) {
+	public static void registryCallbackThread(EventHandlerThread callbackThread) {
 		callbackThreadRepository.put(callbackThread.getCallId(), callbackThread);
 	}
 	
@@ -67,19 +66,19 @@ public class CallbackThreadPool {
 		loadCallbackThread(jobId);
 	}
 	
-	public static CallbackThread loadCallbackThread(String jobId) {
+	public static EventHandlerThread loadCallbackThread(String jobId) {
 		return callbackThreadRepository.remove(jobId);
 	}
 	
 	public static void stopCallbackThread(String jobId) {
-		CallbackThread callbackThread = loadCallbackThread(jobId);
+		EventHandlerThread callbackThread = loadCallbackThread(jobId);
 		callbackThread.interrupt();
 	}
 	
 	/**
 	 * 等待执行的任务队列
 	 */
-	private static LinkedBlockingQueue<CallBackParam> callBackQueue = new LinkedBlockingQueue<>(SystemUtil.cpuCount() * 3);
+	private static LinkedBlockingQueue<HandlerEvent> eventsQueue = new LinkedBlockingQueue<>(SystemUtil.cpuCount() * 3);
 	
 	/**
 	 * 正在执行任务的 Handler
@@ -93,11 +92,11 @@ public class CallbackThreadPool {
 	 *  检查任务执行队列是否满的
 	 */
 	public static boolean isCallbackQueueFull() {
-		return callBackQueue.remainingCapacity() <= 0;
+		return eventsQueue.remainingCapacity() <= 0;
 	}
 	
 	public static int callbackQueueSize() {
-		return callBackQueue.size();
+		return eventsQueue.size();
 	}
 	
 	public static IHandler loadHandlerNow(String registryHandler) {
@@ -112,10 +111,10 @@ public class CallbackThreadPool {
 	  *  将等待执行的任务放入队列中
 	 * @author suoyao
 	 * @date 下午3:46:05
-	 * @param callBackParam
+	 * @param event
 	 */
-	public static void pushCallbackQueue(CallBackParam callBackParam) {
-		callBackQueue.add(callBackParam);
+	public static void pushCallbackQueue(HandlerEvent event) {
+		eventsQueue.add(event);
 	}
 	
 	/**
@@ -124,18 +123,18 @@ public class CallbackThreadPool {
 	 * @return
 	 *  从队列中获取需要执行的任务
 	 */
-	public static CallBackParam takeCallbackQueue() {
-		synchronized (callBackQueue) {
-			CallBackParam callbackParam = null;
+	public static HandlerEvent takeCallbackQueue() {
+		synchronized (eventsQueue) {
+			HandlerEvent callbackParam = null;
 			try {
-				callbackParam = callBackQueue.peek();
+				callbackParam = eventsQueue.peek();
 				if(null == callbackParam) {
 					return null;
 				}
 				if(handlerNow.containsKey(callbackParam.getRegistryHandler())) {
 					return null;
 				}
-				return callBackQueue.take();
+				return eventsQueue.take();
 			} catch (InterruptedException e) {
 				logger.error(e.getMessage(), e);
 			}

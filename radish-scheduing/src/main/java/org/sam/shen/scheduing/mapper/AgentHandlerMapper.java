@@ -17,4 +17,6 @@ public interface AgentHandlerMapper {
 	
 	List<Map<String, ?>> queryAgentHandlerByAgentName(String agentName);
 	
+	void deleteAgentHandler(Long agentId);
+	
 }

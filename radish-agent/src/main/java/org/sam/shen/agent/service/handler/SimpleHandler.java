@@ -3,8 +3,8 @@ package org.sam.shen.agent.service.handler;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
+import org.sam.shen.core.event.HandlerEvent;
 import org.sam.shen.core.handler.AbsHandler;
-import org.sam.shen.core.handler.CallBackParam;
 import org.sam.shen.core.handler.anno.AHandler;
 import org.sam.shen.core.model.Resp;
 import org.slf4j.Logger;
@@ -17,8 +17,8 @@ public class SimpleHandler extends AbsHandler {
 	Logger logger = LoggerFactory.getLogger(SimpleHandler.class);
 
 	@Override
-	public Resp<String> execute(CallBackParam param) throws Exception {
-		for(String p : param.getParams()) {
+	public Resp<String> execute(HandlerEvent event) throws Exception {
+		for(String p : event.getParams()) {
 			logger.info(getCallId() + " 处理任务 p : {}", p);
 			log(Arrays.asList("jobId = " + getCallId() + " ====>>> " + p));
 			TimeUnit.SECONDS.sleep(10);
