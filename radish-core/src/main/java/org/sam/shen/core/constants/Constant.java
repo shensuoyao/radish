@@ -9,4 +9,6 @@ public class Constant {
 	public static final int BEAT_TIMEOUT = 5;
 	
 	public static final int SUCCESS_EXIT = 0;
+	
+	public static final String SPLIT_CHARACTER = "-";
 }

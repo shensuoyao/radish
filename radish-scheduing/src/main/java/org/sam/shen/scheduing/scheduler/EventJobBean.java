@@ -13,12 +13,12 @@ import org.slf4j.LoggerFactory;
  * @date 2018年8月16日 下午2:45:49
   * 
  */
-public class CallbackJobBean implements Job {
-	private static final Logger logger = LoggerFactory.getLogger(CallbackJobBean.class);
+public class EventJobBean implements Job {
+	private static final Logger logger = LoggerFactory.getLogger(EventJobBean.class);
 
-	private JobInfo jobInfo;
+	private Long jobId;
 	
-	public CallbackJobBean() {
+	public EventJobBean() {
 		super();
 	}
 	
@@ -29,7 +29,9 @@ public class CallbackJobBean implements Job {
 			logger.info("Hello World!  MyJob is executing.");
 		}
 		// JobInfo jobInfo = (JobInfo) dataMap.get("jobInfo");
-		logger.info("job name is : {}", jobInfo.getJobName());
+		logger.info("job id is : {}", jobId);
+		JobInfo jobInfo = RadishDynamicScheduler.jobInfoMapper.findJobInfoById(jobId);
+		logger.info(jobInfo.toString());
 		logger.info("============");
 		destory();
 	}  
@@ -48,8 +50,8 @@ public class CallbackJobBean implements Job {
 		// TODO
 	}
 
-	public void setJobInfo(JobInfo jobInfo) {
-		this.jobInfo = jobInfo;
+	public void setJobId(Long jobId) {
+		this.jobId = jobId;
 	}
 	
 }

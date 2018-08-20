@@ -43,6 +43,17 @@ spring:
         time-between-eviction-runs-millis: 60000
         min-evictable-idle-time-millis: 300000
         filters: stat
+    redis: 
+        database: 1
+        host: 192.168.140.216
+        port: 6379
+        password: pass
+        timeout: 3000
+        pool:
+            max-active: 8
+            max-wait: -1
+            max-idle: 8
+            min-idle: 0
 
 #mybatis
 mybatis: 

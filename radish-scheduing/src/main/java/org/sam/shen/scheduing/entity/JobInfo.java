@@ -1,7 +1,6 @@
 package org.sam.shen.scheduing.entity;
 
 import java.util.Date;
-import java.util.List;
 
 import org.sam.shen.core.constants.HandlerFailStrategy;
 import org.sam.shen.core.constants.HandlerType;
@@ -29,13 +28,15 @@ public class JobInfo extends Identity {
 	
 	private String adminEmail;
 	
-	private String agentIds;    // 任务执行的Agent客户端ID, 多个用逗号分隔
-	
-	private List<String> executorHandlers;	    // 执行任务的Handler处理器
+	/**
+	 * 执行任务的Handler处理器
+	 * 格式: agentId-handler[, agentId-handler ...]
+	 */
+	private String executorHandlers;
 	
 	private String cmd;    // 执行命令
 	
-	private List<String> params;    // 附加参数
+	private String params;    // 附加参数
 	
 	private String parentJobId;    // 父任务ID
 	
@@ -107,19 +108,11 @@ public class JobInfo extends Identity {
 		this.adminEmail = adminEmail;
 	}
 
-	public String getAgentIds() {
-		return agentIds;
-	}
-
-	public void setAgentIds(String agentIds) {
-		this.agentIds = agentIds;
-	}
-
-	public List<String> getExecutorHandlers() {
+	public String getExecutorHandlers() {
 		return executorHandlers;
 	}
 
-	public void setExecutorHandlers(List<String> executorHandlers) {
+	public void setExecutorHandlers(String executorHandlers) {
 		this.executorHandlers = executorHandlers;
 	}
 
@@ -131,11 +124,11 @@ public class JobInfo extends Identity {
 		this.cmd = cmd;
 	}
 
-	public List<String> getParams() {
+	public String getParams() {
 		return params;
 	}
 
-	public void setParams(List<String> params) {
+	public void setParams(String params) {
 		this.params = params;
 	}
 

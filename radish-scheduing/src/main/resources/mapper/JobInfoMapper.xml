@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Mapper接口 -->
+<mapper namespace="org.sam.shen.scheduing.mapper.JobInfoMapper">
+    <resultMap type="JobInfo" id="jobInfoMap">
+        <result column="id" property="id"/>
+        <result column="job_name" property="jobName"/>
+        <result column="crontab" property="crontab"/>
+        <result column="job_type" property="jobType"/>
+        <result column="handler_fail_strategy" property="handlerFailStrategy"/>
+        <result column="admin" property="admin"/>
+        <result column="admin_email" property="adminEmail"/>
+        <result column="admin_phone" property="adminPhone"/>
+        <result column="executor_handlers" property="executorHandlers"/>
+        <result column="cmd" property="cmd"/>
+        <result column="params" property="params"/>
+        <result column="parent_job_id" property="parentJobId"/>
+        <result column="child_job_id" property="childJobId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="enable" property="enable"/>
+    </resultMap>
+
+	<insert id="saveJobInfo" parameterType="JobInfo" useGeneratedKeys="true" keyProperty="id">
+	   <![CDATA[
+        INSERT INTO job_info(job_name, crontab, job_type, handler_fail_strategy, admin, admin_email, admin_phone, 
+                    executor_handlers, cmd, params, parent_job_id, child_job_id, create_time, update_time, enable) 
+        VALUES (#{jobName}, #{crontab}, #{jobType}, #{handlerFailStrategy}, #{admin}, #{adminEmail}, #{adminPhone}, 
+                #{executorHandlers}, #{cmd}, #{params}, #{parentJobId}, #{childJobId}, #{createTime}, #{updateTime}, #{enable}) 
+        ]]>
+  </insert>
+  
+  <select id="findJobInfoById" resultMap="jobInfoMap" parameterType="long">
+     <![CDATA[
+          SELECT id, job_name, crontab, job_type, handler_fail_strategy, admin, admin_email, admin_phone, 
+                 executor_handlers, cmd, params, parent_job_id, child_job_id, create_time, update_time, enable 
+            FROM job_info 
+           WHERE id = #{id}
+            ]]>
+  </select>
+  
+  <select id="queryJobInfoForPager" resultMap="jobInfoMap" parameterType="string">
+  <![CDATA[
+      SELECT id, job_name, crontab, job_type, handler_fail_strategy, admin, admin_email, admin_phone, 
+                 executor_handlers, cmd, params, parent_job_id, child_job_id, create_time, update_time, enable 
+        FROM job_info 
+     ]]>
+  <if test="jobName != null">
+    <where>
+        job_name LIKE CONCAT(#{jobName}, '%')
+    </where>
+  </if>
+ </select>
+  
+</mapper>

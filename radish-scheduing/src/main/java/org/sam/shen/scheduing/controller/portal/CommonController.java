@@ -49,7 +49,7 @@ public class CommonController {
 				result.add(new HashMap<String, Object>() {
 					{
 						put("name", m.get("handler"));
-						put("value", String.valueOf(aId).concat("-").concat(String.valueOf(m.get("id"))));
+						put("value", String.valueOf(aId).concat("-").concat(String.valueOf(m.get("handler"))));
 					}
 				});
 			}

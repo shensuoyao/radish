@@ -17,7 +17,7 @@
     <span class="fl">
         Job Name：
         <div class="layui-input-inline">
-            <input type="text" autocomplete="off" id="agentName" placeholder="请输入搜索条件" class="layui-input">
+            <input type="text" autocomplete="off" id="jobName" placeholder="请输入搜索条件" class="layui-input">
         </div>
         <button class="layui-btn mgl-20" id="btn-search">查询</button>
         <a class="layui-btn btn-add btn-default" id="btn-add" th:href="@{/job/job-add}"><i class="layui-icon">&#xe608;</i> 添加</a>
@@ -25,7 +25,7 @@
 </div>
 
 <!-- 表格 -->
-<div id="dateTable" lay-filter="agent"></div>
+<div id="jobTable" lay-filter="jobTable"></div>
 
 <script type="text/javascript" th:src="@{/static/layui/layui.js}"></script>
 <script type="text/javascript" th:src="@{/static/js/index.js}"></script>
@@ -48,21 +48,23 @@
 
         // 表格渲染
    var tableIns = table.render({
-       elem: '#dateTable'                  //指定原始表格元素选择器（推荐id选择器）
+       elem: '#jobTable'                  //指定原始表格元素选择器（推荐id选择器）
        , height: 'full-200'    //容器高度
        , cols: [[   // 标题栏目
            {field: 'id', title: 'ID'}
-           , {field: 'agentName', title: '客户机名称',}
-           , {field: 'agentIp', title: '客户机IP'}
-           , {field: 'agentPort', title: '客户机端口'}
-           , {field: 'admin', title: '管理员'}
-           , {field: 'adminEmail', title: '管理员邮箱'}
-           , {field: 'adminPhone', title: '管理员电话'}
-           , {field: 'regTime', title: '注册时间'}
-           , {field: 'stat', title: '状态'}
+           , {field: 'jobName', title: '客户机名称',}
+           , {field: 'crontab', title: '客户机IP'}
+           , {field: 'jobType', title: '客户机端口'}
+           , {field: 'handlerFailStrategy', title: '失败策略'}
+           , {field: 'admin', title: '负责人'}
+           , {field: 'adminEmail', title: '负责人邮箱'}
+           , {field: 'adminPhone', title: '负责人电话'}
+           , {field: 'createTime', title: '创建时间'}
+           , {field: 'updateTime', title: '更新时间'}
+           , {field: 'enable', title: '启用'}
            , {fixed: 'right', title: '操作', align: 'center', toolbar: '#barOption'} ]]
-       , id: 'dateTable'
-       , url: [[@{/portal/agent/json-pager}]]
+       , id: 'jobTable'
+       , url: [[@{/job/json-pager}]]
        , method: 'get'
        , page: {
            layout: ['count', 'prev', 'page', 'next'] //自定义分页布局
@@ -85,7 +87,7 @@
             }
         });
         // 获取选中行
-    table.on('tool(agent)', function (obj) {
+    table.on('tool(jobTable)', function (obj) {
         // layer.msg('123');
         if(obj.event == 'view') {
         	layer.msg('查看任务视图');
@@ -102,7 +104,7 @@
     $('#btn-search').on('click', function () {
         tableIns.reload({
             where: {
-              agentName: $('#agentName').val()
+              jobName: $('#jobName').val()
                                 }
                         });
               });

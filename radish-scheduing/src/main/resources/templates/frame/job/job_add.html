@@ -152,7 +152,6 @@
             type: 'get',
             searchUrl: [[@{/common/agent-handler-group}]],
             searchName: 'agentName',
-            searchVal: '',
             delay: 500,
             beforeSearch: function(id, url, searchVal){         //搜索前调用此方法, return true将触发搜索, 否则不触发
                 // console.log(searchVal);
@@ -173,7 +172,7 @@
             searchVal: '',
             delay: 500,
             beforeSearch: function(id, url, searchVal){         //搜索前调用此方法, return true将触发搜索, 否则不触发
-                console.log(searchVal);
+                // console.log(searchVal);
            if(!searchVal){//如果搜索内容为空,就不触发搜索
               return false;
                   } else if(searchVal.length < 3) {
@@ -191,7 +190,7 @@
             searchVal: '',
             delay: 500,
             beforeSearch: function(id, url, searchVal){         //搜索前调用此方法, return true将触发搜索, 否则不触发
-                console.log(searchVal);
+                //console.log(searchVal);
            if(!searchVal){//如果搜索内容为空,就不触发搜索
               return false;
                   } else if(searchVal.length < 3) {
@@ -267,7 +266,7 @@
                       }
 		    	  console.log(data);
 		    	});
-
+		    
 				//监听提交
 				form.on('submit(jobSave)', function(data) {
 					layer.msg('数据正在提交 ...');
