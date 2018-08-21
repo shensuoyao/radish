@@ -60,16 +60,14 @@
         	searchVal: '',
         	keyName: 'agentName',
         	keyVal: 'id',
-        	delay: 500,
+        	delay: 1000,
         	beforeSearch: function(id, url, searchVal){         //搜索前调用此方法, return true将触发搜索, 否则不触发
            if(!searchVal){//如果搜索内容为空,就不触发搜索
               return false;
-			      } else if(searchVal.length < 3) {
-			    	  return false;
-			             }
+			      }
 			      return true;
 			         },
-			    clearInput: true,
+			    clearInput: true
         }, false)
         //监听提交
     form.on('submit(groupSave)', function(data){

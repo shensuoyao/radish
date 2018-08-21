@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Job 任务视图</title>
+    <link rel="stylesheet" th:href="@{/static/layui/css/layui.css}">
+    <link rel="stylesheet" th:href="@{/static/css/style.css}">
+    <link rel="icon" th:href="@{/static/image/code.png}">
+    <style id="css">
+			body {
+			  font: 300 14px 'Helvetica Neue', Helvetica;
+			}
+			
+			.node rect {
+			  stroke: #333;
+			  fill: #fff;
+			}
+			
+			.edgePath path {
+			  stroke: #333;
+			  fill: #333;
+			  stroke-width: 1.5px;
+			}
+		</style>
+</head>
+<body class="body">
+<div class="layui-row layui-col-space10 my-index-main">
+	<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+	    <legend><span th:text="'任务ID: '  + ${jobInfo.id}"/>
+	    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a th:href="@{/job}"> <<--- 返回</a> 
+	    </legend>
+	</fieldset>
+	<div class="layui-row layui-col-md6">
+     <ul class="layui-timeline">
+			  <li class="layui-timeline-item">
+			    <i class="layui-icon layui-timeline-axis">&#xe63f;</i>
+			    <div class="layui-timeline-content layui-text">
+			      <h3 class="layui-timeline-title">基本信息</h3>
+			      <p>任务基本信息</p>
+			      <ul>
+              <li>ID:&nbsp;&nbsp;&nbsp;<span th:text="${jobInfo.id}"/></li>
+              <li>任务名:&nbsp;&nbsp;&nbsp;<span th:text="${jobInfo.jobName}"/></li>
+              <li>定时规则:&nbsp;&nbsp;&nbsp;<span th:text="${jobInfo.crontab}"/></li>
+              <li>类型:&nbsp;&nbsp;&nbsp;<span th:text="${jobInfo.jobType.desc}"/></li>
+              <li>失败策略:&nbsp;&nbsp;&nbsp;<span th:text="${jobInfo.handlerFailStrategy.desc}"/></li>
+            </ul>
+			    </div>
+			  </li>
+        <li class="layui-timeline-item">
+          <i class="layui-icon layui-timeline-axis">&#xe63f;</i>
+          <div class="layui-timeline-content layui-text">
+            <h3 class="layui-timeline-title">责任</h3>
+            <p>任务失败后通知相关责任人</p>
+             <ul>
+				        <li>责任人:&nbsp;&nbsp;&nbsp;<span th:text="${jobInfo.admin}"/></li>
+				        <li>手机:&nbsp;&nbsp;&nbsp;<span th:text="${jobInfo.adminPhone}"/></li>
+				        <li>邮箱:&nbsp;&nbsp;&nbsp;<span th:text="${jobInfo.adminEmail}"/></li>
+				      </ul>
+          </div>
+        </li>
+        <li class="layui-timeline-item">
+          <i class="layui-icon layui-timeline-axis">&#xe63f;</i>
+          <div class="layui-timeline-content layui-text">
+            <h3 class="layui-timeline-title">处理器</h3>
+             <ul>
+               <li th:each="handler : ${handlers}" th:text="${handler}" />
+             </ul>
+          </div>
+        </li>
+        <li class="layui-timeline-item">
+          <i class="layui-icon layui-timeline-axis">&#xe63f;</i>
+          <div class="layui-timeline-content layui-text">
+            <h3 class="layui-timeline-title">脚本 & 参数</h3>
+            <pre th:text="${jobInfo.cmd}"/>
+            <hr />
+            <pre th:text="${jobInfo.params}"/>
+          </div>
+        </li>
+        <li class="layui-timeline-item">
+          <i class="layui-icon layui-timeline-axis">&#xe63f;</i>
+          <div class="layui-timeline-content layui-text">
+            <h3 class="layui-timeline-title">属性</h3>
+            <ul>
+               <li>创建时间:&nbsp;&nbsp;&nbsp;<span th:text="${#dates.format(jobInfo.createTime, 'yyyy-MM-dd HH:mm:ss')}"/></li>
+               <li>修改时间:&nbsp;&nbsp;&nbsp;<span th:text="${#dates.format(jobInfo.updateTime, 'yyyy-MM-dd HH:mm:ss')}"/></li>
+               <li>是否启用:&nbsp;&nbsp;&nbsp;<span th:text="${jobInfo.enable} eq 1 ? '启用'  :  '禁用' "/></li>
+             </ul>
+          </div>
+        </li>
+			</ul>
+	</div>
+	<div class="layui-row layui-col-md6">
+	   <svg height="800"><g/></svg>
+	</div>
+</div>
+<script th:src="@{/static/layui/layui.js}" charset="utf-8"></script>
+<script th:src="@{/static/js/index.js}" charset="utf-8"></script>
+<script th:src="@{/static/js/gagre-d3/d3.v4.min.js}" charset="utf-8"></script>
+<script th:src="@{/static/js/gagre-d3/dagre-d3.min.js}" charset="utf-8"></script>
+<script th:inline="javascript">
+    layui.use(['layedit', 'laydate'], function(){
+        var layer = layui.layer
+                ,layedit = layui.layedit
+                ,element = layui.element
+                ,$ = layui.jquery;
+        
+        // your code ...
+        // Create a new directed graph
+        var g = new dagreD3.graphlib.Graph().setGraph({});
+        
+        // States and transitions from RFC 793
+        var states = [[${states}]];
+        
+        // Automatically label each of the nodes
+        states.forEach(function(state) { g.setNode(state, { label: state }); });
+        // Set up the edges
+        var edges = [[${edges}]];
+        for(var i = 0; i < edges.length; i ++) {
+            var edge_arr = edges[i].split('->');
+            g.setEdge(edge_arr[0],     edge_arr[1], { label: "to" });
+                  }
+        // Set some general styles
+        g.nodes().forEach(function(v) {
+          var node = g.node(v);
+          node.rx = node.ry = 5;
+                  });
+        
+        var svg = d3.select("svg"),
+        inner = svg.select("g");
+        
+        // Set up zoom support
+        /* var zoom = d3.zoom().on("zoom", function() {
+              inner.attr("transform", d3.event.transform);
+                  });
+        svg.call(zoom); */
+        // Create the renderer
+        var render = new dagreD3.render();
+        // Run the renderer. This is what draws the final graph.
+        render(inner, g);
+        // Center the graph
+        // var initialScale = 0.75;
+        //svg.call(zoom.transform, d3.zoomIdentity.translate((svg.attr("width") - g.graph().width * initialScale) / 2, 20).scale(initialScale));
+
+        //svg.attr('height', g.graph().height * initialScale + 40);
+        
+        });
+</script>
+</body>
+</html>

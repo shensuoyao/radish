@@ -30,7 +30,11 @@ public class EventJobBean implements Job {
 		}
 		// JobInfo jobInfo = (JobInfo) dataMap.get("jobInfo");
 		logger.info("job id is : {}", jobId);
+		// 1. load JobInfo
 		JobInfo jobInfo = RadishDynamicScheduler.jobInfoMapper.findJobInfoById(jobId);
+		// 2. 检查JobInfo的enable状态是否为启用
+		// 如果为禁用状态, 则从调度器中删除该任务的调度
+		// TODO
 		logger.info(jobInfo.toString());
 		logger.info("============");
 		destory();

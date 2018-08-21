@@ -11,4 +11,6 @@ public class Constant {
 	public static final int SUCCESS_EXIT = 0;
 	
 	public static final String SPLIT_CHARACTER = "-";
+	
+	public static final String SPLIT_CHARACTER_ARROW = "->";
 }

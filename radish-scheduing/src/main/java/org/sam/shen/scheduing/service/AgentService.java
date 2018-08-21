@@ -99,8 +99,8 @@ public class AgentService {
 		return agentMapper.queryAgentForPager(agentName);
 	}
 	
-	public List<Agent> queryAgentNoPager(String agentName) {
-		return agentMapper.queryAgentNoPager(agentName);
+	public List<Agent> queryAgentForList(String agentName) {
+		return agentMapper.queryAgentForList(agentName);
 	}
 	
 	/**
@@ -214,6 +214,14 @@ public class AgentService {
 			agentGroup = new AgentGroup();
 		}
 		return new AgentGroupEditView(agentGroup, agents);
+	}
+	
+	public List<Agent> queryAgentInIds(List<Long> ids) {
+		List<Agent> list = agentMapper.queryAgentInIds(ids);
+		if(null == list) {
+			list = Collections.emptyList();
+		}
+		return list;
 	}
 	
 }

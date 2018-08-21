@@ -16,7 +16,8 @@ public interface AgentMapper {
 	Agent findAgentById(Long id);
 	
 	Page<Agent> queryAgentForPager(@Param("agentName") String agentName);
-	List<Agent> queryAgentNoPager(@Param("agentName") String agentName);
+	
+	List<Agent> queryAgentForList(@Param("agentName") String agentName);
 	
 	void saveAgent(Agent agent);
 	
@@ -27,5 +28,7 @@ public interface AgentMapper {
 	Long countAgent(int stat);
 	
 	List<Agent> queryAgentByAgentGroup(Long agentGroupId);
+	
+	List<Agent> queryAgentInIds(List<Long> ids);
 	
 }

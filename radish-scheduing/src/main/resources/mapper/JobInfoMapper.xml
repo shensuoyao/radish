@@ -52,5 +52,30 @@
     </where>
   </if>
  </select>
+ 
+ <select id="queryJobInfoForList" resultMap="jobInfoMap" parameterType="string">
+  <![CDATA[
+      SELECT id, job_name, crontab, job_type, handler_fail_strategy, admin, admin_email, admin_phone, 
+                 executor_handlers, cmd, params, parent_job_id, child_job_id, create_time, update_time, enable 
+        FROM job_info 
+     ]]>
+  <if test="jobName != null">
+    <where>
+        job_name LIKE CONCAT(#{jobName}, '%')
+    </where>
+  </if>
+ </select>
+ 
+ <select id="queryJobInfoByIds" parameterType="list" resultMap="jobInfoMap">
+     <![CDATA[
+      SELECT id, job_name, crontab, job_type, handler_fail_strategy, admin, admin_email, admin_phone, 
+                 executor_handlers, cmd, params, parent_job_id, child_job_id, create_time, update_time, enable 
+        FROM job_info  
+       WHERE id IN 
+         ]]>
+    <foreach collection="list" item="item" index="index" separator="," open="(" close=")">
+        #{item}
+    </foreach>
+ </select>
   
 </mapper>

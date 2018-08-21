@@ -86,7 +86,11 @@ public class AgentController {
 		if (StringUtils.isEmpty(agentName)) {
 			return new Resp<>(Collections.emptyList());
 		}
-		return new Resp<>(agentService.queryAgentNoPager(agentName));
+		List<Agent> list = agentService.queryAgentForList(agentName);
+		if(null == list) {
+			list = Collections.emptyList();
+		}
+		return new Resp<>(list);
 	} 
 	
 	/**

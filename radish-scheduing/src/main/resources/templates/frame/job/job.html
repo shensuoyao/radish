@@ -35,16 +35,24 @@
     <a class="layui-btn layui-btn-sm layui-btn-normal" lay-event="edit"><i class="layui-icon">&#xe642;</i></a>
     <a class="layui-btn layui-btn-sm layui-btn-danger" lay-event="del"><i class="layui-icon">&#xe640;</i></a>
 </script>
+<script type="text/html" id="enableTpl">
+{{#  if(d.enable == 1){ }}
+    <input type="checkbox" name="enable" lay-skin="switch" value="{{d.enable}}" disabled lay-text="启用|禁用" checked />
+{{#  } else { }}
+    <input type="checkbox" name="enable" lay-skin="switch" value="{{d.enable}}" disabled lay-text="启用|禁用"  />
+{{#  } }}
+</script>
 </body>
 <script th:inline="javascript">
     // layui方法
-    layui.use(['table', 'form', 'layer'], function () {
+    layui.use(['table', 'form', 'layer', 'laytpl'], function () {
 
         // 操作对象
     var form = layui.form
             , table = layui.table
             , layer = layui.layer
-            , $ = layui.jquery;
+            , $ = layui.jquery
+            , laytpl = layui.laytpl;
 
         // 表格渲染
    var tableIns = table.render({
@@ -52,17 +60,17 @@
        , height: 'full-200'    //容器高度
        , cols: [[   // 标题栏目
            {field: 'id', title: 'ID'}
-           , {field: 'jobName', title: '客户机名称',}
-           , {field: 'crontab', title: '客户机IP'}
-           , {field: 'jobType', title: '客户机端口'}
-           , {field: 'handlerFailStrategy', title: '失败策略'}
+           , {field: 'jobName', title: '任务名称',}
+           , {field: 'crontab', title: '定时规则'}
+           , {field: 'jobType', title: '任务类型'}
+           , {field: 'handlerFailStrategy', title: '失败策略' }
            , {field: 'admin', title: '负责人'}
            , {field: 'adminEmail', title: '负责人邮箱'}
            , {field: 'adminPhone', title: '负责人电话'}
            , {field: 'createTime', title: '创建时间'}
            , {field: 'updateTime', title: '更新时间'}
-           , {field: 'enable', title: '启用'}
-           , {fixed: 'right', title: '操作', align: 'center', toolbar: '#barOption'} ]]
+           , {field: 'enable', title: '是否启用',  templet: '#enableTpl', width: 100}
+           , {fixed: 'right', title: '操作', align: 'center', toolbar: '#barOption', width: 180} ]]
        , id: 'jobTable'
        , url: [[@{/job/json-pager}]]
        , method: 'get'
@@ -88,11 +96,10 @@
         });
         // 获取选中行
     table.on('tool(jobTable)', function (obj) {
-        // layer.msg('123');
         if(obj.event == 'view') {
-        	layer.msg('查看任务视图');
+        	window.location.href = [[@{/job/view/}]] + obj.data.id;
         } else if(obj.event == 'edit') {
-        	window.location.href = [[@{/portal/agent-edit/}]] + obj.data.id;
+        	window.location.href = [[@{/job/edit/}]] + obj.data.id;
 		    } else if(obj.event == 'del') {
 		    	console.log("下线Agent机器, 暂时先不做");
 		    	layer.msg('下线Agent机器, 暂时先不做');

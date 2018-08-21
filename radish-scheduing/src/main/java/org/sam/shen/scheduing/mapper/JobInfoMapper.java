@@ -1,5 +1,7 @@
 package org.sam.shen.scheduing.mapper;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.sam.shen.scheduing.entity.JobInfo;
@@ -14,5 +16,9 @@ public interface JobInfoMapper {
 	JobInfo findJobInfoById(Long id);
 	
 	Page<JobInfo> queryJobInfoForPager(@Param("jobName") String jobName);
+	
+	List<JobInfo> queryJobInfoForList(@Param("jobName") String jobName);
+	
+	List<JobInfo> queryJobInfoByIds(List<Long> ids);
 	
 }
