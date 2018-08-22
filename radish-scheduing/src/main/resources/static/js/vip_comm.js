@@ -152,7 +152,7 @@ layui.use(['layer', 'element', 'util'], function () {
         if ($(this).index() > 0) {
             element.tabDelete('card', $(this).attr('lay-id'));
         } else {
-            layer.msg('欢迎页面不能关闭')
+            layer.msg('Dashboard 不能关闭')
         }
     });
 

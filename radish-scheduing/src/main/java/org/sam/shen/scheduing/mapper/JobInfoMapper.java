@@ -19,6 +19,8 @@ public interface JobInfoMapper {
 	
 	List<JobInfo> queryJobInfoForList(@Param("jobName") String jobName);
 	
-	List<JobInfo> queryJobInfoByIds(List<Long> ids);
+	List<JobInfo> queryJobInfoInIds(List<Long> ids);
+	
+	void upgradeJonInfo(JobInfo jobInfo);
 	
 }

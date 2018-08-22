@@ -17,15 +17,23 @@
 <body class="body">
 <div class="layui-row layui-col-space10 layui-col-md8 my-index-main">
 	<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
-	    <legend>添加 Job 任务</legend>
+	    <legend>编辑 Job 任务</legend>
 	</fieldset>
 	
 	<form class="layui-form" name="agent" th:action="@{/portal/job-save}" method="post">
 	    <div class="layui-form-item">
-	        <label class="layui-form-label">任务名</label>
-	        <div class="layui-input-block">
-	            <input type="input" name="jobName" lay-verify="title" autocomplete="off" placeholder="任务名" class="layui-input">
-	        </div>
+	        <div class="layui-inline">
+                <label class="layui-form-label">任务ID</label>
+                <div class="layui-input-inline">
+                    <input type="input" name="id" readonly="readonly" th:value="${jobInfo.id}" placeholder="任务ID" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+              <label class="layui-form-label" id="crontab-tips">任务名</label>
+              <div class="layui-input-inline">
+                  <input type="input" name="jobName" readonly="readonly" th:value="${jobInfo.jobName}" placeholder="任务名" class="layui-input">
+              </div>
+          </div>
 	    </div>
 	    <div class="layui-form-item">
 		      <div class="layui-inline">
@@ -33,14 +41,14 @@
 	            <div class="layui-input-inline">
 	                <select name="jobType" class="layui-input" lay-filter="jobType">
 										  <option value=""></option>
-										  <option th:each="enum : ${jobType}" th:value="${enum}" th:text="${enum.desc}" />
+										  <option th:each="enum : ${jobType}" th:value="${enum}" th:text="${enum.desc}" th:selected="${jobInfo.jobType} eq ${enum} ? true : false" />
 										</select>
 	            </div>
 	        </div>
 	        <div class="layui-inline">
               <label class="layui-form-label" id="crontab-tips"><i class="layui-icon">&#xe60b;</i> 调度规则</label>
               <div class="layui-input-inline">
-                  <input type="input" name="crontab" autocomplete="off" placeholder="0 * 1 * * ?" class="layui-input">
+                  <input type="input" name="crontab" th:value="${jobInfo.crontab}" placeholder="0 * 1 * * ?" class="layui-input">
               </div>
           </div>
 	    </div>
@@ -48,20 +56,20 @@
 	       <div class="layui-inline">
 	           <label class="layui-form-label">管理员</label>
 	           <div class="layui-input-inline">
-	               <input type="input" name="admin" autocomplete="off" placeholder="管理员" class="layui-input">
+	               <input type="input" name="admin" th:value="${jobInfo.admin}" placeholder="管理员" class="layui-input">
 	           </div>
 	       </div>
 	       <div class="layui-inline">
 	           <label class="layui-form-label">管理员手机</label>
 	           <div class="layui-input-inline">
-                <input type="input" name="adminPhone" autocomplete="off" placeholder="管理员手机号" class="layui-input">
+                <input type="input" name="adminPhone" th:value="${jobInfo.adminPhone}" placeholder="管理员手机号" class="layui-input">
             </div>
 	       </div>
 	    </div>
 	    <div class="layui-form-item">
 	        <label class="layui-form-label">管理员邮箱</label>
 	        <div class="layui-input-block">
-	            <input type="input" name="adminEmail" lay-verify="title" autocomplete="off" placeholder="管理员邮箱" class="layui-input">
+	            <input type="input" name="adminEmail" th:value="${jobInfo.adminEmail}" placeholder="管理员邮箱" class="layui-input">
 	        </div>
 	    </div>
 	    <div class="layui-form-item">
@@ -69,6 +77,7 @@
           <div class="layui-input-block">
               <select name="parentJob" xm-select="parent-select" xm-select-search="" xm-select-search-type="dl">
                   <option value=""></option>
+                  <option th:each="pjob : ${parentJob}" th:value="${pjob.id}" th:selected="true" th:text="${pjob.jobName}" />
                 </select>
           </div>
       </div>
@@ -77,6 +86,7 @@
           <div class="layui-input-block">
               <select name="chidJob" xm-select="child-select" xm-select-search="" xm-select-search-type="dl">
                   <option value=""></option>
+                  <option th:each="cjob : ${childJob}" th:value="${cjob.id}" th:selected="true" th:text="${cjob.jobName}" />
                 </select>
           </div>
       </div>
@@ -85,6 +95,7 @@
           <div class="layui-input-block">
               <select name="agentHandlers" xm-select="agent-select" xm-select-search="" xm-select-search-type="dl">
 	              <option value=""></option>
+	              <option th:each="handler : ${handlers}" th:value="${handler}" th:selected="true" th:text="${#strings.arraySplit(handler,'-')[1]}" />
 	            </select>
           </div>
       </div>
@@ -93,28 +104,28 @@
           <div class="layui-input-block">
               <select name="handlerFailStrategy" class="layui-input" lay-filter="handlerFailStrategy">
                <option value=""></option>
-               <option th:each="enum : ${handlerFailStrategy}" th:value="${enum}" th:text="${enum.desc}" />
+               <option th:each="enum : ${handlerFailStrategy}" th:value="${enum}" th:selected="${jobInfo.handlerFailStrategy} eq ${enum} ? true : false" th:text="${enum.desc}" />
               </select>
           </div>
       </div>
 	    <div class="layui-form-item">
 	        <label class="layui-form-label">启用 / 禁用</label>
 	        <div class="layui-input-block">
-	            <input type="checkbox" name="enable" lay-skin="switch" value="1" lay-text="启用|禁用"  th:checked="true" />
+	            <input type="checkbox" name="enable" lay-skin="switch" value="1" lay-text="启用|禁用"  th:checked="${jobInfo.enable} eq 1 ? true : false" />
 	        </div>
 	    </div>
 	    <div class="layui-form-item">
 	        <label class="layui-form-label">脚本代码</label>
 	        <div class="layui-input-block layui-collapse">
             <!-- begin code -->
-            <textarea class="layui-textarea" id="cmdCode" name="cmd"></textarea>
+            <textarea class="layui-textarea" id="cmdCode" name="cmd" th:text="${jobInfo.cmd}"></textarea>
             <!-- end code-->
 	        </div>
 	    </div>
 	    <div class="layui-form-item">
          <label class="layui-form-label" id="param-tips"><i class="layui-icon">&#xe60b;</i> 附加参数</label>
          <div class="layui-input-block layui-collapse">
-            <textarea class="layui-textarea" id="params" name="params"></textarea>
+            <textarea class="layui-textarea" id="params" name="params" th:text="${jobInfo.params}"></textarea>
          </div>
       </div>
 	

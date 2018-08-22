@@ -1,5 +1,6 @@
 package org.sam.shen.scheduing.service;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +53,20 @@ public class JobService {
 	}
 	
 	/**
+	 *  修改JobInfo
+	 * @author suoyao
+	 * @date 下午5:15:45
+	 * @param jobInfo
+	 */
+	@Transactional
+	public void upgradeJobInfo(JobInfo jobInfo) {
+		// 更新JobInfo信息
+		jobInfoMapper.upgradeJonInfo(jobInfo);
+		// 修改scheduler 调度
+		// TODO
+	}
+	
+	/**
 	 *  分页查询JobInfo
 	 * @author suoyao
 	 * @date 下午6:16:54
@@ -74,46 +89,56 @@ public class JobService {
 	}
 	
 	public Map<String, Set<String>> dagre(JobInfo jobInfo) {
-		Set<String> node = Sets.newHashSet(jobInfo.getJobName());
-		Set<String> edge = Sets.newHashSet();
-		forDagre(node, edge, jobInfo);
+		Set<String> nodes = Sets.newHashSet(jobInfo.getJobName());
+		Set<String> edges = Sets.newHashSet();
+		forDagre(nodes, edges, jobInfo);
 		return new HashMap<String, Set<String>>() {
 			private static final long serialVersionUID = 3018401508302256817L;
 			{
-				put("nodes", node);
-				put("edges", edge);
+				put("nodes", nodes);
+				put("edges", edges);
 			}
 		};
 	}
 	
-	public void forDagre(Set<String> jobSet, Set<String> edge, JobInfo jobInfo) {
-		jobSet.add(jobInfo.getJobName());
+	public List<JobInfo> queryJobInfoByIds(List<Long> ids) {
+		if(null == ids || ids.isEmpty()) {
+			return Collections.emptyList();
+		}
+		return jobInfoMapper.queryJobInfoInIds(ids);
+	}
+	
+	/**
+	 * 递归实现节点和边缘关系
+	 * @author suoyao
+	 * @date 上午10:58:46
+	 * @param nodes
+	 * @param edges
+	 * @param jobInfo
+	 */
+	public void forDagre(Set<String> nodes, Set<String> edges, JobInfo jobInfo) {
+		List<Long> ids = Lists.newArrayList();
 		if(StringUtils.isNotEmpty(jobInfo.getParentJobId())) {
-			List<Long> ids = Lists.newArrayList();
 			Splitter.on(",").splitToList(jobInfo.getParentJobId()).forEach(id -> ids.add(Long.valueOf(id)));
-			List<JobInfo> depend = jobInfoMapper.queryJobInfoByIds(ids);
-			if(null != depend && depend.size() > 0) {
-				depend.forEach(jf -> {
-					jobSet.add(jf.getJobName());
-					String arrow = jf.getJobName() + Constant.SPLIT_CHARACTER_ARROW.concat(jobInfo.getJobName());
-					if(!edge.contains(arrow)) {
-						edge.add(arrow);
-						forDagre(jobSet, edge, jf);
-					}
-				});
-			}
 		}
 		if(StringUtils.isNotEmpty(jobInfo.getChildJobId())) {
-			List<Long> ids = Lists.newArrayList();
 			Splitter.on(",").splitToList(jobInfo.getChildJobId()).forEach(id -> ids.add(Long.valueOf(id)));
-			List<JobInfo> depend = jobInfoMapper.queryJobInfoByIds(ids);
+		}
+		if(ids.size() > 0) {
+			List<JobInfo> depend = jobInfoMapper.queryJobInfoInIds(ids);
 			if(null != depend && depend.size() > 0) {
 				depend.forEach(jf -> {
-					jobSet.add(jf.getJobName());
-					String arrow = jobInfo.getJobName() + Constant.SPLIT_CHARACTER_ARROW.concat(jf.getJobName());
-					if(!edge.contains(arrow)) {
-						edge.add(arrow);
-						forDagre(jobSet, edge, jf);
+					nodes.add(jf.getJobName());
+					String arrow = null;
+					if (jobInfo.getParentJobId().indexOf(String.valueOf(jf.getId())) >= 0) {
+						arrow = jf.getJobName() + Constant.SPLIT_CHARACTER_ARROW.concat(jobInfo.getJobName());
+					}
+					if(jobInfo.getChildJobId().indexOf(String.valueOf(jf.getId())) >= 0) {
+						arrow = jobInfo.getJobName() + Constant.SPLIT_CHARACTER_ARROW.concat(jf.getJobName());
+					}
+					if(StringUtils.isNotEmpty(arrow) && !edges.contains(arrow)) {
+						edges.add(arrow);
+						forDagre(nodes, edges, jf);
 					}
 				});
 			}

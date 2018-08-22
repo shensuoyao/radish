@@ -43,16 +43,16 @@ import com.google.common.collect.Sets;
  * 
  */
 @Controller
-@RequestMapping(value = "job")
+@RequestMapping(value = "portal")
 public class JobController {
 
 	@Autowired
 	private JobService jobService;
-	
+
 	@Autowired
 	private AgentService agentServie;
 
-	@RequestMapping(value = { "", "/" }, method = RequestMethod.GET)
+	@RequestMapping(value = { "job", "job/" }, method = RequestMethod.GET)
 	public ModelAndView toJobPage(ModelAndView model) {
 		model.setViewName("frame/job/job");
 		return model;
@@ -101,19 +101,15 @@ public class JobController {
 		if (null != agentHandlers && agentHandlers.size() > 0) {
 			jobInfo.setExecutorHandlers(Joiner.on(",").join(agentHandlers));
 		}
-		jobInfo.setCreateTime(new Date());
 		jobInfo.setUpdateTime(new Date());
-		/*
-		 * if(null != agentHandlers && agentHandlers.size() > 0) { Map<Long,
-		 * Set<String>> executorHandlers = Maps.newHashMap(); for(String ah :
-		 * agentHandlers) { String[] arr = ah.split(Constant.SPLIT_CHARACTER);
-		 * if(executorHandlers.containsKey(Long.valueOf(arr[0]))) {
-		 * executorHandlers.get(Long.valueOf(arr[0])).add(arr[1]); } else {
-		 * executorHandlers.put(Long.valueOf(arr[0]), new HashSet<String>() { private
-		 * static final long serialVersionUID = -8759217899959786853L; { add(arr[1]); }
-		 * }); } } }
-		 */
-		jobService.addJobinfo(jobInfo);
+		if(null == jobInfo.getId()) {
+			 // 新增Job
+			jobInfo.setCreateTime(new Date());
+			jobService.addJobinfo(jobInfo);
+		} else {
+			 // 更新
+			jobService.upgradeJobInfo(jobInfo);
+		}
 		return model;
 	}
 
@@ -127,7 +123,7 @@ public class JobController {
 	 * @param jobName
 	 * @return
 	 */
-	@RequestMapping(value = "json-pager", method = RequestMethod.GET)
+	@RequestMapping(value = "job/json-pager", method = RequestMethod.GET)
 	@ResponseBody
 	public RespPager<Page<JobInfo>> queryJobInfoForJsonPager(@RequestParam("page") Integer page,
 	        @RequestParam("limit") Integer limit,
@@ -141,37 +137,38 @@ public class JobController {
 		Page<JobInfo> pager = jobService.queryJobInfoForPager(page, limit, jobName);
 		return new RespPager<>(pager.getPageSize(), pager.getTotal(), pager);
 	}
-	
-	@RequestMapping(value = "json", method = RequestMethod.GET)
+
+	@RequestMapping(value = "job/json", method = RequestMethod.GET)
 	@ResponseBody
 	public Resp<List<JobInfo>> queryJobInfoForJsonPager(
 	        @RequestParam(value = "jobName", required = false, defaultValue = "") String jobName) {
 		List<JobInfo> list = jobService.queryJobInfoForList(jobName);
-		if(null == list) {
+		if (null == list) {
 			list = Collections.emptyList();
 		}
 		return new Resp<>(list);
 	}
 
 	/**
-	 *  任务视图
+	 * 任务视图
+	 * 
 	 * @author suoyao
 	 * @date 下午4:36:54
 	 * @param model
 	 * @param id
 	 * @return
 	 */
-	@RequestMapping(value = "view/{id}", method = RequestMethod.GET)
+	@RequestMapping(value = "job-view/{id}", method = RequestMethod.GET)
 	public ModelAndView view(ModelAndView model, @PathVariable("id") Long id) {
 		// 获取任务对象
 		JobInfo jobInfo = jobService.findJobInfo(id);
 		model.addObject("jobInfo", jobInfo);
 		// 重装Agent-Handler显示格式
-		if(StringUtils.isNotEmpty(jobInfo.getExecutorHandlers())) {
+		if (StringUtils.isNotEmpty(jobInfo.getExecutorHandlers())) {
 			Set<Long> ids = Sets.newHashSet();
 			List<String> sp = Splitter.onPattern(",|-").splitToList(jobInfo.getExecutorHandlers());
 			Stream.iterate(0, i -> i + 1).limit(sp.size()).forEach(i -> {
-				if(i % 2 == 0) {
+				if (i % 2 == 0) {
 					ids.add(Long.valueOf(sp.get(i)));
 				}
 			});
@@ -190,6 +187,52 @@ public class JobController {
 		model.addObject("states", dagre.get("nodes"));
 		model.addObject("edges", dagre.get("edges"));
 		model.setViewName("frame/job/job_view");
+		return model;
+	}
+
+	/**
+	 * @author suoyao
+	 * @date 下午12:20:10
+	 * @param model
+	 * @param id
+	 * @return
+	 */
+	@RequestMapping(value = { "job-edit/", "job-edit/{id}" }, method = RequestMethod.GET)
+	public ModelAndView jobEdit(ModelAndView model, @PathVariable(value = "id", required = false) Long id) {
+		if(null != id) {
+			JobInfo jobInfo = jobService.findJobInfo(id);
+			model.addObject("jobInfo", jobInfo);
+			
+			List<Long> ids = Lists.newArrayList();
+			if(StringUtils.isNotEmpty(jobInfo.getParentJobId())) {
+				Arrays.asList(jobInfo.getParentJobId().split(",")).forEach(jid -> ids.add(Long.valueOf(jid)));
+			}
+			if(StringUtils.isNotEmpty(jobInfo.getChildJobId())) {
+				Arrays.asList(jobInfo.getChildJobId().split(",")).forEach(jid -> ids.add(Long.valueOf(jid)));
+			}
+			if(ids.size() > 0) {
+				List<JobInfo> parentJob = Lists.newArrayList();
+				List<JobInfo> childJob = Lists.newArrayList();
+				List<JobInfo> depend = jobService.queryJobInfoByIds(ids);
+				depend.forEach(job -> {
+					if(jobInfo.getParentJobId().indexOf(String.valueOf(job.getId())) >= 0) {
+						parentJob.add(job);
+					}
+					if(jobInfo.getChildJobId().indexOf(String.valueOf(job.getId())) >= 0) {
+						childJob.add(job);
+					}
+				});
+				model.addObject("parentJob", parentJob);
+				model.addObject("childJob", childJob);
+			}
+			if(StringUtils.isNotEmpty(jobInfo.getExecutorHandlers())) {
+				model.addObject("handlers", Arrays.asList(jobInfo.getExecutorHandlers().split(",")));
+			}
+			
+		}
+		model.addObject("jobType", Arrays.asList(HandlerType.values()));
+		model.addObject("handlerFailStrategy", Arrays.asList(HandlerFailStrategy.values()));
+		model.setViewName("frame/job/job_edit");
 		return model;
 	}
 
