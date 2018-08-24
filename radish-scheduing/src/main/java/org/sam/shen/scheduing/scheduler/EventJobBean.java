@@ -1,11 +1,12 @@
 package org.sam.shen.scheduing.scheduler;
 
-import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.quartz.SchedulerException;
 import org.sam.shen.scheduing.entity.JobInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.quartz.QuartzJobBean;
 
 /**
  *  执行Job Callback的bean
@@ -13,7 +14,7 @@ import org.slf4j.LoggerFactory;
  * @date 2018年8月16日 下午2:45:49
   * 
  */
-public class EventJobBean implements Job {
+public class EventJobBean extends QuartzJobBean {
 	private static final Logger logger = LoggerFactory.getLogger(EventJobBean.class);
 
 	private Long jobId;
@@ -21,41 +22,45 @@ public class EventJobBean implements Job {
 	public EventJobBean() {
 		super();
 	}
-	
+
 	@Override
-	public void execute(JobExecutionContext context) throws JobExecutionException {
+	protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
 		init(context);
-		if(logger.isInfoEnabled()) {
-			logger.info("Hello World!  MyJob is executing.");
-		}
 		// JobInfo jobInfo = (JobInfo) dataMap.get("jobInfo");
-		logger.info("job id is : {}", jobId);
 		// 1. load JobInfo
 		JobInfo jobInfo = RadishDynamicScheduler.jobInfoMapper.findJobInfoById(jobId);
 		// 2. 检查JobInfo的enable状态是否为启用
-		// 如果为禁用状态, 则从调度器中删除该任务的调度
-		// TODO
-		logger.info(jobInfo.toString());
-		logger.info("============");
+		if(jobInfo.getEnable() != 1) {
+			if(logger.isInfoEnabled()) {
+				logger.info("job is disenabled {}", jobInfo.getJobName());
+			}
+			// 禁用状态, 则从调度器中删除该任务的调度
+			try {
+				RadishDynamicScheduler.removeJob(jobInfo.getId(), jobInfo.getJobName());
+			} catch (SchedulerException e) {
+				logger.error("remove job [" + jobInfo.getJobName() + "] from scheduler failed", e);
+			}
+		} else {
+			// 3. 发送Event事件到抢占任务事件队列
+			// TODO
+		}
 		destory();
-	}  
+	}
 	
 	public void init(JobExecutionContext context) {
-		if(logger.isInfoEnabled()) {
-			logger.info("init job...");
-		}
 		context.getMergedJobDataMap();
+		if (logger.isInfoEnabled()) {
+			logger.info("init job ==== {} =====", jobId);
+		}
 	}
 
 	public void destory() {
 		if(logger.isInfoEnabled()) {
-			logger.info("destory job...");
+			logger.info("destory job ==== {} =====", jobId);
 		}
-		// TODO
 	}
 
 	public void setJobId(Long jobId) {
 		this.jobId = jobId;
 	}
-	
 }

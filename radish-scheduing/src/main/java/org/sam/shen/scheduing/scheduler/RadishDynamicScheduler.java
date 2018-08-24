@@ -2,6 +2,7 @@ package org.sam.shen.scheduing.scheduler;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -15,46 +16,45 @@ import org.quartz.JobDetail;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
-import org.quartz.SchedulerFactory;
+import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
-import org.quartz.impl.StdSchedulerFactory;
 import org.sam.shen.scheduing.mapper.JobInfoMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 @Component
 public final class RadishDynamicScheduler implements ApplicationContextAware {
 	private static final Logger logger = LoggerFactory.getLogger(RadishDynamicScheduler.class);
 	
 	// scheduler
+	@Autowired
 	private static Scheduler scheduler;
 	
+	@Autowired
 	public static JobInfoMapper jobInfoMapper;
 	
 	private RadishDynamicScheduler() {
 		super();
-		SchedulerFactory schedulerFactoryBean = new StdSchedulerFactory();
-		try {
-			scheduler = schedulerFactoryBean.getScheduler();
-		} catch (SchedulerException e) {
-			logger.error("init RadishDynamicScheduler failed. {}", e);
-		}
 	}
 	
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		RadishDynamicScheduler.scheduler = applicationContext.getBean(Scheduler.class);
+		RadishDynamicScheduler.scheduler = applicationContext.getBean("quartzScheduler", Scheduler.class);
 		RadishDynamicScheduler.jobInfoMapper = applicationContext.getBean(JobInfoMapper.class);
 	}
 	
 	@PostConstruct
 	public void init() throws Exception {
-		scheduler.start();
+		// valid
+		Assert.notNull(scheduler, "quartz scheduler is null");
+		logger.info(">>>>>>>>> init job-scheduler success.");
 	}
 	
 	@PreDestroy
@@ -74,23 +74,21 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 	 */
 	public static boolean addJob(final Long jobId, final String jobName, final String crontab) throws SchedulerException {
 		// TriggerKey valid if_exists
-		String qz_name = String.valueOf(jobId);
-		String qz_group = String.valueOf(jobName.hashCode());
-		if (checkExists(qz_name, qz_group)) {
-			logger.info(">>>>>>>>> addJob fail, job already exist, jobGroup:{}, jobName:{}", qz_group, qz_name);
+		if (checkExists(jobId, jobName)) {
+			logger.info(">>>>>>>>> addJob fail, job already exist, jobGroup:{}, jobName:{}", jobId, jobName.hashCode());
 			return false;
 		}
 		
-		// CronTrigger : TriggerKey + cronExpression //
+		// CronTrigger : TriggerKey + crontab //
 		// withMisfireHandlingInstructionDoNothing 忽略掉调度终止过程中忽略的调度
-		TriggerKey triggerKey = TriggerKey.triggerKey(qz_name, qz_group);
+		TriggerKey triggerKey = getTriggerKey(jobId, jobName);
 		CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(crontab)
 		        .withMisfireHandlingInstructionDoNothing();
 		CronTrigger cronTrigger = TriggerBuilder.newTrigger().withIdentity(triggerKey).withSchedule(cronScheduleBuilder)
 		        .build();
 
 		// Trigger the job to run with cron
-		JobKey jobKey = new JobKey(qz_name, qz_group);
+		JobKey jobKey = new JobKey(String.valueOf(jobId), String.valueOf(jobName.hashCode()));
 		Class<? extends Job> jobClass_ = EventJobBean.class;
 		JobDataMap jobDataMap = new JobDataMap(new HashMap<String, Long>(){
 			private static final long serialVersionUID = 1L;
@@ -108,9 +106,137 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 		return true;
 	}
 	
+	/**
+	 *  更新Schedule Job
+	 * @author suoyao
+	 * @date 下午5:11:52
+	 * @param jobId
+	 * @param jobName
+	 * @param crontab
+	 * @return
+	 * @throws SchedulerException
+	 */
+	public static boolean UpgradeScheduleJob(final Long jobId, final String jobName, final String crontab) throws SchedulerException {
+		// TriggerKey valid if_exists
+		if (!checkExists(jobId, jobName)) {
+			logger.error(">>>>>>>>>>> UpgradeScheduleJob fail, job not exists, JobGroup:{}, JobName:{}", jobId, jobName.hashCode());
+			return false;
+		}
+		// TriggerKey : name + group
+		TriggerKey triggerKey = getTriggerKey(jobId, jobName);
+		CronTrigger oldTrigger = (CronTrigger) scheduler.getTrigger(triggerKey);
+		if(null != oldTrigger) {
+			// 存在久的触发器
+			// avoid repeat
+			String oldCron = oldTrigger.getCronExpression();
+			if (oldCron.equals(crontab)) {
+				return true;
+			}
+			// CronTrigger : TriggerKey + crontab
+			CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(crontab)
+			        .withMisfireHandlingInstructionDoNothing();
+			oldTrigger = oldTrigger.getTriggerBuilder().withIdentity(triggerKey).withSchedule(cronScheduleBuilder)
+			        .build();
+
+			// rescheduleJob
+			scheduler.rescheduleJob(triggerKey, oldTrigger);
+		} else {
+			// CronTrigger : TriggerKey + crontab
+			CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(crontab)
+			        .withMisfireHandlingInstructionDoNothing();
+			CronTrigger cronTrigger = TriggerBuilder.newTrigger().withIdentity(triggerKey)
+			        .withSchedule(cronScheduleBuilder).build();
+
+			// JobDetail-JobDataMap fresh
+			JobKey jobKey = new JobKey(String.valueOf(jobId), String.valueOf(jobName.hashCode()));
+			JobDetail jobDetail = scheduler.getJobDetail(jobKey);
+
+			// Trigger fresh
+			HashSet<Trigger> triggerSet = new HashSet<Trigger>();
+			triggerSet.add(cronTrigger);
+
+			scheduler.scheduleJob(jobDetail, triggerSet, true);
+		}
+		if(logger.isInfoEnabled()) {
+			logger.info(">>>>>>>>>>> resumeJob success, JobGroup:{}, JobName:{}", jobId, jobName.hashCode());
+		}
+		return true;
+	}
 	
-	public static boolean checkExists(String jobName, String jobGroup) throws SchedulerException{
-		TriggerKey triggerKey = TriggerKey.triggerKey(jobName, jobGroup);
+	/**
+	 * 移除 schedule Job
+	 * @author suoyao
+	 * @date 下午5:13:37
+	 * @param jobId
+	 * @param jobName
+	 * @return
+	 * @throws SchedulerException
+	 */
+	public static boolean removeJob(final Long jobId, final String jobName) throws SchedulerException {
+		// TriggerKey : name + group
+		TriggerKey triggerKey = getTriggerKey(jobId, jobName);
+		boolean result = false;
+		if (checkExists(jobId, jobName)) {
+			result = scheduler.unscheduleJob(triggerKey);
+			logger.info(">>>>>>>>>>> removeJob, triggerKey:{}, result [{}]", triggerKey, result);
+		}
+		return true;
+	}
+	
+	/**
+	 *  暂停Job任务
+	 * @author suoyao
+	 * @date 下午5:27:25
+	 * @param jobId
+	 * @param jobName
+	 * @return
+	 * @throws SchedulerException
+	 */
+	public static boolean pauseJob(final Long jobId, final String jobName) throws SchedulerException {
+		// TriggerKey : name + group
+		TriggerKey triggerKey = getTriggerKey(jobId, jobName);
+		boolean result = false;
+		if (checkExists(jobId, jobName)) {
+			scheduler.pauseTrigger(triggerKey);
+			result = true;
+			logger.info(">>>>>>>>>>> pauseJob success, triggerKey:{}", triggerKey);
+		} else {
+			logger.info(">>>>>>>>>>> pauseJob fail, triggerKey:{}", triggerKey);
+		}
+		return result;
+	}
+    
+	/**
+	 *  重启Job任务
+	 * @author suoyao
+	 * @date 下午5:27:07
+	 * @param jobId
+	 * @param jobName
+	 * @return
+	 * @throws SchedulerException
+	 */
+	public static boolean resumeJob(final Long jobId, final String jobName) throws SchedulerException {
+		// TriggerKey : name + group
+		TriggerKey triggerKey = getTriggerKey(jobId, jobName);
+
+		boolean result = false;
+		if (checkExists(jobId, jobName)) {
+			scheduler.resumeTrigger(triggerKey);
+			result = true;
+			logger.info(">>>>>>>>>>> resumeJob success, triggerKey:{}", triggerKey);
+		} else {
+			logger.info(">>>>>>>>>>> resumeJob fail, triggerKey:{}", triggerKey);
+		}
+		return result;
+	}
+	
+	public static boolean checkExists(final Long jobId, final String jobName) throws SchedulerException{
+		TriggerKey triggerKey = getTriggerKey(jobId, jobName);
 		return scheduler.checkExists(triggerKey);
 	}
+	
+	private static TriggerKey getTriggerKey(final Long jobId, final String jobName) {
+		return TriggerKey.triggerKey(String.valueOf(jobId), String.valueOf(jobName.hashCode()));
+	}
+	
 }

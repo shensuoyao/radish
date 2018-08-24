@@ -63,7 +63,13 @@ public class JobService {
 		// 更新JobInfo信息
 		jobInfoMapper.upgradeJonInfo(jobInfo);
 		// 修改scheduler 调度
-		// TODO
+		if(StringUtils.isNotEmpty(jobInfo.getCrontab())) {
+			try {
+				RadishDynamicScheduler.UpgradeScheduleJob(jobInfo.getId(), jobInfo.getJobName(), jobInfo.getCrontab());
+			} catch (SchedulerException e) {
+				logger.error("add job to Scheduler failed. {}", e);
+			}
+		}
 	}
 	
 	/**

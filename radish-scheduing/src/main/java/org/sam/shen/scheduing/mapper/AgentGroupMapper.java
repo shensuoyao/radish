@@ -17,4 +17,6 @@ public interface AgentGroupMapper {
 	Long countAgentGroup();
 	
 	void upgradeAgentGroup(AgentGroup agentGroup);
+	
+	void deleteAgentGroup(Long id);
 }

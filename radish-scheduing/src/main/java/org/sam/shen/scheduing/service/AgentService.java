@@ -224,4 +224,8 @@ public class AgentService {
 		return list;
 	}
 	
+	public void deleteAgentGroup(Long id) {
+		agentGroupMapper.deleteAgentGroup(id);
+	}
+	
 }

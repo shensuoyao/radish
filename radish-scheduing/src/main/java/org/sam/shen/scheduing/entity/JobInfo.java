@@ -171,7 +171,7 @@ public class JobInfo extends Identity {
 	public void setEnable(int enable) {
 		this.enable = enable;
 	}
-
+	
 	@Override
 	public String toString() {
 		return JSON.toJSONString(this, SerializerFeature.WriteNullStringAsEmpty, SerializerFeature.WriteMapNullValue,

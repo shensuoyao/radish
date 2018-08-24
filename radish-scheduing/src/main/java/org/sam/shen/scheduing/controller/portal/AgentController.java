@@ -179,12 +179,30 @@ public class AgentController {
 		return model;
 	}
 	
+	/**
+	 *  保存Agent 机器组
+	 * @author suoyao
+	 * @date 上午10:05:35
+	 * @param agentGroup
+	 * @param agents
+	 * @return
+	 */
 	@RequestMapping(value = "agent-group-save", method = RequestMethod.POST)
 	public String agentGroupSave(@ModelAttribute AgentGroup agentGroup,
 	        @RequestParam("agents") List<Long> agents) {
 		agentGroup.setCreateTime(new Date());
 		agentService.saveAgentGroup(agentGroup, agents);
 		return "redirect:/portal/agent-group-edit/" + agentGroup.getId();
+	}
+	
+	@RequestMapping(value = "agent-group-del", method = RequestMethod.POST)
+	@ResponseBody
+	public Resp<String> agentGroupDel(@RequestParam(value = "id", required = false) Long id) {
+		if(null == id) {
+			return Resp.FAIL;
+		}
+		agentService.deleteAgentGroup(id);
+		return Resp.SUCCESS;
 	}
 	
 }
