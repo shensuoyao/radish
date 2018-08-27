@@ -47,7 +47,7 @@ public class CallbackThreadPool {
 	
 	public static void run() {
 		HandlerEvent callBackParam = takeCallbackQueue();
-		if(null != callBackParam && StringUtils.isNotEmpty(callBackParam.getCallId())) {
+		if(null != callBackParam && StringUtils.isNotEmpty(callBackParam.getEventId())) {
 			fixedThreadPool.execute(new EventHandlerThread(callBackParam));
 		}
 	}

@@ -94,7 +94,7 @@ CREATE TABLE `job_info` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '唯一主键id',
   `job_name` varchar(125) DEFAULT NULL COMMENT 'job名称',
   `crontab` varchar(32) DEFAULT NULL COMMENT '定时策略',
-  `job_type` varchar(32) DEFAULT NULL COMMENT 'job类型, shell, java, Python etc',
+  `handler_type` varchar(32) DEFAULT NULL COMMENT 'job类型, shell, java, Python etc',
   `handler_fail_strategy` varchar(32) DEFAULT NULL COMMENT '处理器失败策略',
   `admin` varchar(64) DEFAULT NULL COMMENT 'Job负责人',
   `admin_email` varchar(125) DEFAULT NULL COMMENT '负责人邮箱',
@@ -121,3 +121,18 @@ CREATE TABLE `job_info` (
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2018-08-24 16:46:15
+
+DROP TABLE IF EXISTS `job_event`;
+CREATE TABLE `job_event` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '唯一主键id',
+  `job_id` int(11) NOT NULL  COMMENT 'job 任务id',
+  `agent_id` int(11) NOT NULL  COMMENT 'Agent客户端Id',
+  `registryHandler` varchar(256) DEFAULT NULL COMMENT '注册的Handler处理器, 多个用逗号分割',
+  `handlerType` varchar(32) DEFAULT NULL COMMENT 'job类型, shell, java, Python etc',
+  `cmd` text DEFAULT NULL COMMENT '执行脚本',
+  `params` varchar(512) DEFAULT NULL COMMENT '附加参数',
+  `stat` varchar(32) DEFAULT NULL COMMENT '状态',
+  `retry_count` smallint(3) DEFAULT 0 COMMENT '重试次数',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8;

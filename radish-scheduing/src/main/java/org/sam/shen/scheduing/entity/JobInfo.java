@@ -17,7 +17,7 @@ public class JobInfo extends Identity {
 	
 	private String crontab;	// quartz 表达式
 	
-	private HandlerType jobType;    // job 类型
+	private HandlerType handlerType;    // job handler 处理器 类型
 	
 	// 任务事件处理失败策略 {丢弃 / 重试 / 告警}
 	private HandlerFailStrategy handlerFailStrategy;
@@ -68,12 +68,12 @@ public class JobInfo extends Identity {
 		this.crontab = crontab;
 	}
 
-	public HandlerType getJobType() {
-		return jobType;
+	public HandlerType getHandlerType() {
+		return handlerType;
 	}
 
-	public void setJobType(HandlerType jobType) {
-		this.jobType = jobType;
+	public void setHandlerType(HandlerType handlerType) {
+		this.handlerType = handlerType;
 	}
 
 	public HandlerFailStrategy getHandlerFailStrategy() {

@@ -20,10 +20,10 @@ import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
 import org.sam.shen.scheduing.mapper.JobInfoMapper;
+import org.sam.shen.scheduing.service.RedisService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
@@ -34,11 +34,11 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 	private static final Logger logger = LoggerFactory.getLogger(RadishDynamicScheduler.class);
 	
 	// scheduler
-	@Autowired
 	private static Scheduler scheduler;
 	
-	@Autowired
 	public static JobInfoMapper jobInfoMapper;
+	
+	public static RedisService redisService;
 	
 	private RadishDynamicScheduler() {
 		super();
@@ -48,6 +48,7 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		RadishDynamicScheduler.scheduler = applicationContext.getBean("quartzScheduler", Scheduler.class);
 		RadishDynamicScheduler.jobInfoMapper = applicationContext.getBean(JobInfoMapper.class);
+		RadishDynamicScheduler.redisService = applicationContext.getBean(RedisService.class);
 	}
 	
 	@PostConstruct

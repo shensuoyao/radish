@@ -39,9 +39,9 @@
 		      <div class="layui-inline">
 	            <label class="layui-form-label">任务类型</label>
 	            <div class="layui-input-inline">
-	                <select name="jobType" class="layui-input" lay-filter="jobType">
+	                <select name="handlerType" class="layui-input" lay-filter="handlerType">
 										  <option value=""></option>
-										  <option th:each="enum : ${jobType}" th:value="${enum}" th:text="${enum.desc}" th:selected="${jobInfo.jobType} eq ${enum} ? true : false" />
+										  <option th:each="enum : ${handlerType}" th:value="${enum}" th:text="${enum.desc}" th:selected="${jobInfo.handlerType} eq ${enum} ? true : false" />
 										</select>
 	            </div>
 	        </div>
@@ -258,7 +258,7 @@
 						}
 				});
 		    
-		    form.on('select(jobType)', function(data){
+		    form.on('select(handlerType)', function(data){
 		    	var tp = data.value.toLowerCase();
 		    	if(tp.indexOf('java') > 0) {
 		    		paramsEditor.setOption("mode", "text/x-java");

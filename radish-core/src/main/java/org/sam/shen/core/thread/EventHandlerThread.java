@@ -26,7 +26,7 @@ public class EventHandlerThread extends Thread {
 
 	public EventHandlerThread(HandlerEvent event) {
 		this.event = event;
-		this.callId = event.getCallId();
+		this.callId = event.getEventId();
 	}
 	
 	@Override

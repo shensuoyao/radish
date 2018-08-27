@@ -1,5 +1,9 @@
 package org.sam.shen.scheduing.scheduler;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
+
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.SchedulerException;
@@ -7,6 +11,9 @@ import org.sam.shen.scheduing.entity.JobInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.quartz.QuartzJobBean;
+
+import com.google.common.base.Splitter;
+import com.google.common.collect.Maps;
 
 /**
  *  执行Job Callback的bean
@@ -42,7 +49,19 @@ public class EventJobBean extends QuartzJobBean {
 			}
 		} else {
 			// 3. 发送Event事件到抢占任务事件队列
-			// TODO
+			List<String> agentHandlers = Splitter.onPattern(",|-").splitToList(jobInfo.getExecutorHandlers());
+			Map<String, Object> m = Maps.newHashMap();
+			Stream.iterate(0, i -> i + 1).limit(agentHandlers.size()).forEach(i -> {
+				if(i % 2 == 0) {
+					if(m.containsKey(agentHandlers.get(i))) {
+						String value = String.valueOf(m.get(agentHandlers.get(i))).concat(",").concat(agentHandlers.get(i + 1));
+						m.put(agentHandlers.get(i), value);
+					} else {
+						m.put(agentHandlers.get(i), agentHandlers.get(i + 1));
+					}
+				}
+			});
+			RadishDynamicScheduler.redisService.hmset(String.valueOf(System.currentTimeMillis()), m);
 		}
 		destory();
 	}

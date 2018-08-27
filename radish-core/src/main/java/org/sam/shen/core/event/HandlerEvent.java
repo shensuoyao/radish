@@ -14,7 +14,7 @@ public class HandlerEvent implements Serializable {
 	private static final long serialVersionUID = 7917928400746337287L;
 	
 	// 执行调用ID
-	private String callId;
+	private String eventId;
 	
 	// 配置的Job任务ID
 	private String jobId;
@@ -27,12 +27,12 @@ public class HandlerEvent implements Serializable {
 
 	private String[] params;
 
-	public String getCallId() {
-		return callId;
+	public String getEventId() {
+		return eventId;
 	}
 
-	public void setCallId(String callId) {
-		this.callId = callId;
+	public void setEventId(String eventId) {
+		this.eventId = eventId;
 	}
 
 	public String getJobId() {

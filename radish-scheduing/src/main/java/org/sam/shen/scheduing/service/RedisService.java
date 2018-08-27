@@ -1,5 +1,6 @@
 package org.sam.shen.scheduing.service;
 
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
@@ -68,6 +69,14 @@ public class RedisService {
 		ValueOperations<String, Object> operations = redisTemplate.opsForValue();
 		result = operations.get(key);
 		return result;
+	}
+	
+	public void hset(String key, String hashKey, Object value) {
+		redisTemplate.opsForHash().put(key, hashKey, value);
+	}
+	
+	public void hmset(String key, Map<String, Object> m) {
+		redisTemplate.opsForHash().putAll(key, m);
 	}
 	
 }

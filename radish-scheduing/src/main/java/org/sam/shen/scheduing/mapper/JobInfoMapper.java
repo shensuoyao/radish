@@ -23,4 +23,6 @@ public interface JobInfoMapper {
 	
 	void upgradeJonInfo(JobInfo jobInfo);
 	
+	List<JobInfo> queryJobInfoByEnable(int enable);
+	
 }
