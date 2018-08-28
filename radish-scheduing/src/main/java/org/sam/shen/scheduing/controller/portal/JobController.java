@@ -68,7 +68,7 @@ public class JobController {
 	 */
 	@RequestMapping(value = "job-add", method = RequestMethod.GET)
 	public ModelAndView jobAdd(ModelAndView model) {
-		model.addObject("jobType", Arrays.asList(HandlerType.values()));
+		model.addObject("handlerType", Arrays.asList(HandlerType.values()));
 		model.addObject("handlerFailStrategy", Arrays.asList(HandlerFailStrategy.values()));
 		model.setViewName("frame/job/job_add");
 		return model;
@@ -230,7 +230,7 @@ public class JobController {
 			}
 			
 		}
-		model.addObject("jobType", Arrays.asList(HandlerType.values()));
+		model.addObject("handlerType", Arrays.asList(HandlerType.values()));
 		model.addObject("handlerFailStrategy", Arrays.asList(HandlerFailStrategy.values()));
 		model.setViewName("frame/job/job_edit");
 		return model;

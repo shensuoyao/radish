@@ -19,6 +19,7 @@ import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
+import org.sam.shen.scheduing.mapper.JobEventMapper;
 import org.sam.shen.scheduing.mapper.JobInfoMapper;
 import org.sam.shen.scheduing.service.RedisService;
 import org.slf4j.Logger;
@@ -38,6 +39,8 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 	
 	public static JobInfoMapper jobInfoMapper;
 	
+	public static JobEventMapper jobEventMapper;
+	
 	public static RedisService redisService;
 	
 	private RadishDynamicScheduler() {
@@ -49,6 +52,7 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 		RadishDynamicScheduler.scheduler = applicationContext.getBean("quartzScheduler", Scheduler.class);
 		RadishDynamicScheduler.jobInfoMapper = applicationContext.getBean(JobInfoMapper.class);
 		RadishDynamicScheduler.redisService = applicationContext.getBean(RedisService.class);
+		RadishDynamicScheduler.jobEventMapper = applicationContext.getBean(JobEventMapper.class);
 	}
 	
 	@PostConstruct

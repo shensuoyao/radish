@@ -9,15 +9,17 @@
 
 #### 安装教程
 
-1. xxxx
-2. xxxx
-3. xxxx
+1. 下载source, 根据自己的Mysql环境和Redis环境修改配置文件, 并打包.
+2. 初始化数据库
+3. 配置好redis数据库
+4. 启动scheduler服务端
+5. 如有需要, 配置好网络环境, 在客户机上启动Agent客户端
 
 #### 使用说明
 
-1. xxxx
-2. xxxx
-3. xxxx
+1. 服务安装好后可以直接使用监控模块, 并内置支持Shell 和 Python脚本任务
+2. 如有需要可以定制开发Agent, 参照SimpleHandler示例, 在service.handler包下自定义实例类,  
+实例类必须继承AbsHandler抽象处理器, 同时必须添加@AHandler注解才能被服务端发现
 
 #### 参与贡献
 
@@ -25,13 +27,3 @@
 2. 新建 Feat_xxx 分支
 3. 提交代码
 4. 新建 Pull Request
-
-
-#### 码云特技
-
-1. 使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2. 码云官方博客 [blog.gitee.com](https://blog.gitee.com)
-3. 你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解码云上的优秀开源项目
-4. [GVP](https://gitee.com/gvp) 全称是码云最有价值开源项目，是码云综合评定出的优秀开源项目
-5. 码云官方提供的使用手册 [http://git.mydoc.io/](http://git.mydoc.io/)
-6. 码云封面人物是一档用来展示码云会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)

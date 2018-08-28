@@ -13,6 +13,8 @@ public class JobEvent extends Identity {
 	
 	private Long jobId;
 	
+	private String parentJobId;
+	
 	private Long agentId;
 	
 	private String registryHandler;
@@ -31,12 +33,21 @@ public class JobEvent extends Identity {
 	
 	public JobEvent() {
 		super();
+		this.createTime = new Date();
 	}
 	
-	public JobEvent(Long jobId, Long agentId, EventStatus stat) {
+	public JobEvent(Long jobId, Long agentId, HandlerType handlerType, EventStatus stat) {
+		this();
 		this.jobId = jobId;
 		this.agentId = agentId;
+		this.handlerType = handlerType;
 		this.stat = stat;
+	}
+	
+	public JobEvent(Long jobId, Long agentId, HandlerType handlerType, EventStatus stat, String cmd, String params) {
+		this(jobId, agentId, handlerType, stat);
+		this.cmd = cmd;
+		this.params = params;
 	}
 	
 	public Long getJobId() {
@@ -45,6 +56,14 @@ public class JobEvent extends Identity {
 
 	public void setJobId(Long jobId) {
 		this.jobId = jobId;
+	}
+
+	public String getParentJobId() {
+		return parentJobId;
+	}
+
+	public void setParentJobId(String parentJobId) {
+		this.parentJobId = parentJobId;
 	}
 
 	public Long getAgentId() {

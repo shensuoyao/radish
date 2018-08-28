@@ -136,10 +136,10 @@ public class JobService {
 				depend.forEach(jf -> {
 					nodes.add(jf.getJobName());
 					String arrow = null;
-					if (jobInfo.getParentJobId().indexOf(String.valueOf(jf.getId())) >= 0) {
+					if (null != jobInfo.getParentJobId() && jobInfo.getParentJobId().indexOf(String.valueOf(jf.getId())) >= 0) {
 						arrow = jf.getJobName() + Constant.SPLIT_CHARACTER_ARROW.concat(jobInfo.getJobName());
 					}
-					if(jobInfo.getChildJobId().indexOf(String.valueOf(jf.getId())) >= 0) {
+					if(null != jobInfo.getChildJobId() && jobInfo.getChildJobId().indexOf(String.valueOf(jf.getId())) >= 0) {
 						arrow = jobInfo.getJobName() + Constant.SPLIT_CHARACTER_ARROW.concat(jf.getJobName());
 					}
 					if(StringUtils.isNotEmpty(arrow) && !edges.contains(arrow)) {

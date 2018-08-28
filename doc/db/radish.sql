@@ -126,9 +126,10 @@ DROP TABLE IF EXISTS `job_event`;
 CREATE TABLE `job_event` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '唯一主键id',
   `job_id` int(11) NOT NULL  COMMENT 'job 任务id',
+  `parent_job_id` varchar(125) DEFAULT NULL  COMMENT '父job 任务id',
   `agent_id` int(11) NOT NULL  COMMENT 'Agent客户端Id',
-  `registryHandler` varchar(256) DEFAULT NULL COMMENT '注册的Handler处理器, 多个用逗号分割',
-  `handlerType` varchar(32) DEFAULT NULL COMMENT 'job类型, shell, java, Python etc',
+  `registry_handler` varchar(256) DEFAULT NULL COMMENT '注册的Handler处理器, 多个用逗号分割',
+  `handler_type` varchar(32) DEFAULT NULL COMMENT 'job类型, shell, java, Python etc',
   `cmd` text DEFAULT NULL COMMENT '执行脚本',
   `params` varchar(512) DEFAULT NULL COMMENT '附加参数',
   `stat` varchar(32) DEFAULT NULL COMMENT '状态',
