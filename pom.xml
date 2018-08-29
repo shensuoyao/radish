@@ -13,7 +13,7 @@
   
   <modules>
 		<module>radish-core</module>
-		<module>radish-scheduing</module>
+		<module>radish-scheduler</module>
 		<module>radish-agent</module>
 	</modules>
 
