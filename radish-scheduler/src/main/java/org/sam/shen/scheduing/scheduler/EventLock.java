@@ -25,9 +25,6 @@ public class EventLock {
 	 */
 	private String lockKey;
 	
-	/**
-	 * 锁超时时间，防止线程在入锁以后，无限的执行等待
-	 */
 	private int expireMsecs = 60 * 1000;
 	
 	private volatile boolean locked = false;

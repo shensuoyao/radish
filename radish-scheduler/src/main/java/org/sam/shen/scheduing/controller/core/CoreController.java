@@ -1,11 +1,12 @@
 package org.sam.shen.scheduing.controller.core;
 
-import org.sam.shen.core.constants.HandlerType;
 import org.sam.shen.core.event.HandlerEvent;
 import org.sam.shen.core.model.AgentInfo;
 import org.sam.shen.core.model.AgentPerformance;
 import org.sam.shen.core.model.Resp;
+import org.sam.shen.scheduing.entity.JobEvent;
 import org.sam.shen.scheduing.service.AgentService;
+import org.sam.shen.scheduing.service.JobEventService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,9 @@ public class CoreController {
 
 	@Autowired
 	private AgentService agentService;
+	
+	@Autowired
+	private JobEventService jobEventService;
 
 	/**
 	 * @author suoyao
@@ -65,14 +69,14 @@ public class CoreController {
 	@RequestMapping(value = "/triggercall/{agentId}", method = RequestMethod.GET)
 	public Resp<HandlerEvent> triggerCall(@PathVariable(value = "agentId", required = false) Long agentId) {
 		// 根据Agent机器性能决定是否能抢到任务
-		HandlerEvent event = new HandlerEvent();
-		event.setJobId(String.valueOf(System.currentTimeMillis()));
-		event.setRegistryHandler("scriptHandler");
-		event.setCmd("ls -al /run/media/suoyao/develop");
-		event.setHandlerType(HandlerType.H_SHELL);
-		// String[] params = {"君问归期未有期，", "巴山夜雨涨秋池。", "何当共剪西窗烛，", "却话巴山夜雨时。 "};
-		// event.setParams(params);
-		return new Resp<>(event);
+		JobEvent jobEvent = jobEventService.triggerJobEvent(agentId);
+		if(null != jobEvent) {
+			HandlerEvent event = new HandlerEvent(jobEvent.getEventId(), String.valueOf(jobEvent.getJobId()),
+			        jobEvent.getRegistryHandler(), jobEvent.getCmd(), jobEvent.getHandlerType(),
+			        jobEvent.getParams().split(System.lineSeparator()));
+			return new Resp<>(event);
+		}
+		return new Resp<>(null);
 	}
 
 }

@@ -1,15 +1,19 @@
 package org.sam.shen.scheduing.entity;
 
+import java.io.Serializable;
 import java.util.Date;
 
+import org.sam.shen.core.constants.Constant;
 import org.sam.shen.core.constants.EventStatus;
 import org.sam.shen.core.constants.HandlerType;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
-public class JobEvent extends Identity {
+public class JobEvent implements Serializable {
 	private static final long serialVersionUID = -3205360376193569666L;
+	
+	private String eventId;
 	
 	private Long jobId;
 	
@@ -38,6 +42,7 @@ public class JobEvent extends Identity {
 	
 	public JobEvent(Long jobId, Long agentId, HandlerType handlerType, EventStatus stat) {
 		this();
+		this.eventId = jobId + Constant.SPLIT_CHARACTER + System.currentTimeMillis();
 		this.jobId = jobId;
 		this.agentId = agentId;
 		this.handlerType = handlerType;
@@ -50,6 +55,14 @@ public class JobEvent extends Identity {
 		this.params = params;
 	}
 	
+	public String getEventId() {
+		return eventId;
+	}
+
+	public void setEventId(String eventId) {
+		this.eventId = eventId;
+	}
+
 	public Long getJobId() {
 		return jobId;
 	}

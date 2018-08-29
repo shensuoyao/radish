@@ -124,7 +124,7 @@ CREATE TABLE `job_info` (
 
 DROP TABLE IF EXISTS `job_event`;
 CREATE TABLE `job_event` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '唯一主键id',
+  `event_id` varchar(32) NOT NULL COMMENT '事件id',
   `job_id` int(11) NOT NULL  COMMENT 'job 任务id',
   `parent_job_id` varchar(125) DEFAULT NULL  COMMENT '父job 任务id',
   `agent_id` int(11) NOT NULL  COMMENT 'Agent客户端Id',
@@ -134,6 +134,5 @@ CREATE TABLE `job_event` (
   `params` varchar(512) DEFAULT NULL COMMENT '附加参数',
   `stat` varchar(32) DEFAULT NULL COMMENT '状态',
   `retry_count` smallint(3) DEFAULT 0 COMMENT '重试次数',
-  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
-PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8;
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

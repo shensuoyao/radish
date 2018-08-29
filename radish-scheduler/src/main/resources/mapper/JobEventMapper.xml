@@ -4,7 +4,7 @@
 <!-- namespace必须指向Mapper接口 -->
 <mapper namespace="org.sam.shen.scheduing.mapper.JobEventMapper">
     <resultMap type="JobEvent" id="jobEventMap">
-        <result column="id" property="id"/>
+        <result column="event_id" property="eventId"/>
         <result column="job_id" property="jobId"/>
         <result column="parent_job_id" property="parentJobId"/>
         <result column="agent_id" property="agentId"/>
@@ -19,13 +19,38 @@
 
 	<insert id="saveJobEventBatch" parameterType="list">
 	   <![CDATA[
-        INSERT INTO job_event(job_id, parent_job_id, agent_id, registry_handler, handler_type, cmd, params, stat, retry_count, create_time ) 
+        INSERT INTO job_event(event_id, job_id, parent_job_id, agent_id, registry_handler, handler_type, cmd, params, stat, retry_count, create_time ) 
         VALUES 
         ]]>
 		<foreach collection="list" item="item" index="index" separator=",">
-			(#{item.jobId}, #{item.parentJobId}, #{item.agentId}, #{item.registryHandler}, #{item.handlerType}, #{item.cmd}, #{item.params}, 
+			(#{item.eventId}, #{item.jobId}, #{item.parentJobId}, #{item.agentId}, #{item.registryHandler}, #{item.handlerType}, #{item.cmd}, #{item.params}, 
 			#{item.stat}, #{item.retryCount}, #{item.createTime}) 
 		</foreach>
   </insert>
+  
+  <select id="queryJobInfoByAgentId" parameterType="long" resultMap="jobEventMap">
+    <![CDATA[
+        SELECT event_id, job_id, parent_job_id, agent_id, registry_handler, handler_type, cmd, params, stat, retry_count, create_time 
+          FROM job_event 
+         WHERE agent_id = #{agentId}
+        ]]>
+  </select>
+  
+  <select id="countJobEventInJobIds" parameterType="list" resultType="int">
+    <![CDATA[
+        SELECT count(*) 
+          FROM job_event 
+         WHERE job_id IN
+        ]]>
+    <foreach collection="list" item="item" index="index" separator="," open="(" close=")">
+        #{item}
+    </foreach>
+  </select>
+  
+  <delete id="deleteJobEventNotEqual" parameterType="map">
+    <![CDATA[
+        DELETE FROM job_event WHERE event_id = #{eventId} AND agent_id != #{agentId}
+        ]]>
+  </delete>
   
 </mapper>
