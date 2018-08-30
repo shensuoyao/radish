@@ -105,6 +105,11 @@ public class RestRequest {
 		return restTemplate.postForObject(url, request, Resp.class);
 	}
 	
+	@SuppressWarnings("unchecked")
+	public static Resp<Object> post(String url, Object request, Object... uriVariables) {
+		return restTemplate.postForObject(url, request, Resp.class, uriVariables);
+	}
+	
 	public static <T> Resp<T> get(String url, Class<T> clazz, String... paramKvs) throws Exception {
 		Map<String, Object> uriVariables = Maps.newHashMap();
 		if(paramKvs != null) {

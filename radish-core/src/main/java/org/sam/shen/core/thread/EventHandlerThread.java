@@ -3,6 +3,8 @@ package org.sam.shen.core.thread;
 import org.sam.shen.core.agent.RadishAgent;
 import org.sam.shen.core.event.HandlerEvent;
 import org.sam.shen.core.handler.IHandler;
+import org.sam.shen.core.model.Resp;
+import org.sam.shen.core.rpc.RestRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,19 +16,22 @@ import org.slf4j.LoggerFactory;
 public class EventHandlerThread extends Thread {
 	Logger logger = LoggerFactory.getLogger(EventHandlerThread.class);
 	
-	private String callId;
+	private String rpcReportUrl;
+	
+	private String eventId;
 	
 	private HandlerEvent event;
 	
 	private IHandler handler;
 
-	public String getCallId() {
-		return callId;
+	public String getEventId() {
+		return eventId;
 	}
 
-	public EventHandlerThread(HandlerEvent event) {
+	public EventHandlerThread(HandlerEvent event, String rpcReportUrl) {
+		this.rpcReportUrl = rpcReportUrl;
 		this.event = event;
-		this.callId = event.getEventId();
+		this.eventId = event.getEventId();
 	}
 	
 	@Override
@@ -36,9 +41,16 @@ public class EventHandlerThread extends Thread {
 		}
 		try {
 			handler.init();
-			handler.start(event);
+			Resp<String> resp = handler.start(event);
+			RestRequest.post(rpcReportUrl, resp, eventId);    // 上报执行结果
 		} catch (Exception e) {
 			logger.error("Start Handler Error.", e);
+			// 上报出错信息
+			try {
+				RestRequest.post(rpcReportUrl, Resp.FAIL, eventId);
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
 		} finally {
 			handler.destory();
 			close();
@@ -52,15 +64,15 @@ public class EventHandlerThread extends Thread {
 			return Boolean.FALSE;
 		}
 		this.handler = registryHandler;
-		CallbackThreadPool.registryCallbackThread(this);
-		CallbackThreadPool.registryHandlerNow(event.getRegistryHandler(), handler);
+		EventHandlerThreadPool.registryCallbackThread(this);
+		EventHandlerThreadPool.registryHandlerNow(event.getRegistryHandler(), handler);
 		return Boolean.TRUE;
 	}
 	
 	public void close() {
 		this.handler = null;
-		CallbackThreadPool.unRegistryCallback(callId);
-		CallbackThreadPool.loadHandlerNow(event.getRegistryHandler());
+		EventHandlerThreadPool.unRegistryCallback(eventId);
+		EventHandlerThreadPool.loadHandlerNow(event.getRegistryHandler());
 	}
 	
 }

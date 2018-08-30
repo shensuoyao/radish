@@ -35,22 +35,22 @@ public class TriggerEventThread {
 	
 	private volatile boolean toStop = false;
 	
-	public void start(String rpcUrl, Long agentId) {
+	public void start(String rpcTriggerUrl, String rpcReportUrl, Long agentId) {
 		triggerThread = new Thread(new Runnable() {
 			
 			@Override
 			public void run() {
 				while(!toStop) {
 					try {
-						logger.info(" Callback Queue size is: {}", CallbackThreadPool.callbackQueueSize());
-						if (CallbackThreadPool.isCallbackQueueFull()) {
+						logger.info(" Callback Queue size is: {}", EventHandlerThreadPool.callbackQueueSize());
+						if (EventHandlerThreadPool.isCallbackQueueFull()) {
 							logger.error("Callback Queue is Full.");
 						} else {
-							Resp<HandlerEvent> resp = RestRequest.get(rpcUrl, HandlerEvent.class, agentId);
+							Resp<HandlerEvent> resp = RestRequest.get(rpcTriggerUrl, HandlerEvent.class, agentId);
 							if(Resp.SUCCESS.getCode() == resp.getCode()) {
-								logger.info("Agent Trigger Callback {}", resp.getData().toString());
-								
-								CallbackThreadPool.pushCallbackQueue(resp.getData());
+								if(null != resp.getData()) {
+									EventHandlerThreadPool.pushCallbackQueue(resp.getData());
+								}
 							}
 						}
 					} catch (Exception e) {
@@ -74,8 +74,8 @@ public class TriggerEventThread {
 			@Override
 			public void run() {
 				while(!toStop) {
-					if(CallbackThreadPool.isAvailable()) {
-						CallbackThreadPool.run();
+					if(EventHandlerThreadPool.isAvailable()) {
+						EventHandlerThreadPool.run(rpcReportUrl);
 					} else {
 						logger.error("CallbackThreadPool is Full.");
 					}
@@ -90,7 +90,6 @@ public class TriggerEventThread {
 		});
 		callbckThread.setDaemon(true);
 		callbckThread.start();
-		
 	}
 	
 	public void toStop() {

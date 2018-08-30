@@ -66,8 +66,8 @@ public class CoreController {
 	 * @param agentName
 	 * @return 触发任务接口
 	 */
-	@RequestMapping(value = "/triggercall/{agentId}", method = RequestMethod.GET)
-	public Resp<HandlerEvent> triggerCall(@PathVariable(value = "agentId", required = false) Long agentId) {
+	@RequestMapping(value = "/trigger-event/{agentId}", method = RequestMethod.GET)
+	public Resp<HandlerEvent> triggerEvent(@PathVariable(value = "agentId", required = false) Long agentId) {
 		// 根据Agent机器性能决定是否能抢到任务
 		JobEvent jobEvent = jobEventService.triggerJobEvent(agentId);
 		if(null != jobEvent) {
@@ -77,6 +77,21 @@ public class CoreController {
 			return new Resp<>(event);
 		}
 		return new Resp<>(null);
+	}
+	
+	/**
+	 * 客户端处理 event 结果上报
+	 * @author suoyao
+	 * @date 下午4:57:50
+	 * @param agentId
+	 * @param resp
+	 * @return
+	 */
+	@RequestMapping(value = "/handler-event-report/{eventId}", method = RequestMethod.POST)
+	public Resp<String> handlerEventReport(@PathVariable(value = "eventId", required = false) Long eventId,
+	        Resp<String> resp) {
+		jobEventService.handlerJobEventReport(eventId, resp);
+		return Resp.SUCCESS;
 	}
 
 }

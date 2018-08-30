@@ -28,11 +28,11 @@
 		</foreach>
   </insert>
   
-  <select id="queryJobInfoByAgentId" parameterType="long" resultMap="jobEventMap">
+  <select id="queryJobEventByAgentId" parameterType="long" resultMap="jobEventMap">
     <![CDATA[
         SELECT event_id, job_id, parent_job_id, agent_id, registry_handler, handler_type, cmd, params, stat, retry_count, create_time 
           FROM job_event 
-         WHERE agent_id = #{agentId}
+         WHERE agent_id = #{agentId} AND stat IN (READY, RETRY) 
         ]]>
   </select>
   
@@ -52,5 +52,28 @@
         DELETE FROM job_event WHERE event_id = #{eventId} AND agent_id != #{agentId}
         ]]>
   </delete>
+  
+  <update id="upgradeJobEventStatus" parameterType="map">
+    <![CDATA[
+        UPDATE job_event SET stat = #{stat}
+        ]]>
+    <if test="retryCount != null">
+        <![CDATA[ , retry_count = #{retryCount} ]]>
+    </if>
+    <where>
+        <![CDATA[ event_id = #{eventId} ]]>
+        <if test="agentId != null">
+            <![CDATA[ AND agent_id = #{agentId} ]]>
+        </if>
+    </where>
+  </update>
+  
+  <select id="queryJobEventByEventId" parameterType="long" resultMap="jobEventMap">
+    <![CDATA[
+        SELECT event_id, job_id, parent_job_id, agent_id, registry_handler, handler_type, cmd, params, stat, retry_count, create_time 
+          FROM job_event 
+         WHERE event_id = #{eventId} 
+        ]]>
+  </select>
   
 </mapper>

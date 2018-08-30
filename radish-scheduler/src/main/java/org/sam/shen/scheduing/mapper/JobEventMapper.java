@@ -11,10 +11,14 @@ public interface JobEventMapper {
 
 	void saveJobEventBatch(List<JobEvent> events);
 	
-	List<JobEvent> queryJobInfoByAgentId(Long agentId);
+	List<JobEvent> queryJobEventByAgentId(Long agentId);
 	
 	Integer countJobEventInJobIds(List<Long> ids);
 	
 	void deleteJobEventNotEqual(Map<String, Object> param);
+	
+	void upgradeJobEventStatus(Map<String, Object> param);
+	
+	List<JobEvent> queryJobEventByEventId(Long eventId);
 	
 }

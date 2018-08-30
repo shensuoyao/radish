@@ -17,8 +17,8 @@ import org.slf4j.LoggerFactory;
  * @date 2018年8月2日 下午12:57:46
   *  执行处理业务线程池
  */
-public class CallbackThreadPool {
-	private static Logger logger = LoggerFactory.getLogger(CallbackThreadPool.class);
+public class EventHandlerThreadPool {
+	private static Logger logger = LoggerFactory.getLogger(EventHandlerThreadPool.class);
 
 	private static ThreadPoolExecutor fixedThreadPool;
 	
@@ -45,33 +45,33 @@ public class CallbackThreadPool {
 		return avalibleCount > 0;
 	}
 	
-	public static void run() {
-		HandlerEvent callBackParam = takeCallbackQueue();
-		if(null != callBackParam && StringUtils.isNotEmpty(callBackParam.getEventId())) {
-			fixedThreadPool.execute(new EventHandlerThread(callBackParam));
+	public static void run(String rpcReportUrl) {
+		HandlerEvent handlerEvent = takeCallbackQueue();
+		if(null != handlerEvent && StringUtils.isNotEmpty(handlerEvent.getEventId())) {
+			fixedThreadPool.execute(new EventHandlerThread(handlerEvent, rpcReportUrl));
 		}
 	}
 	
-	public static void registryCallbackThread(EventHandlerThread callbackThread) {
-		callbackThreadRepository.put(callbackThread.getCallId(), callbackThread);
+	public static void registryCallbackThread(EventHandlerThread eventHandlerThread) {
+		callbackThreadRepository.put(eventHandlerThread.getEventId(), eventHandlerThread);
 	}
 	
 	/**
 	 * @author suoyao
 	 * @date 下午12:46:50
-	 * @param jobId
+	 * @param eventId
 	  *   卸载注册的执行线程
 	 */
-	public static void unRegistryCallback(String jobId) {
-		loadCallbackThread(jobId);
+	public static void unRegistryCallback(String eventId) {
+		loadCallbackThread(eventId);
 	}
 	
-	public static EventHandlerThread loadCallbackThread(String jobId) {
-		return callbackThreadRepository.remove(jobId);
+	public static EventHandlerThread loadCallbackThread(String eventId) {
+		return callbackThreadRepository.remove(eventId);
 	}
 	
-	public static void stopCallbackThread(String jobId) {
-		EventHandlerThread callbackThread = loadCallbackThread(jobId);
+	public static void stopCallbackThread(String eventId) {
+		EventHandlerThread callbackThread = loadCallbackThread(eventId);
 		callbackThread.interrupt();
 	}
 	
