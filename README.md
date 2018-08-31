@@ -5,7 +5,8 @@
 
 #### 软件架构
 系统时序图
-![avatar](./doc/任务系统时序图.jpg)
+![任务系统时序图](./doc/screenshots/任务系统时序图.jpg)
+![任务系统时序图](http://git.i.com/sam/radish/blob/master/doc/screenshots/任务系统时序图.jpg)
 
 
 #### 安装教程
