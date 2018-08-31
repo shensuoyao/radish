@@ -93,7 +93,7 @@ public class JobEventService {
 	 * @param resp
 	 */
 	@Transactional
-	public void handlerJobEventReport(Long eventId, Resp<String> resp) {
+	public void handlerJobEventReport(String eventId, Resp<String> resp) {
 		Map<String, Object> param = Maps.newHashMap();
 		param.put("eventId", eventId);
 		if(resp.getCode() == Resp.SUCCESS.getCode()) {

@@ -88,7 +88,7 @@ public class CoreController {
 	 * @return
 	 */
 	@RequestMapping(value = "/handler-event-report/{eventId}", method = RequestMethod.POST)
-	public Resp<String> handlerEventReport(@PathVariable(value = "eventId", required = false) Long eventId,
+	public Resp<String> handlerEventReport(@PathVariable(value = "eventId", required = false) String eventId,
 	        Resp<String> resp) {
 		jobEventService.handlerJobEventReport(eventId, resp);
 		return Resp.SUCCESS;

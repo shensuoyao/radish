@@ -19,6 +19,6 @@ public interface JobEventMapper {
 	
 	void upgradeJobEventStatus(Map<String, Object> param);
 	
-	List<JobEvent> queryJobEventByEventId(Long eventId);
+	List<JobEvent> queryJobEventByEventId(String eventId);
 	
 }

@@ -215,10 +215,11 @@ public class JobController {
 				List<JobInfo> childJob = Lists.newArrayList();
 				List<JobInfo> depend = jobService.queryJobInfoByIds(ids);
 				depend.forEach(job -> {
-					if(jobInfo.getParentJobId().indexOf(String.valueOf(job.getId())) >= 0) {
+					
+					if(null != jobInfo.getParentJobId() && jobInfo.getParentJobId().indexOf(String.valueOf(job.getId())) >= 0) {
 						parentJob.add(job);
 					}
-					if(jobInfo.getChildJobId().indexOf(String.valueOf(job.getId())) >= 0) {
+					if(null != jobInfo.getChildJobId() && jobInfo.getChildJobId().indexOf(String.valueOf(job.getId())) >= 0) {
 						childJob.add(job);
 					}
 				});

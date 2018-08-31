@@ -34,7 +34,7 @@ public class ScriptHandler extends AbsHandler {
 	public Resp<String> execute(HandlerEvent event) throws Exception {
 
 		// make script file
-		scriptFileName = FilenameUtils.getFullPath(getLogFileName()).concat(getCallId())
+		scriptFileName = FilenameUtils.getFullPath(getLogFileName()).concat(getEventId())
 		        .concat(event.getHandlerType().getSuffix());
 		ScriptUtil.markScriptFile(scriptFileName, event.getCmd());
 

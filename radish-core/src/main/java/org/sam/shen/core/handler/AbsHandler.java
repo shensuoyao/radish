@@ -14,19 +14,19 @@ public abstract class AbsHandler implements IHandler {
 	/**
 	 *  任务调用ID
 	 */
-	protected String callId;
+	protected String eventId;
 	
 	/**
 	 *  日志文件名
 	 */
 	protected String logFileName;
 
-	public String getCallId() {
-		return callId;
+	public String getEventId() {
+		return eventId;
 	}
 
-	public void setCallId(String callId) {
-		this.callId = callId;
+	public void setEventId(String eventId) {
+		this.eventId = eventId;
 	}
 
 	public String getLogFileName() {
@@ -47,17 +47,17 @@ public abstract class AbsHandler implements IHandler {
 
 	@Override
 	public Resp<String> destory() {
-		logger.info("RADISH ------------> 清理任务:  {}",  callId);
-		setCallId(null);
+		logger.info("RADISH ------------> 清理任务:  {}",  eventId);
+		setEventId(null);
 		setLogFileName(null);
 		return null;
 	}
 
 	@Override
-	public Resp<String> start(HandlerEvent param) throws Exception {
-		this.callId = param.getJobId();
-		this.logFileName = RadishLogFileAppender.makeLogFile(this.callId);
-		return execute(param);
+	public Resp<String> start(HandlerEvent event) throws Exception {
+		this.eventId = event.getEventId();
+		this.logFileName = RadishLogFileAppender.makeLogFile(this.eventId);
+		return execute(event);
 	}
 
 	protected void log(List<String> logLines) {

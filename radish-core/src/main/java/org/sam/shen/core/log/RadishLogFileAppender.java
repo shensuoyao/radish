@@ -51,7 +51,7 @@ public class RadishLogFileAppender {
 	 *  创建日志文件
 	 */
 	public static String makeLogFile(String logId) {
-		File logFilePath = new File(getLogBasePath(), new DateTime(Long.valueOf(logId)).toString("yyyyMMdd"));
+		File logFilePath = new File(getLogBasePath(), new DateTime().toString("yyyyMMdd"));
 		try {
 			FileUtils.forceMkdir(logFilePath);
 		} catch (IOException e) {

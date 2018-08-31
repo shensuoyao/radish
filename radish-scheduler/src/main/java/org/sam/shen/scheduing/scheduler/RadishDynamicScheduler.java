@@ -124,8 +124,9 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 	public static boolean UpgradeScheduleJob(final Long jobId, final String jobName, final String crontab) throws SchedulerException {
 		// TriggerKey valid if_exists
 		if (!checkExists(jobId, jobName)) {
-			logger.error(">>>>>>>>>>> UpgradeScheduleJob fail, job not exists, JobGroup:{}, JobName:{}", jobId, jobName.hashCode());
-			return false;
+			logger.error(">>>>>>>>>>> Upgrade ScheduleJob, job not exists, JobGroup:{}, JobName:{}", jobId, jobName.hashCode());
+			addJob(jobId, jobName, crontab);
+			return true;
 		}
 		// TriggerKey : name + group
 		TriggerKey triggerKey = getTriggerKey(jobId, jobName);

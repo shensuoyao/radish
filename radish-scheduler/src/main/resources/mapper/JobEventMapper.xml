@@ -32,7 +32,7 @@
     <![CDATA[
         SELECT event_id, job_id, parent_job_id, agent_id, registry_handler, handler_type, cmd, params, stat, retry_count, create_time 
           FROM job_event 
-         WHERE agent_id = #{agentId} AND stat IN (READY, RETRY) 
+         WHERE agent_id = #{agentId} AND stat IN ('READY', 'RETRY') 
         ]]>
   </select>
   
@@ -68,7 +68,7 @@
     </where>
   </update>
   
-  <select id="queryJobEventByEventId" parameterType="long" resultMap="jobEventMap">
+  <select id="queryJobEventByEventId" parameterType="string" resultMap="jobEventMap">
     <![CDATA[
         SELECT event_id, job_id, parent_job_id, agent_id, registry_handler, handler_type, cmd, params, stat, retry_count, create_time 
           FROM job_event 
