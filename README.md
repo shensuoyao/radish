@@ -4,7 +4,6 @@
 分布式任务调度与系统监控服务
 
 #### 软件架构
-![系统时序图](./doc/screenshots/任务系统时序图.jpg)
 ![系统时序图](http://git.i.com/sam/radish/raw/master/doc/screenshots/任务系统时序图.jpg)
 
 
