@@ -5,6 +5,7 @@
 
 #### 软件架构
 ![系统时序图](http://git.i.com/sam/radish/raw/master/doc/screenshots/任务系统时序图.jpg)
+![系统架构图](http://git.i.com/sam/radish/raw/master/doc/screenshots/系统架构设计.jpg)
 
 
 #### 安装教程
