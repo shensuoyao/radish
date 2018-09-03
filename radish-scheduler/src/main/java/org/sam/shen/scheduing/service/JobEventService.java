@@ -21,6 +21,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -125,6 +127,11 @@ public class JobEventService {
 			}
 			jobEventMapper.upgradeJobEventStatus(param);
 		}
+	}
+	
+	public Page<JobEvent> queryJobEventForPager(int index, int limit, EventStatus stat) {
+		PageHelper.startPage(index, limit);
+		return jobEventMapper.queryJobEventForPager(stat.name());
 	}
 	
 }

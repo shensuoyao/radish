@@ -77,8 +77,8 @@
        , page: {
            layout: ['count', 'prev', 'page', 'next'] //自定义分页布局
            ,groups: 10 //只显示 1 个连续页码
-           ,first: true //不显示首页
-           ,last: true //不显示尾页
+           ,first: '<<' //不显示首页
+           ,last: '>>' //不显示尾页
                        }
        , loading: false
        , done: function (res, curr, count) {

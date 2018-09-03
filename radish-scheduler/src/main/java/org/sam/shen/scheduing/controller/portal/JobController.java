@@ -9,15 +9,23 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
+import org.quartz.SchedulerException;
 import org.sam.shen.core.constants.Constant;
+import org.sam.shen.core.constants.EventStatus;
 import org.sam.shen.core.constants.HandlerFailStrategy;
 import org.sam.shen.core.constants.HandlerType;
 import org.sam.shen.core.model.Resp;
 import org.sam.shen.scheduing.entity.Agent;
+import org.sam.shen.scheduing.entity.JobEvent;
 import org.sam.shen.scheduing.entity.JobInfo;
 import org.sam.shen.scheduing.entity.RespPager;
+import org.sam.shen.scheduing.scheduler.RadishDynamicScheduler;
 import org.sam.shen.scheduing.service.AgentService;
+import org.sam.shen.scheduing.service.JobEventService;
 import org.sam.shen.scheduing.service.JobService;
+import org.sam.shen.scheduing.vo.SchedulerJobVo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -45,9 +53,14 @@ import com.google.common.collect.Sets;
 @Controller
 @RequestMapping(value = "portal")
 public class JobController {
+	
+	private Logger logger = LoggerFactory.getLogger(JobController.class);
 
 	@Autowired
 	private JobService jobService;
+	
+	@Autowired
+	private JobEventService jobEventService;
 
 	@Autowired
 	private AgentService agentServie;
@@ -236,5 +249,42 @@ public class JobController {
 		model.setViewName("frame/job/job_edit");
 		return model;
 	}
+	
+	@RequestMapping(value = "job-scheduler", method = RequestMethod.GET)
+	public ModelAndView jobInScheduler(ModelAndView model) {
+		try {
+			List<SchedulerJobVo> jobs = RadishDynamicScheduler.listJobsInScheduler();
+			model.addObject("jobs", jobs);
+		} catch (SchedulerException e) {
+			logger.error("list scheduler jobs error. ", e);
+		}
+		model.setViewName("frame/job/job_scheduler");
+		return model;
+	}
+	
+	@RequestMapping(value = "job-event", method = RequestMethod.GET)
+	public ModelAndView jobEvent(ModelAndView model) {
+		
+		model.setViewName("frame/job/job_event");
+		return model;
+	}
 
+	@RequestMapping(value = "job-event/json-pager", method = RequestMethod.GET)
+	@ResponseBody
+	public RespPager<Page<JobEvent>> queryJobEventForJsonPager(@RequestParam("page") Integer page,
+	        @RequestParam("limit") Integer limit,
+	        @RequestParam(value = "stat", required = false) EventStatus stat) {
+		if (null == page) {
+			page = 1;
+		}
+		if (null == limit) {
+			limit = 10;
+		}
+		if(null == stat) {
+			stat = EventStatus.READY;
+		}
+		Page<JobEvent> pager = jobEventService.queryJobEventForPager(page, limit, stat);
+		return new RespPager<>(pager.getPageSize(), pager.getTotal(), pager);
+	}
+	
 }

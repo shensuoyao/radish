@@ -4,7 +4,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.sam.shen.scheduing.entity.JobEvent;
+
+import com.github.pagehelper.Page;
 
 @Mapper
 public interface JobEventMapper {
@@ -20,5 +23,7 @@ public interface JobEventMapper {
 	void upgradeJobEventStatus(Map<String, Object> param);
 	
 	List<JobEvent> queryJobEventByEventId(String eventId);
+	
+	Page<JobEvent> queryJobEventForPager(@Param("stat") String stat);
 	
 }

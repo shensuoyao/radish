@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Data-Table 表格</title>
+    <link rel="stylesheet" th:href="@{/static/layui/css/layui.css}">
+    <link rel="stylesheet" th:href="@{/static/css/style.css}">
+    <link rel="icon" th:href="@{/static/image/code.png}">
+</head>
+<body class="body">
+
+<!-- 工具集 -->
+<div class="my-btn-box">
+    <span class="fl">
+        <button class="layui-btn layui-bg-green mgl-20 btn-search" value="READY">READY</button>
+        <button class="layui-btn layui-bg-blue mgl-20 btn-search" value="HANDLE">HANDLE</button>
+        <button class="layui-btn layui-bg-orange mgl-20 btn-search" value="FAIL">FAIL</button>
+        <button class="layui-btn mgl-20 btn-search" style="background-color: #5FB878;" value="SUCCESS">SUCCESS</button>
+        <button class="layui-btn layui-bg-cyan mgl-20 btn-search" value="RETRY">RETRY</button>
+    </span>
+</div>
+
+<!-- 表格 -->
+<div id="eventTable" lay-filter="eventTable"></div>
+
+<script type="text/javascript" th:src="@{/static/layui/layui.js}"></script>
+<script type="text/javascript" th:src="@{/static/js/index.js}"></script>
+</body>
+<script th:inline="javascript">
+    // layui方法
+    layui.use(['table', 'form', 'layer', 'laytpl'], function () {
+
+        // 操作对象
+    var form = layui.form
+            , table = layui.table
+            , layer = layui.layer
+            , $ = layui.jquery
+            , laytpl = layui.laytpl;
+
+        // 表格渲染
+   var tableIns = table.render({
+       elem: '#eventTable'                  //指定原始表格元素选择器（推荐id选择器）
+       , height: 'full-200'    //容器高度
+       , cols: [[   // 标题栏目
+           {field: 'eventId', title: 'Event ID'}
+           , {field: 'jobId', title: 'Job ID',}
+           , {field: 'handlerType', title: '处理器类型'}
+           , {field: 'stat', title: '事件状态'}
+           , {field: 'retryCount', title: '重试次数' }
+           , {field: 'createTime', title: '创建时间'} ]]
+       , id: 'eventTable'
+       , url: [[@{/portal/job-event/json-pager}]]
+       , method: 'get'
+       , page: {
+           layout: ['count', 'prev', 'page', 'next'] //自定义分页布局
+           ,groups: 10 //只显示 1 个连续页码
+           ,first: '<<' //不显示首页
+           ,last: '>>' //不显示尾页
+                       }
+       , loading: false
+       , done: function (res, curr, count) {
+                //如果是异步请求数据方式，res即为你接口返回的信息。
+                //如果是直接赋值的方式，res即为：{data: [], count: 99} data为当前页数据、count为数据总长度
+                 // console.log(res);
+
+                //得到当前页码
+                // console.log(curr);
+
+                //得到数据总量
+                // console.log(count);
+                
+            }
+        });
+
+        // 刷新
+    $('.btn-search').on('click', function () {
+    	var stat = this.value;
+        tableIns.reload({
+            where: {
+              stat: stat
+                                }
+                        });
+              });
+
+   // you code ...
+
+    });
+</script>
+</html>

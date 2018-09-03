@@ -76,4 +76,17 @@
         ]]>
   </select>
   
+  <select id="queryJobEventForPager" resultMap="jobEventMap" parameterType="string">
+	  <![CDATA[
+	      SELECT event_id, job_id, parent_job_id, agent_id, registry_handler, handler_type, cmd, params, stat, retry_count, create_time 
+          FROM job_event 
+	     ]]>
+	  <if test="stat != null">
+	    <where>
+	        stat = #{stat} 
+	    </where>
+	  </if>
+	  <![CDATA[  ORDER BY create_time DESC ]]>
+ </select>
+  
 </mapper>

@@ -30,7 +30,17 @@
 					"text": "Job",
 					"icon": "&#xe635;",
 					"href": "/radish-scheduing/portal/job"
-				}
+				}, 
+				{
+         "text": "Scheduler Job",
+         "icon": "&#xe635;",
+         "href": "/radish-scheduing/portal/job-scheduler"
+                }, 
+                {
+         "text": "Job Event",
+         "icon": "&#xe635;",
+         "href": "/radish-scheduing/portal/job-event"
+                }
 			]
 		},
 		{

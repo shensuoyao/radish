@@ -3,6 +3,7 @@ package org.sam.shen.scheduing.scheduler;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -19,9 +20,11 @@ import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
+import org.quartz.impl.matchers.GroupMatcher;
 import org.sam.shen.scheduing.mapper.JobEventMapper;
 import org.sam.shen.scheduing.mapper.JobInfoMapper;
 import org.sam.shen.scheduing.service.RedisService;
+import org.sam.shen.scheduing.vo.SchedulerJobVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -29,6 +32,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+
+import com.google.common.collect.Lists;
 
 @Component
 public final class RadishDynamicScheduler implements ApplicationContextAware {
@@ -80,7 +85,7 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 	public static boolean addJob(final Long jobId, final String jobName, final String crontab) throws SchedulerException {
 		// TriggerKey valid if_exists
 		if (checkExists(jobId, jobName)) {
-			logger.info(">>>>>>>>> addJob fail, job already exist, jobGroup:{}, jobName:{}", jobId, jobName.hashCode());
+			logger.info(">>>>>>>>> addJob fail, job already exist, jobGroup:{}, jobName:{}", jobId, jobName);
 			return false;
 		}
 		
@@ -93,7 +98,7 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 		        .build();
 
 		// Trigger the job to run with cron
-		JobKey jobKey = new JobKey(String.valueOf(jobId), String.valueOf(jobName.hashCode()));
+		JobKey jobKey = new JobKey(String.valueOf(jobId), jobName);
 		Class<? extends Job> jobClass_ = EventJobBean.class;
 		JobDataMap jobDataMap = new JobDataMap(new HashMap<String, Long>(){
 			private static final long serialVersionUID = 1L;
@@ -124,7 +129,7 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 	public static boolean UpgradeScheduleJob(final Long jobId, final String jobName, final String crontab) throws SchedulerException {
 		// TriggerKey valid if_exists
 		if (!checkExists(jobId, jobName)) {
-			logger.error(">>>>>>>>>>> Upgrade ScheduleJob, job not exists, JobGroup:{}, JobName:{}", jobId, jobName.hashCode());
+			logger.error(">>>>>>>>>>> Upgrade ScheduleJob, job not exists, JobGroup:{}, JobName:{}", jobId, jobName);
 			addJob(jobId, jobName, crontab);
 			return true;
 		}
@@ -154,7 +159,7 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 			        .withSchedule(cronScheduleBuilder).build();
 
 			// JobDetail-JobDataMap fresh
-			JobKey jobKey = new JobKey(String.valueOf(jobId), String.valueOf(jobName.hashCode()));
+			JobKey jobKey = new JobKey(String.valueOf(jobId), jobName);
 			JobDetail jobDetail = scheduler.getJobDetail(jobKey);
 
 			// Trigger fresh
@@ -164,7 +169,7 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 			scheduler.scheduleJob(jobDetail, triggerSet, true);
 		}
 		if(logger.isInfoEnabled()) {
-			logger.info(">>>>>>>>>>> resumeJob success, JobGroup:{}, JobName:{}", jobId, jobName.hashCode());
+			logger.info(">>>>>>>>>>> resumeJob success, JobGroup:{}, JobName:{}", jobId, jobName);
 		}
 		return true;
 	}
@@ -242,7 +247,29 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 	}
 	
 	private static TriggerKey getTriggerKey(final Long jobId, final String jobName) {
-		return TriggerKey.triggerKey(String.valueOf(jobId), String.valueOf(jobName.hashCode()));
+		return TriggerKey.triggerKey(String.valueOf(jobId), jobName);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static List<SchedulerJobVo> listJobsInScheduler() throws SchedulerException {
+		List<SchedulerJobVo> list = Lists.newArrayList();
+		for(String groupName: scheduler.getJobGroupNames()) {
+		    // enumerate each job in group
+		    for(JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals(groupName))) {
+		        System.out.println("Found job identified by: " + jobKey);
+		        System.out.println("jobName is : " + jobKey.getName());
+		        System.out.println("jobGroup is : " + jobKey.getName());
+		        SchedulerJobVo vo = new SchedulerJobVo(jobKey.getName(), jobKey.getGroup());
+		        List<CronTrigger> triggers = (List<CronTrigger>) scheduler.getTriggersOfJob(jobKey);
+		        if(null != triggers && triggers.size() > 0) {
+		        	vo.setCrontab(triggers.get(0).getCronExpression());
+		        	vo.setPrevFireTime(triggers.get(0).getPreviousFireTime());
+		        	vo.setNextFireTime(triggers.get(0).getNextFireTime());
+		        		 }
+		        list.add(vo);
+		    }
+		}
+		return list;
 	}
 	
 }
