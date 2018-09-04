@@ -14,6 +14,7 @@ import org.sam.shen.core.constants.Constant;
 import org.sam.shen.core.constants.EventStatus;
 import org.sam.shen.core.constants.HandlerFailStrategy;
 import org.sam.shen.core.constants.HandlerType;
+import org.sam.shen.core.log.LogReader;
 import org.sam.shen.core.model.Resp;
 import org.sam.shen.scheduing.entity.Agent;
 import org.sam.shen.scheduing.entity.JobEvent;
@@ -250,6 +251,13 @@ public class JobController {
 		return model;
 	}
 	
+	/**
+	 *  查询正在调度中的job
+	 * @author suoyao
+	 * @date 上午11:31:31
+	 * @param model
+	 * @return
+	 */
 	@RequestMapping(value = "job-scheduler", method = RequestMethod.GET)
 	public ModelAndView jobInScheduler(ModelAndView model) {
 		try {
@@ -269,6 +277,15 @@ public class JobController {
 		return model;
 	}
 
+	/**
+	 *  查询事件分页
+	 * @author suoyao
+	 * @date 上午11:31:11
+	 * @param page
+	 * @param limit
+	 * @param stat
+	 * @return
+	 */
 	@RequestMapping(value = "job-event/json-pager", method = RequestMethod.GET)
 	@ResponseBody
 	public RespPager<Page<JobEvent>> queryJobEventForJsonPager(@RequestParam("page") Integer page,
@@ -285,6 +302,17 @@ public class JobController {
 		}
 		Page<JobEvent> pager = jobEventService.queryJobEventForPager(page, limit, stat);
 		return new RespPager<>(pager.getPageSize(), pager.getTotal(), pager);
+	}
+	
+	@RequestMapping(value = "job-event-log", method = RequestMethod.GET)
+	public ModelAndView eventLog(ModelAndView model, @RequestParam("eventId") String eventId, @RequestParam("agentId") Long agentId) {
+		LogReader logReader = jobEventService.readEventLogFromAgent(eventId, agentId);
+		if(null == logReader) {
+			model.addObject("logs", Lists.newArrayList("日志为空"));
+		}
+		model.addObject("logs", logReader.getLogLines());
+		model.setViewName("frame/job/job_event_log");
+		return model;
 	}
 	
 }

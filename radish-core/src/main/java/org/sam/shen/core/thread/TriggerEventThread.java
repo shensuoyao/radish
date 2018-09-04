@@ -46,7 +46,7 @@ public class TriggerEventThread {
 						if (EventHandlerThreadPool.isCallbackQueueFull()) {
 							logger.error("Callback Queue is Full.");
 						} else {
-							Resp<HandlerEvent> resp = RestRequest.get(rpcTriggerUrl, HandlerEvent.class, agentId);
+							Resp<HandlerEvent> resp = RestRequest.getUriVariables(rpcTriggerUrl, HandlerEvent.class, agentId);
 							if(Resp.SUCCESS.getCode() == resp.getCode()) {
 								if(null != resp.getData()) {
 									EventHandlerThreadPool.pushCallbackQueue(resp.getData());

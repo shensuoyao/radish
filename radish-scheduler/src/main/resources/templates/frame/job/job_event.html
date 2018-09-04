@@ -26,16 +26,19 @@
 <!-- 表格 -->
 <div id="eventTable" lay-filter="eventTable"></div>
 
+<!-- 表格操作按钮集 -->
+<script type="text/html" id="barOption">
+    <a class="layui-btn layui-btn-sm" lay-event="log"><i class="layui-icon">&#xe655;</i></a>
+</script>
 <script type="text/javascript" th:src="@{/static/layui/layui.js}"></script>
 <script type="text/javascript" th:src="@{/static/js/index.js}"></script>
 </body>
 <script th:inline="javascript">
     // layui方法
-    layui.use(['table', 'form', 'layer', 'laytpl'], function () {
+    layui.use(['table', 'layer', 'laytpl'], function () {
 
         // 操作对象
-    var form = layui.form
-            , table = layui.table
+    var table = layui.table
             , layer = layui.layer
             , $ = layui.jquery
             , laytpl = layui.laytpl;
@@ -47,18 +50,18 @@
        , cols: [[   // 标题栏目
            {field: 'eventId', title: 'Event ID'}
            , {field: 'jobId', title: 'Job ID',}
+           , {field: 'agentId', title: 'Agent ID',}
            , {field: 'handlerType', title: '处理器类型'}
            , {field: 'stat', title: '事件状态'}
            , {field: 'retryCount', title: '重试次数' }
-           , {field: 'createTime', title: '创建时间'} ]]
+           , {field: 'createTime', title: '创建时间'}
+           , {fixed: 'right', title: '日志', align: 'center', toolbar: '#barOption', width: 80} ]]
        , id: 'eventTable'
        , url: [[@{/portal/job-event/json-pager}]]
        , method: 'get'
        , page: {
            layout: ['count', 'prev', 'page', 'next'] //自定义分页布局
            ,groups: 10 //只显示 1 个连续页码
-           ,first: '<<' //不显示首页
-           ,last: '>>' //不显示尾页
                        }
        , loading: false
        , done: function (res, curr, count) {
@@ -74,6 +77,29 @@
                 
             }
         });
+        
+   // 获取选中行
+   table.on('tool(eventTable)', function (obj) {
+       if(obj.event == 'log') {
+    	    layer.open({
+    	    	  title: '输出日志 [ ' + obj.data.eventId + ' ]' 
+    	    	  , type: 2
+    	    	  , shade: 0
+    	    	  , area: ['600px', '500px']
+    	    	  , maxmin: true
+    	    	  , content: [[@{/portal/job-event-log}]] + '?eventId=' + obj.data.eventId + '&agentId=' + obj.data.agentId
+    	    		, moveEnd: function(layero) {
+    	    			    layer.setTop(layero);
+    	    		             }
+    	    	      }); 
+    	    /* $.get([[@{/portal/job-event-log}]], {'eventId': obj.data.eventId, 'agentId': obj.data.agentId}, function(str){
+    	    	  layer.open({
+    	    	    type: 1,
+    	    	    content: str //注意，如果str是object，那么需要字符拼接。
+    	    	             });
+    	    	      }); */
+                }
+       });
 
         // 刷新
     $('.btn-search').on('click', function () {
@@ -81,7 +107,12 @@
         tableIns.reload({
             where: {
               stat: stat
-                                }
+                           },
+            page: {
+                layout: ['count', 'prev', 'page', 'next'] //自定义分页布局
+                ,groups: 10 //只显示 1 个连续页码
+                ,curr: 1
+                           }
                         });
               });
 

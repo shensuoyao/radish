@@ -7,16 +7,22 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sam.shen.core.constants.Constant;
 import org.sam.shen.core.constants.EventStatus;
 import org.sam.shen.core.constants.HandlerFailStrategy;
+import org.sam.shen.core.log.LogReader;
 import org.sam.shen.core.model.Resp;
+import org.sam.shen.core.rpc.RestRequest;
+import org.sam.shen.scheduing.entity.Agent;
 import org.sam.shen.scheduing.entity.JobEvent;
 import org.sam.shen.scheduing.entity.JobInfo;
+import org.sam.shen.scheduing.mapper.AgentMapper;
 import org.sam.shen.scheduing.mapper.JobEventMapper;
 import org.sam.shen.scheduing.mapper.JobInfoMapper;
 import org.sam.shen.scheduing.scheduler.EventLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +42,9 @@ public class JobEventService {
 	
 	@Resource
 	private JobInfoMapper jobInfoMapper;
+	
+	@Autowired
+	private AgentMapper agentMapper;
 	
 	@Resource
 	private RedisTemplate<String, Object> redisTemplate;
@@ -132,6 +141,30 @@ public class JobEventService {
 	public Page<JobEvent> queryJobEventForPager(int index, int limit, EventStatus stat) {
 		PageHelper.startPage(index, limit);
 		return jobEventMapper.queryJobEventForPager(stat.name());
+	}
+	
+	/**
+	 *  读取事件日志
+	 * @author suoyao
+	 * @date 下午3:00:48
+	 * @param eventId
+	 * @param agentId
+	 * @return
+	 */
+	public LogReader readEventLogFromAgent(String eventId, Long agentId) {
+		Agent agent = agentMapper.findAgentById(agentId);
+		String logUrl = Constant.HTTP_PREFIX.concat(agent.getAgentIp()).concat(":")
+		        .concat(String.valueOf(agent.getAgentPort())).concat(Constant.AGENT_CONTEXT_PATH);
+		try {
+			Resp<LogReader> resp = RestRequest.getUriVariables(logUrl, LogReader.class, eventId);
+			if(resp.getCode() == Resp.SUCCESS.getCode()) {
+				return resp.getData();
+			}
+		} catch (Exception e) {
+			logger.error("read event log fail.", e);
+			return new LogReader(Arrays.asList("客户端未开启日志获取"));
+		}
+		return null;
 	}
 	
 }

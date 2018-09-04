@@ -23,12 +23,12 @@
 		},
 		{
 			"text": "Job 任务",
-			"icon": "&#xe64e;",
+			"icon": "&#xe628;",
 			"href": "",
 			"subset": [
 				{
 					"text": "Job",
-					"icon": "&#xe635;",
+					"icon": "&#xe64e;",
 					"href": "/radish-scheduing/portal/job"
 				}, 
 				{
@@ -38,7 +38,7 @@
                 }, 
                 {
          "text": "Job Event",
-         "icon": "&#xe635;",
+         "icon": "&#xe60e;",
          "href": "/radish-scheduing/portal/job-event"
                 }
 			]

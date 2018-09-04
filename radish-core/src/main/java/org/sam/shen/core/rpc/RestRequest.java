@@ -137,7 +137,7 @@ public class RestRequest {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static <T> Resp<T> get(String url, Class<T> clazz, Object... uriVariables) throws Exception {
+	public static <T> Resp<T> getUriVariables(String url, Class<T> clazz, Object... uriVariables) throws Exception {
 		Resp<Object> resp = restTemplate.getForObject(url, Resp.class, uriVariables);
 		return new Resp<T>(JSON.parseObject(resp.toJsonBody(), clazz));
 	}

@@ -19,10 +19,15 @@ public class LogReader implements Serializable {
 		super();
 	}
 	
+	public LogReader(List<String> logLines) {
+		this();
+		this.logLines = logLines;
+	}
+	
 	public LogReader(int beginLineNum, int endLineNum, List<String> logLines) {
+		this(logLines);
 		this.beginLineNum = beginLineNum;
 		this.endLineNum = endLineNum;
-		this.logLines = logLines;
 	}
 
 	public int getBeginLineNum() {

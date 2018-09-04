@@ -22,6 +22,7 @@
         <!-- 数据库超过25000秒仍未响应则超时 -->  
         <setting name="defaultStatementTimeout" value="25000" />  
         <!-- 打印查询语句 -->  
-       <setting name="logImpl" value="STDOUT_LOGGING" /> 
+<!--    SLF4J | LOG4J | LOG4J2 | JDK_LOGGING | COMMONS_LOGGING | STDOUT_LOGGING | NO_LOGGING  -->
+        <setting name="logImpl" value="STDOUT_LOGGING" />
     </settings>  
 </configuration>

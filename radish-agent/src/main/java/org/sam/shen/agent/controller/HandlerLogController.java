@@ -27,10 +27,10 @@ public class HandlerLogController {
 	 * @param jobId
 	 * @return
 	 */
-	@RequestMapping(value = "/{jobId}", method = RequestMethod.GET)
-	public Resp<LogReader> readHandlerLog(@PathVariable("jobId") String jobId,
+	@RequestMapping(value = "/{eventId}", method = RequestMethod.GET)
+	public Resp<LogReader> readHandlerLog(@PathVariable("eventId") String eventId,
 	        @RequestParam(value = "beginLineNum", required = false) Integer beginLineNum) {
-		String logFileName = RadishLogFileAppender.makeLogFile(jobId);
+		String logFileName = RadishLogFileAppender.makeLogFile(eventId);
 		return new Resp<>(RadishLogFileAppender.readLog(logFileName, beginLineNum));
 	}
 	

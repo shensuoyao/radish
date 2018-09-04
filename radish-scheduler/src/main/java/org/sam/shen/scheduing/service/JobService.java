@@ -43,7 +43,8 @@ public class JobService {
 		// 插入数据库
 		jobInfoMapper.saveJobInfo(jobInfo);
 		// 加入任务调度
-		if(StringUtils.isNotEmpty(jobInfo.getCrontab()) && StringUtils.isNotEmpty(jobInfo.getExecutorHandlers())) {
+		if (jobInfo.getEnable() == Constant.YES && StringUtils.isNotEmpty(jobInfo.getCrontab())
+		        && StringUtils.isNotEmpty(jobInfo.getExecutorHandlers())) {
 			try {
 				RadishDynamicScheduler.addJob(jobInfo.getId(), jobInfo.getJobName(), jobInfo.getCrontab());
 			} catch (SchedulerException e) {
@@ -63,7 +64,8 @@ public class JobService {
 		// 更新JobInfo信息
 		jobInfoMapper.upgradeJonInfo(jobInfo);
 		// 修改scheduler 调度
-		if(StringUtils.isNotEmpty(jobInfo.getCrontab()) && StringUtils.isNotEmpty(jobInfo.getExecutorHandlers())) {
+		if (jobInfo.getEnable() == Constant.YES && StringUtils.isNotEmpty(jobInfo.getCrontab())
+		        && StringUtils.isNotEmpty(jobInfo.getExecutorHandlers())) {
 			try {
 				RadishDynamicScheduler.UpgradeScheduleJob(jobInfo.getId(), jobInfo.getJobName(), jobInfo.getCrontab());
 			} catch (SchedulerException e) {
