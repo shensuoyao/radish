@@ -106,6 +106,7 @@ CREATE TABLE `job_info` (
   `child_job_id` varchar(125) DEFAULT NULL COMMENT '子任务ID, 多个用逗号分割',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `priority` tinyint(2) DEFAULT '0' COMMENT '任务优先级 0 - 9',
   `enable` tinyint(2) DEFAULT '1' COMMENT '是否启用, 1: 启用, 0:禁用',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8;
@@ -133,6 +134,7 @@ CREATE TABLE `job_event` (
   `cmd` text DEFAULT NULL COMMENT '执行脚本',
   `params` varchar(512) DEFAULT NULL COMMENT '附加参数',
   `stat` varchar(32) DEFAULT NULL COMMENT '状态',
-  `retry_count` smallint(3) DEFAULT 0 COMMENT '重试次数',
+  `priority` tinyint(2) DEFAULT '0' COMMENT '任务优先级 0 - 9',
+  `retry_count` smallint(3) DEFAULT '0' COMMENT '重试次数',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

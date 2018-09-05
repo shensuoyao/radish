@@ -38,7 +38,7 @@
 			  <li class="layui-timeline-item">
 			    <i class="layui-icon layui-timeline-axis">&#xe63f;</i>
 			    <div class="layui-timeline-content layui-text">
-			      <h3 class="layui-timeline-title">基本信息</h3>
+			      <h3 class="layui-timeline-title">属性</h3>
 			      <p>任务基本信息</p>
 			      <ul>
               <li>ID:&nbsp;&nbsp;&nbsp;<span th:text="${jobInfo.id}"/></li>
@@ -46,6 +46,10 @@
               <li>定时规则:&nbsp;&nbsp;&nbsp;<span th:text="${jobInfo.crontab}"/></li>
               <li>类型:&nbsp;&nbsp;&nbsp;<span th:text="${jobInfo.handlerType.desc}"/></li>
               <li>失败策略:&nbsp;&nbsp;&nbsp;<span th:text="${jobInfo.handlerFailStrategy.desc}"/></li>
+              <li>优先级:&nbsp;&nbsp;&nbsp;<span th:text="${jobInfo.priority}"/></li>
+              <li>创建时间:&nbsp;&nbsp;&nbsp;<span th:text="${#dates.format(jobInfo.createTime, 'yyyy-MM-dd HH:mm:ss')}"/></li>
+              <li>修改时间:&nbsp;&nbsp;&nbsp;<span th:text="${#dates.format(jobInfo.updateTime, 'yyyy-MM-dd HH:mm:ss')}"/></li>
+              <li>是否启用:&nbsp;&nbsp;&nbsp;<span th:text="${jobInfo.enable} eq 1 ? '启用'  :  '禁用' "/></li>
             </ul>
 			    </div>
 			  </li>
@@ -77,17 +81,6 @@
             <pre th:text="${jobInfo.cmd}"/>
             <hr />
             <pre th:text="${jobInfo.params}"/>
-          </div>
-        </li>
-        <li class="layui-timeline-item">
-          <i class="layui-icon layui-timeline-axis">&#xe63f;</i>
-          <div class="layui-timeline-content layui-text">
-            <h3 class="layui-timeline-title">属性</h3>
-            <ul>
-               <li>创建时间:&nbsp;&nbsp;&nbsp;<span th:text="${#dates.format(jobInfo.createTime, 'yyyy-MM-dd HH:mm:ss')}"/></li>
-               <li>修改时间:&nbsp;&nbsp;&nbsp;<span th:text="${#dates.format(jobInfo.updateTime, 'yyyy-MM-dd HH:mm:ss')}"/></li>
-               <li>是否启用:&nbsp;&nbsp;&nbsp;<span th:text="${jobInfo.enable} eq 1 ? '启用'  :  '禁用' "/></li>
-             </ul>
           </div>
         </li>
 			</ul>

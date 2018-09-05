@@ -13,26 +13,29 @@
         <result column="cmd" property="cmd"/>
         <result column="params" property="params"/>
         <result column="stat" property="stat"/>
+        <result column="priority" property="priority"/>
         <result column="retry_count" property="retryCount"/>
         <result column="create_time" property="createTime"/>
     </resultMap>
 
 	<insert id="saveJobEventBatch" parameterType="list">
 	   <![CDATA[
-        INSERT INTO job_event(event_id, job_id, parent_job_id, agent_id, registry_handler, handler_type, cmd, params, stat, retry_count, create_time ) 
+        INSERT INTO job_event(event_id, job_id, parent_job_id, agent_id, registry_handler, handler_type, 
+                    cmd, params, stat, priority, retry_count, create_time ) 
         VALUES 
         ]]>
 		<foreach collection="list" item="item" index="index" separator=",">
 			(#{item.eventId}, #{item.jobId}, #{item.parentJobId}, #{item.agentId}, #{item.registryHandler}, #{item.handlerType}, #{item.cmd}, #{item.params}, 
-			#{item.stat}, #{item.retryCount}, #{item.createTime}) 
+			#{item.stat}, #{item.priority}, #{item.retryCount}, #{item.createTime}) 
 		</foreach>
   </insert>
   
   <select id="queryJobEventByAgentId" parameterType="long" resultMap="jobEventMap">
     <![CDATA[
-        SELECT event_id, job_id, parent_job_id, agent_id, registry_handler, handler_type, cmd, params, stat, retry_count, create_time 
+        SELECT event_id, job_id, parent_job_id, agent_id, registry_handler, handler_type, cmd, params, stat, priority, retry_count, create_time 
           FROM job_event 
          WHERE agent_id = #{agentId} AND stat IN ('READY', 'RETRY') 
+         ORDER BY priority DESC 
         ]]>
   </select>
   
@@ -70,7 +73,7 @@
   
   <select id="queryJobEventByEventId" parameterType="string" resultMap="jobEventMap">
     <![CDATA[
-        SELECT event_id, job_id, parent_job_id, agent_id, registry_handler, handler_type, cmd, params, stat, retry_count, create_time 
+        SELECT event_id, job_id, parent_job_id, agent_id, registry_handler, handler_type, cmd, params, stat, priority, retry_count, create_time 
           FROM job_event 
          WHERE event_id = #{eventId} 
         ]]>
@@ -78,7 +81,7 @@
   
   <select id="queryJobEventForPager" resultMap="jobEventMap" parameterType="string">
 	  <![CDATA[
-	      SELECT event_id, job_id, parent_job_id, agent_id, registry_handler, handler_type, cmd, params, stat, retry_count, create_time 
+	      SELECT event_id, job_id, parent_job_id, agent_id, registry_handler, handler_type, cmd, params, stat, priority, retry_count, create_time 
           FROM job_event 
 	     ]]>
 	  <if test="stat != null">
@@ -87,6 +90,14 @@
 	    </where>
 	  </if>
 	  <![CDATA[  ORDER BY create_time DESC ]]>
+ </select>
+ 
+ <select id="countJobEventByStat" parameterType="string" resultType="int">
+    <![CDATA[
+        SELECT count(*) 
+          FROM job_event 
+         WHERE stat = #{stat}
+        ]]>
  </select>
   
 </mapper>

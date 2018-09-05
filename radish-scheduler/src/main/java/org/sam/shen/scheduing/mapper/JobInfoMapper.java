@@ -25,4 +25,8 @@ public interface JobInfoMapper {
 	
 	List<JobInfo> queryJobInfoByEnable(int enable);
 	
+	// ---------------  统计  ------------------------
+	
+	Integer countJobInfoByEnable(int enable);
+	
 }

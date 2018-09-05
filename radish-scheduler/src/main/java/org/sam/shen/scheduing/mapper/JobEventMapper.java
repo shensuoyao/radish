@@ -26,4 +26,7 @@ public interface JobEventMapper {
 	
 	Page<JobEvent> queryJobEventForPager(@Param("stat") String stat);
 	
+	// ------------  统计 -----------------------------------
+	Integer countJobEventByStat(String stat);
+	
 }

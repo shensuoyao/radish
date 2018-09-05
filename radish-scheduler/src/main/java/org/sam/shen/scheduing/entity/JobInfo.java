@@ -46,6 +46,8 @@ public class JobInfo extends Identity {
 	
 	private Date updateTime;
 	
+	private int priority;
+	
 	private int enable;
 	
 	public JobInfo() {
@@ -172,6 +174,14 @@ public class JobInfo extends Identity {
 		this.enable = enable;
 	}
 	
+	public int getPriority() {
+		return priority;
+	}
+
+	public void setPriority(int priority) {
+		this.priority = priority;
+	}
+
 	@Override
 	public String toString() {
 		return JSON.toJSONString(this, SerializerFeature.WriteNullStringAsEmpty, SerializerFeature.WriteMapNullValue,

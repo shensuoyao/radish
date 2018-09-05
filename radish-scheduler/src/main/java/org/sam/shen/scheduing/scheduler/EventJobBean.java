@@ -62,7 +62,8 @@ public class EventJobBean extends QuartzJobBean {
 						m.put(agentHandlers.get(i), jobEvent);
 					} else {
 						JobEvent jobEvent = new JobEvent(jobInfo.getId(), Long.valueOf(agentHandlers.get(i)),
-						        jobInfo.getHandlerType(), EventStatus.READY, jobInfo.getCmd(), jobInfo.getParams());
+						        jobInfo.getHandlerType(), EventStatus.READY, jobInfo.getPriority(), jobInfo.getCmd(),
+						        jobInfo.getParams());
 						jobEvent.setRegistryHandler(agentHandlers.get(i + 1));
 						jobEvent.setParentJobId(jobInfo.getParentJobId());
 						m.put(agentHandlers.get(i), jobEvent);

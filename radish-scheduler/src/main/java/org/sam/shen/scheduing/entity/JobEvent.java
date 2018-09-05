@@ -31,6 +31,8 @@ public class JobEvent implements Serializable {
 	
 	private EventStatus stat;
 	
+	private int priority;		// 优先级 从 0 - 9
+	
 	private int retryCount;
 	
 	private Date createTime;
@@ -40,17 +42,19 @@ public class JobEvent implements Serializable {
 		this.createTime = new Date();
 	}
 	
-	public JobEvent(Long jobId, Long agentId, HandlerType handlerType, EventStatus stat) {
+	public JobEvent(Long jobId, Long agentId, HandlerType handlerType, EventStatus stat, int priority) {
 		this();
 		this.eventId = jobId + Constant.SPLIT_CHARACTER + System.currentTimeMillis();
 		this.jobId = jobId;
 		this.agentId = agentId;
 		this.handlerType = handlerType;
 		this.stat = stat;
+		this.priority = priority;
 	}
 	
-	public JobEvent(Long jobId, Long agentId, HandlerType handlerType, EventStatus stat, String cmd, String params) {
-		this(jobId, agentId, handlerType, stat);
+	public JobEvent(Long jobId, Long agentId, HandlerType handlerType, EventStatus stat, int priority, String cmd,
+	        String params) {
+		this(jobId, agentId, handlerType, stat, priority);
 		this.cmd = cmd;
 		this.params = params;
 	}
@@ -125,6 +129,14 @@ public class JobEvent implements Serializable {
 
 	public void setStat(EventStatus stat) {
 		this.stat = stat;
+	}
+
+	public int getPriority() {
+		return priority;
+	}
+
+	public void setPriority(int priority) {
+		this.priority = priority;
 	}
 
 	public int getRetryCount() {

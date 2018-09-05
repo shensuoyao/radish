@@ -187,16 +187,6 @@ public class AgentService {
 		}
 	}
 	
-	public Long countAgentGroup() {
-		Long count = agentGroupMapper.countAgentGroup();
-		return null == count ? 0 : count;
-	}
-	
-	public Long countAgent(int stat) {
-		Long count = agentMapper.countAgent(stat);
-		return null == count ? 0 : count;
-	}
-	
 	/**
 	 *  客户端组编辑视图
 	 * @author suoyao

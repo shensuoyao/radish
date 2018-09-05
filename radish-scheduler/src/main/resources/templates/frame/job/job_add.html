@@ -98,10 +98,18 @@
           </div>
       </div>
 	    <div class="layui-form-item">
-	        <label class="layui-form-label">启用 / 禁用</label>
-	        <div class="layui-input-block">
-	            <input type="checkbox" name="enable" lay-skin="switch" value="1" lay-text="启用|禁用"  th:checked="true" />
-	        </div>
+	       <div class="layui-inline">
+            <label class="layui-form-label">优先级</label>
+            <div class="layui-input-inline">
+                <input type="input" name="priority" placeholder="0 - 9 越大优先级越高"  class="layui-input">
+            </div>
+        </div>
+        <div class="layui-inline">
+	         <label class="layui-form-label">启用 / 禁用</label>
+	         <div class="layui-input-block">
+	             <input type="checkbox" name="enable" lay-skin="switch" value="1" lay-text="启用|禁用"  th:checked="true" />
+	         </div>
+	      </div>
 	    </div>
 	    <div class="layui-form-item">
 	        <label class="layui-form-label">脚本代码</label>
