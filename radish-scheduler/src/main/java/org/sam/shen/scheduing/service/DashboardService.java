@@ -34,8 +34,8 @@ public class DashboardService {
 		return null == count ? 0 : count;
 	}
 	
-	public Long countAgent(int stat) {
-		Long count = agentMapper.countAgent(stat);
+	public Integer countAgent() {
+		Integer count = agentMapper.countAgent();
 		return null == count ? 0 : count;
 	}
 	

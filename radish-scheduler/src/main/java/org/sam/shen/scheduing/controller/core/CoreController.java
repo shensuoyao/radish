@@ -1,5 +1,8 @@
 package org.sam.shen.scheduing.controller.core;
 
+import java.util.Map;
+
+import org.sam.shen.core.constants.Constant;
 import org.sam.shen.core.event.HandlerEvent;
 import org.sam.shen.core.model.AgentInfo;
 import org.sam.shen.core.model.AgentPerformance;
@@ -7,6 +10,7 @@ import org.sam.shen.core.model.Resp;
 import org.sam.shen.scheduing.entity.JobEvent;
 import org.sam.shen.scheduing.service.AgentService;
 import org.sam.shen.scheduing.service.JobEventService;
+import org.sam.shen.scheduing.service.RedisService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.alibaba.fastjson.JSON;
 
 /**
  * @author suoyao
@@ -30,6 +36,9 @@ public class CoreController {
 	
 	@Autowired
 	private JobEventService jobEventService;
+	
+	@Autowired
+	private RedisService redisService;
 
 	/**
 	 * @author suoyao
@@ -56,7 +65,9 @@ public class CoreController {
 	 */
 	@RequestMapping(value = "/heartbeat", method = RequestMethod.POST)
 	public Resp<AgentPerformance> heartbeat(@RequestBody AgentPerformance agent) {
-		logger.info("agent {} heartbeat: {}", agent.getAgentName(), agent.toString());
+		@SuppressWarnings("unchecked")
+		Map<String,  Object> m = JSON.parseObject(agent.toString(), Map.class);
+		redisService.hmsetEx(Constant.REDIS_AGENT_PREFIX + agent.getAgentId(), m, 60);
 		return new Resp<>(agent);
 	}
 

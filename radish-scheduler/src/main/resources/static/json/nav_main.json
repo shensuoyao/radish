@@ -49,10 +49,15 @@
 			"href": "",
 			"subset": [
 				{
-					"text": "报警",
+					"text": "Agent Online",
 					"icon": "&#xe667;",
-					"href": "404.html"
-				}
+					"href": "/radish-scheduing/monitor/agent-online"
+				},
+				{
+         "text": "报警",
+         "icon": "&#xe667;",
+         "href": "404.html"
+                }
 			]
 		}
 	]

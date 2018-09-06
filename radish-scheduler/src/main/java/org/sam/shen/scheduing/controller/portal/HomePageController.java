@@ -1,7 +1,11 @@
 package org.sam.shen.scheduing.controller.portal;
 
+import java.util.Set;
+
 import org.quartz.SchedulerException;
+import org.sam.shen.core.constants.Constant;
 import org.sam.shen.scheduing.service.DashboardService;
+import org.sam.shen.scheduing.service.RedisService;
 import org.sam.shen.scheduing.vo.ChartVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +24,9 @@ public class HomePageController {
 	
 	@Autowired
 	private DashboardService dashboardService;
+	
+	@Autowired
+	private RedisService redisService;
 
 	@RequestMapping(value = {"", "/", "/index", "/home"}, method = RequestMethod.GET)
 	public ModelAndView home(ModelAndView model) {
@@ -30,19 +37,42 @@ public class HomePageController {
 	@RequestMapping(value = "dashboard", method = RequestMethod.GET)
 	public ModelAndView dashboard(ModelAndView model) {
 		model.addObject("agentGroupCount", dashboardService.countAgentGroup());
-		model.addObject("agentOnlineCount", dashboardService.countAgent(1));
-		model.addObject("agentOfflineCount", dashboardService.countAgent(0));
+		
+		Integer agentTotalCount = dashboardService.countAgent();
+		if(null == agentTotalCount) {
+			agentTotalCount = 0;
+		}
+		// Online Agent size
+		Set<String> keys = redisService.getKeys(Constant.REDIS_AGENT_PREFIX + "*");
+		int agentOnlineCount = 0;
+		if(null != keys) {
+			agentOnlineCount = keys.size();
+		}
+		model.addObject("agentOnlineCount", agentOnlineCount);
+		model.addObject("agentOfflineCount", agentTotalCount.intValue() - agentOnlineCount);
 		
 		model.setViewName("frame/dashboard");
 		return model;
 	}
 	
+	/**
+	 *  事件图表
+	 * @author suoyao
+	 * @date 下午2:57:04
+	 * @return
+	 */
 	@RequestMapping(value = "/dashboard/event-chart", method = RequestMethod.GET)
 	@ResponseBody
 	public ChartVo eventChart() {
 		return dashboardService.eventChart();
 	}
 	
+	/**
+	 *  任务图表
+	 * @author suoyao
+	 * @date 下午2:57:19
+	 * @return
+	 */
 	@RequestMapping(value = "/dashboard/job-chart", method = RequestMethod.GET)
 	@ResponseBody
 	public ChartVo jobChart() {

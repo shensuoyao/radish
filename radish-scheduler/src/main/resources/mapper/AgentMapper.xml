@@ -86,9 +86,9 @@
         ]]>
   </update>
   
-  <select id="countAgent" parameterType="int" resultType="long">
+  <select id="countAgent" resultType="int">
     <![CDATA[
-        SELECT count(*) cnt FROM agent WHERE stat = #{stat}
+        SELECT count(*) cnt FROM agent
          ]]>
   </select>
   

@@ -21,4 +21,6 @@ public class Constant {
 	public static final int YES = 1;
 	
 	public static final int NO = 0;
+	
+	public static final String REDIS_AGENT_PREFIX = "agent_";
 }
