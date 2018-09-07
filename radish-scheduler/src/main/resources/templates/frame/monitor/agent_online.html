@@ -15,11 +15,10 @@
 	<div class="layui-row layui-col-space10 my-index-main">
 			<div class="layui-col-xs12 layui-col-sm6 layui-col-md3" th:each="agent : ${agentOnlines}">
          <fieldset class="layui-elem-field">
-	         <legend><a th:text="${agent['agentName']}" th:href="@{/monitor/agent-online-monitor/} + ${agent['agentId']}"></a></legend>
+	         <legend><a th:text="${agent['agentName']}" th:id="${agent['agentId']}" name="agentOnline" href="javascript:;"></a></legend>
 	         <div class="layui-field-box">
-               <div class="layui-timeline-content layui-text">
-                  <table class="layui-table" lay-skin="nob">
-										  <tbody>
+               <table class="layui-table" lay-skin="nob">
+										 <tbody>
 										    <tr>
                         <td>ID :</td>
                         <td th:text="${agent['agentId']}"></td>
@@ -64,9 +63,8 @@
                          <td>Physical Free Memory :</td>
                          <td th:text="${agent['physicalFreeMemory']} + K"></td>
                        </tr>
-										  </tbody>
-										</table>
-               </div>
+										 </tbody>
+								</table>
 	         </div>
 	       </fieldset>
      </div>
@@ -74,13 +72,30 @@
 
 <script type="text/javascript" th:src="@{/static/layui/layui.js}"></script>
 <script type="text/javascript" th:src="@{/static/js/index.js}"></script>
-<script type="text/javascript" th:inline="javascript">
-    layui.use(['element', 'layer', 'vip_tab'], function () {
-        var table = layui.table
-                , layer = layui.layer
-                , $ = layui.jquery;
+<script th:inline="javascript">
+    // layui方法
+    layui.use(['layer'], function () {
 
-        // you code ...
+        // 操作对象
+    var layer = layui.layer
+            , $ = layui.jquery
+
+        // 刷新
+    $('a[name="agentOnline"]').on('click', function () {
+    	console.log(this.id);
+    	layer.open({
+            title: '内存监控' 
+            , type: 2
+            , shade: 0
+            , area: ['850px', '520px']
+            , content: [[@{/monitor/agent-online-monitor/}]] + this.id
+              , moveEnd: function(layero) {
+                      layer.setTop(layero);
+                           }
+                }); 
+         });
+
+   // you code ...
 
     });
 </script>

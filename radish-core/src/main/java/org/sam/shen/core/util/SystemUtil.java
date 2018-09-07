@@ -12,7 +12,7 @@ import com.sun.management.OperatingSystemMXBean;
  */
 public class SystemUtil {
 
-	private static final int KB = 1024;
+	public static final int KB = 1024;
 	
 	private static Runtime runtime = Runtime.getRuntime();
 	private static Properties sysProperties = System.getProperties();

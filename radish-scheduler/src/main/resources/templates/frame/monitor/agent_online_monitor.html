@@ -12,25 +12,14 @@
 </head>
 <body class="body">
 
-	<div class="layui-row layui-col-space10 my-index-main">
-			<div class="layui-col-xs12">
-        <div class="layui-collapse">
-            <div class="layui-colla-item">
-                <div class="layui-colla-content layui-show">
-                    <div id="agent-line" style="height: 450px;"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-	</div>
+    <div id="agent-line" style="height: 450px;"></div>
 
 <script type="text/javascript" th:src="@{/static/layui/layui.js}"></script>
 <script type="text/javascript" th:src="@{/static/js/index.js}"></script>
 <script type="text/javascript" th:src="@{/static/js/echarts/echarts.min.js}"></script>
 <script type="text/javascript" th:inline="javascript">
-    layui.use(['element', 'layer', 'vip_tab'], function () {
-        var table = layui.table
-                , layer = layui.layer
+    layui.use(['layer'], function () {
+        var layer = layui.layer
                 , $ = layui.jquery;
 
         // you code ...
@@ -41,7 +30,7 @@
 
         option = {
             title: {
-                text: 'JVM内存 和 物理内存 占用比'
+                text: 'Memory (JVM & Physical)'
                            },
             tooltip: {
             	   trigger: 'none',

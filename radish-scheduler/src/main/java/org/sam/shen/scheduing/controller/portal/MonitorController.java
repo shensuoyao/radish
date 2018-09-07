@@ -74,11 +74,11 @@ public class MonitorController {
 		
 		Map<String, Object> yAxis = Maps.newHashMap();
 		
-		double d1 = 1 - (performance.getJvmFreeMemory() / (double)performance.getJvmTotalMemory());
+		double d1 = (performance.getJvmTotalMemory() - performance.getJvmFreeMemory()) / (double)performance.getJvmTotalMemory();
 		BigDecimal b1 = new BigDecimal(d1);
 		yAxis.put("JVM", b1.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		
-		double d2 = 1 - (performance.getPhysicalFreeMemory() / (double)performance.getPhysicalTotalMemory());
+		double d2 = (performance.getPhysicalTotalMemory() - performance.getPhysicalFreeMemory()) / (double)performance.getPhysicalTotalMemory();
 		BigDecimal b2 = new BigDecimal(d2);
 		yAxis.put("Physical", b2.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 		
