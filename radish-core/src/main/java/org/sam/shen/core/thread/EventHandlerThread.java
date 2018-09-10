@@ -40,14 +40,25 @@ public class EventHandlerThread extends Thread {
 			return;
 		}
 		try {
-			handler.init();
+			Resp<String> initRsp = handler.init();
+			if(null == initRsp) {
+				logger.error("Handler Init Method Return Null.");
+				RestRequest.post(rpcReportUrl, new Resp<String>(1, "Handler Init Method Return Null."), eventId);
+				return;
+			}
+			if (initRsp.getCode() != Resp.SUCCESS.getCode()) {
+				// 失败上报终止继续执行
+				RestRequest.post(rpcReportUrl, initRsp, eventId);
+				return;
+			}
 			Resp<String> resp = handler.start(event);
-			RestRequest.post(rpcReportUrl, resp, eventId);    // 上报执行结果
+			// 上报执行结果
+			RestRequest.post(rpcReportUrl, resp, eventId);
 		} catch (Exception e) {
 			logger.error("Start Handler Error.", e);
 			// 上报出错信息
 			try {
-				RestRequest.post(rpcReportUrl, Resp.FAIL, eventId);
+				RestRequest.post(rpcReportUrl, new Resp<String>(1, "Start Handler Error.", e.getMessage()), eventId);
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}

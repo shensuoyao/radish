@@ -42,7 +42,7 @@ public abstract class AbsHandler implements IHandler {
 	@Override
 	public Resp<String> init() {
 		logger.info("RADISH ------------> 初始化任务...");
-		return null;
+		return Resp.SUCCESS;
 	}
 
 	@Override
@@ -50,7 +50,7 @@ public abstract class AbsHandler implements IHandler {
 		logger.info("RADISH ------------> 清理任务:  {}",  eventId);
 		setEventId(null);
 		setLogFileName(null);
-		return null;
+		return Resp.SUCCESS;
 	}
 
 	@Override
