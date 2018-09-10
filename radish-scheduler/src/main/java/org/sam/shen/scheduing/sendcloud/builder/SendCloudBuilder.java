@@ -10,9 +10,6 @@ public class SendCloudBuilder {
 		sc.setServer(Config.server);
 		sc.setMailAPI(Config.send_api);
 		sc.setTemplateAPI(Config.send_template_api);
-		sc.setMailCountDayAPI(Config.send_mail_count_day);
-		sc.setMailCountHourAPI(Config.send_mail_count_hour);
-		sc.setInvalidMailCountAPI(Config.send_mail_count_invalid);
 		return sc;
 	}
 }

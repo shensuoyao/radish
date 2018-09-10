@@ -11,13 +11,11 @@ import java.util.UUID;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.Consts;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.HttpMultipartMode;
@@ -27,12 +25,10 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.Asserts;
 import org.apache.http.util.EntityUtils;
-
 import org.sam.shen.scheduing.sendcloud.config.Config;
 import org.sam.shen.scheduing.sendcloud.config.Credential;
 import org.sam.shen.scheduing.sendcloud.model.MailAddressReceiver;
 import org.sam.shen.scheduing.sendcloud.model.SendCloudMail;
-import org.sam.shen.scheduing.sendcloud.model.SendCloudMailCount;
 import org.sam.shen.scheduing.sendcloud.model.TemplateContent;
 import org.sam.shen.scheduing.sendcloud.model.TextContent;
 import org.sam.shen.scheduing.sendcloud.model.TextContent.ScContentType;
@@ -143,9 +139,6 @@ public class SendCloud {
 	private String server;
 	private String mailAPI;
 	private String templateAPI;
-	private String mailCountDayAPI;
-	private String mailCountHourAPI;
-	private String invalidMailCountAPI;
 
 	public String getServer() {
 		return server;
@@ -169,30 +162,6 @@ public class SendCloud {
 
 	public void setTemplateAPI(String templateAPI) {
 		this.templateAPI = templateAPI;
-	}
-
-	public String getMailCountDayAPI() {
-		return mailCountDayAPI;
-	}
-
-	public void setMailCountDayAPI(String mailCountDayAPI) {
-		this.mailCountDayAPI = mailCountDayAPI;
-	}
-
-	public String getMailCountHourAPI() {
-		return mailCountHourAPI;
-	}
-
-	public void setMailCountHourAPI(String mailCountHourAPI) {
-		this.mailCountHourAPI = mailCountHourAPI;
-	}
-
-	public String getInvalidMailCountAPI() {
-		return invalidMailCountAPI;
-	}
-
-	public void setInvalidMailCountAPI(String invalidMailCountAPI) {
-		this.invalidMailCountAPI = invalidMailCountAPI;
 	}
 
 	/**
@@ -416,127 +385,6 @@ public class SendCloud {
 		 * result.setStatusCode(response.getStatusLine().getStatusCode());
 		 * result.setMessage("发送失败"); result.setResult(false); }
 		 */
-		return result;
-	}
-
-	/**
-	 * 邮件发送数据统计
-	 * <p>
-	 * 支持按天统计和按小时统计
-	 * </p>
-	 * 
-	 * @param sendCloudMailCount
-	 * @return
-	 * @throws ClientProtocolException
-	 * @throws IOException
-	 */
-	public ResponseData mailCount(SendCloudMailCount sendCloudMailCount) throws ClientProtocolException, IOException {
-		Asserts.notNull(sendCloudMailCount, "sendCloudMailCount");
-		Asserts.notBlank(Config.api_user, "api_user");
-		Asserts.notBlank(Config.api_key, "api_key");
-		List<NameValuePair> params = new ArrayList<NameValuePair>();
-		Credential credential = new Credential(Config.api_user, Config.api_key);
-		params.add(new BasicNameValuePair("apiUser", credential.getApiUser()));
-		params.add(new BasicNameValuePair("apiKey", credential.getApiKey()));
-
-		String uri = "";
-		if (sendCloudMailCount.getDays() > 0) {
-			// 按每天统计
-			params.add(new BasicNameValuePair("days", String.valueOf(sendCloudMailCount.getDays())));
-			uri = mailCountDayAPI;
-		} else {
-			// 按每小时统计
-			uri = mailCountHourAPI;
-		}
-		if (StringUtils.isNotEmpty(sendCloudMailCount.getStartDate())
-				&& StringUtils.isNotEmpty(sendCloudMailCount.getEndDate())) {
-			// 按每小时统计
-			params.add(new BasicNameValuePair("startDate", sendCloudMailCount.getStartDate()));
-			params.add(new BasicNameValuePair("endDate", sendCloudMailCount.getEndDate()));
-			uri = mailCountHourAPI;
-		} else {
-			// 按每天统计
-			uri = mailCountDayAPI;
-		}
-		if (sendCloudMailCount.getApiUserList() != null && sendCloudMailCount.getApiUserList().size() > 0) {
-			params.add(new BasicNameValuePair("apiUserList", sendCloudMailCount.toApiUserString()));
-		}
-		if (sendCloudMailCount.getLabelIdList() != null && sendCloudMailCount.getLabelIdList().size() > 0) {
-			params.add(new BasicNameValuePair("labelIdList", sendCloudMailCount.toLabelIdString()));
-		}
-		if (sendCloudMailCount.getDomainList() != null && sendCloudMailCount.getDomainList().size() > 0) {
-			params.add(new BasicNameValuePair("domainList", sendCloudMailCount.toDomainString()));
-		}
-		if (sendCloudMailCount.getAggregate() >= 0) {
-			params.add(new BasicNameValuePair("aggregate", String.valueOf(sendCloudMailCount.getAggregate())));
-		}
-		uri += "?" + EntityUtils.toString(new UrlEncodedFormEntity(params, Consts.UTF_8));
-
-		CloseableHttpClient httpclient = HttpClientBuilder.create().build();
-		HttpGet httpGet = new HttpGet(uri);
-
-		HttpResponse response = httpclient.execute(httpGet);
-		ResponseData result = validate(response);
-		httpGet.releaseConnection();
-		httpclient.close();
-
-		return result;
-	}
-
-	/**
-	 * 无效邮件发送数据统计
-	 * <p>
-	 * 支持按天统计和按小时统计
-	 * </p>
-	 * 
-	 * @param sendCloudMailCount
-	 * @return
-	 * @throws ClientProtocolException
-	 * @throws IOException
-	 */
-	public ResponseData invalidmailCount(SendCloudMailCount sendCloudMailCount)
-			throws ClientProtocolException, IOException {
-		Asserts.notNull(sendCloudMailCount, "sendCloudMailCount");
-		Asserts.notBlank(Config.api_user, "api_user");
-		Asserts.notBlank(Config.api_key, "api_key");
-		List<NameValuePair> params = new ArrayList<NameValuePair>();
-		Credential credential = new Credential(Config.api_user, Config.api_key);
-		params.add(new BasicNameValuePair("apiUser", credential.getApiUser()));
-		params.add(new BasicNameValuePair("apiKey", credential.getApiKey()));
-
-		String uri = invalidMailCountAPI;
-		if (sendCloudMailCount.getDays() > 0) {
-			// 按每天统计
-			params.add(new BasicNameValuePair("days", String.valueOf(sendCloudMailCount.getDays())));
-		}
-		if (StringUtils.isNotEmpty(sendCloudMailCount.getStartDate())
-				&& StringUtils.isNotEmpty(sendCloudMailCount.getEndDate())) {
-			// 按每小时统计
-			params.add(new BasicNameValuePair("startDate", sendCloudMailCount.getStartDate()));
-			params.add(new BasicNameValuePair("endDate", sendCloudMailCount.getEndDate()));
-		}
-		if (sendCloudMailCount.getApiUserList() != null && sendCloudMailCount.getApiUserList().size() > 0) {
-			params.add(new BasicNameValuePair("apiUserList", sendCloudMailCount.toApiUserString()));
-		}
-		if (sendCloudMailCount.getLabelIdList() != null && sendCloudMailCount.getLabelIdList().size() > 0) {
-			params.add(new BasicNameValuePair("labelIdList", sendCloudMailCount.toLabelIdString()));
-		}
-		if (sendCloudMailCount.getDomainList() != null && sendCloudMailCount.getDomainList().size() > 0) {
-			params.add(new BasicNameValuePair("domainList", sendCloudMailCount.toDomainString()));
-		}
-		if (sendCloudMailCount.getAggregate() >= 0) {
-			params.add(new BasicNameValuePair("aggregate", String.valueOf(sendCloudMailCount.getAggregate())));
-		}
-		uri += "?" + EntityUtils.toString(new UrlEncodedFormEntity(params, Consts.UTF_8));
-
-		CloseableHttpClient httpclient = HttpClientBuilder.create().build();
-		HttpGet httpGet = new HttpGet(uri);
-
-		HttpResponse response = httpclient.execute(httpGet);
-		ResponseData result = validate(response);
-		httpGet.releaseConnection();
-		httpclient.close();
-
 		return result;
 	}
 

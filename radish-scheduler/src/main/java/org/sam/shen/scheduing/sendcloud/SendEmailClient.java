@@ -2,6 +2,7 @@ package org.sam.shen.scheduing.sendcloud;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sam.shen.scheduing.sendcloud.builder.SendCloudBuilder;
+import org.sam.shen.scheduing.sendcloud.config.Config;
 import org.sam.shen.scheduing.sendcloud.core.SendCloud;
 import org.sam.shen.scheduing.sendcloud.model.MailAddressReceiver;
 import org.sam.shen.scheduing.sendcloud.model.MailBody;
@@ -13,7 +14,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author Felix
+ * 
+ *  发送邮件客户端
+ * @author suoyao
+ * @date 2018年9月10日 下午3:03:36
+  * 
  */
 public class SendEmailClient {
 	final static Logger logger = LoggerFactory.getLogger(SendEmailClient.class);
@@ -29,19 +34,9 @@ public class SendEmailClient {
 	public static boolean sendEmail(String emailparm, String title, String content, String cc) throws Exception {
 		// 发送邮件
 		MailBody body = new MailBody();
-		// try {
-		// String nick;
-		// nick = javax.mail.internet.MimeUtility.encodeText("鹰眼");
-		// 设置 From
-		// body.setFrom(nick + " <" + Config.from + ">");
-		body.setFrom("market@geetemp.com");
-
-		// } catch (UnsupportedEncodingException e) {
-		// e.printStackTrace();
-		// }
-
+		body.setFrom(Config.from);
 		// 设置 FromName
-		body.setFromName("Radish 任务抢占系统");
+		body.setFromName(Config.fromName);
 		// 设置 ReplyTo
 		body.setReplyTo("");
 		// 设置标题
@@ -56,16 +51,19 @@ public class SendEmailClient {
 			sb.append(email + ";");
 		}
 		email = sb.toString().substring(0, sb.toString().lastIndexOf(";"));
-		if (StringUtils.isBlank(email))
+		if (StringUtils.isBlank(email)) {
 			return false;
+		}
 		// 添加收件人
 		receiver.addTo(email);
 		// 添加抄送
-		receiver.addCc("");
-		// 添加密送
-		if (StringUtils.isNotBlank(cc)) {
-			receiver.addBcc(cc);
+		if(StringUtils.isNotBlank(cc)) {
+			receiver.addCc(cc);
 		}
+		// 添加密送
+		/*if (StringUtils.isNotBlank(cc)) {
+			receiver.addBcc(cc);
+		}*/
 		SendCloudMail mail = new SendCloudMail();
 		mail.setBody(body);
 		TextContent txContent = new TextContent();
@@ -81,7 +79,6 @@ public class SendEmailClient {
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
-		
 		return (res.getStatusCode() == 200);
 	}
 
