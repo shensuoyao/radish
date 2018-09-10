@@ -20,6 +20,7 @@ import org.sam.shen.scheduing.mapper.AgentMapper;
 import org.sam.shen.scheduing.mapper.JobEventMapper;
 import org.sam.shen.scheduing.mapper.JobInfoMapper;
 import org.sam.shen.scheduing.scheduler.EventLock;
+import org.sam.shen.scheduing.sendcloud.SendEmailClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -129,7 +130,13 @@ public class JobEventService {
 			}
 			if(jobInfo.getHandlerFailStrategy().equals(HandlerFailStrategy.ALARM)) {
 				// 发送告警邮件或者短信
-				// TODO
+				if(StringUtils.isNotEmpty(jobInfo.getAdminEmail())) {
+					try {
+						SendEmailClient.sendEmail(jobInfo.getAdminEmail(), "Radish Handler Fail Alarm", handlerEvent.get(0).toString(),  null);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
 			}
 			if(jobInfo.getHandlerFailStrategy().equals(HandlerFailStrategy.DISCARD)) {
 				// 丢弃, 则直接更新状态, 什么也不做
