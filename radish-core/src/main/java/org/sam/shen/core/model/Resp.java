@@ -86,7 +86,7 @@ public class Resp<T> implements Serializable {
 		return JSON.toJSONString(this);
 	}
 	
-	public String toJsonBody() {
+	public String toJsonData() {
 		return JSON.toJSONString(data);
 	}
 	

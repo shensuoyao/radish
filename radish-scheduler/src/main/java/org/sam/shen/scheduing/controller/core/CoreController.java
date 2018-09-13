@@ -7,7 +7,6 @@ import org.sam.shen.core.event.HandlerEvent;
 import org.sam.shen.core.model.AgentInfo;
 import org.sam.shen.core.model.AgentPerformance;
 import org.sam.shen.core.model.Resp;
-import org.sam.shen.scheduing.entity.JobEvent;
 import org.sam.shen.scheduing.service.AgentService;
 import org.sam.shen.scheduing.service.JobEventService;
 import org.sam.shen.scheduing.service.RedisService;
@@ -80,14 +79,8 @@ public class CoreController {
 	@RequestMapping(value = "/trigger-event/{agentId}", method = RequestMethod.GET)
 	public Resp<HandlerEvent> triggerEvent(@PathVariable(value = "agentId", required = false) Long agentId) {
 		// 根据Agent机器性能决定是否能抢到任务
-		JobEvent jobEvent = jobEventService.triggerJobEvent(agentId);
-		if(null != jobEvent) {
-			HandlerEvent event = new HandlerEvent(jobEvent.getEventId(), String.valueOf(jobEvent.getJobId()),
-			        jobEvent.getRegistryHandler(), jobEvent.getCmd(), jobEvent.getHandlerType(),
-			        jobEvent.getParams().split(System.lineSeparator()));
-			return new Resp<>(event);
-		}
-		return new Resp<>(null);
+		HandlerEvent event = jobEventService.triggerJobEvent(agentId);
+		return new Resp<>(event);
 	}
 	
 	/**

@@ -1,8 +1,5 @@
 package org.sam.shen.scheduing.mapper;
 
-import java.util.List;
-import java.util.Map;
-
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.sam.shen.scheduing.entity.JobEvent;
@@ -12,17 +9,11 @@ import com.github.pagehelper.Page;
 @Mapper
 public interface JobEventMapper {
 
-	void saveJobEventBatch(List<JobEvent> events);
+	void saveJobEvent(JobEvent event);
 	
-	List<JobEvent> queryJobEventByAgentId(Long agentId);
+	void upgradeJobEvent(JobEvent event);
 	
-	Integer countJobEventInJobIds(List<Long> ids);
-	
-	void deleteJobEventNotEqual(Map<String, Object> param);
-	
-	void upgradeJobEventStatus(Map<String, Object> param);
-	
-	List<JobEvent> queryJobEventByEventId(String eventId);
+	JobEvent findJobEventByEventId(String eventId);
 	
 	Page<JobEvent> queryJobEventForPager(@Param("stat") String stat);
 	

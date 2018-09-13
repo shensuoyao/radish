@@ -23,4 +23,7 @@ public class Constant {
 	public static final int NO = 0;
 	
 	public static final String REDIS_AGENT_PREFIX = "agent_";
+	
+	public static final String REDIS_EVENT_PREFIX = "event_";
+	
 }

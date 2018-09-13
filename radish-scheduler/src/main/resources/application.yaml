@@ -44,7 +44,7 @@ spring:
         min-evictable-idle-time-millis: 300000
         filters: stat
     redis: 
-        database: 1
+        database: 2
         host: 192.168.140.216
         port: 6379
         password: pass

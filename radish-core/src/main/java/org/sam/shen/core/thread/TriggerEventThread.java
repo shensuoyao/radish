@@ -2,6 +2,7 @@ package org.sam.shen.core.thread;
 
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.StringUtils;
 import org.sam.shen.core.constants.Constant;
 import org.sam.shen.core.event.HandlerEvent;
 import org.sam.shen.core.model.Resp;
@@ -48,7 +49,7 @@ public class TriggerEventThread {
 						} else {
 							Resp<HandlerEvent> resp = RestRequest.getUriVariables(rpcTriggerUrl, HandlerEvent.class, agentId);
 							if(Resp.SUCCESS.getCode() == resp.getCode()) {
-								if(null != resp.getData()) {
+								if(null != resp.getData() && StringUtils.isNotEmpty(resp.getData().getEventId())) {
 									EventHandlerThreadPool.pushCallbackQueue(resp.getData());
 								}
 							}

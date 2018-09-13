@@ -75,6 +75,10 @@ public class RedisService {
 		return result;
 	}
 	
+	public boolean hkeyExists(String key, String hashKey) {
+		return redisTemplate.opsForHash().hasKey(key, hashKey);
+	}
+	
 	public void hset(String key, String hashKey, Object value) {
 		redisTemplate.opsForHash().put(key, hashKey, value);
 	}
@@ -103,8 +107,16 @@ public class RedisService {
 		redisTemplate.expire(key, timeout, TimeUnit.SECONDS);
 	}
 	
+	public boolean delete(String key) {
+		return redisTemplate.delete(key);
+	}
+	
 	public Set<String> getKeys(String pattern) {
 		return redisTemplate.keys(pattern);
+	}
+	
+	public Object hget(String key, String hashKey) {
+		return redisTemplate.opsForHash().get(key, hashKey);
 	}
 	
 	public Map<String, Object> hmget(String key) {

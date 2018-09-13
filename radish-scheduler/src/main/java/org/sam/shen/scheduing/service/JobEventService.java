@@ -1,8 +1,7 @@
 package org.sam.shen.scheduing.service;
 
 import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 
@@ -10,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.sam.shen.core.constants.Constant;
 import org.sam.shen.core.constants.EventStatus;
 import org.sam.shen.core.constants.HandlerFailStrategy;
+import org.sam.shen.core.event.HandlerEvent;
 import org.sam.shen.core.log.LogReader;
 import org.sam.shen.core.model.Resp;
 import org.sam.shen.core.rpc.RestRequest;
@@ -30,8 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 @Service("jobEventService")
 public class JobEventService {
@@ -49,6 +47,9 @@ public class JobEventService {
 	
 	@Resource
 	private RedisTemplate<String, Object> redisTemplate;
+	
+	@Autowired
+	private RedisService redisService;
 
 	/**
 	 *  触发获取可执行的任务
@@ -58,43 +59,43 @@ public class JobEventService {
 	 * @return
 	 */
 	@Transactional
-	public JobEvent triggerJobEvent(Long agentId) {
-		List<JobEvent> triggerEvent = jobEventMapper.queryJobEventByAgentId(agentId);
-		if(null == triggerEvent || triggerEvent.isEmpty()) {
-			return null;
-		}
-		for (JobEvent event : triggerEvent) {
-			if(!event.getStat().equals(EventStatus.READY) && !event.getStat().equals(EventStatus.RETRY)) {
-				continue;
-			}
-			EventLock lock = new EventLock(redisTemplate, String.valueOf(event.getEventId()));
-			try {
-				lock.lock();
-				if(StringUtils.isNotEmpty(event.getParentJobId())) {
-					// 获取父任务数量
-					List<Long> ids = Lists.newArrayList();
-					Arrays.asList(event.getParentJobId().split(",")).forEach(id -> ids.add(Long.valueOf(id)));
-					Integer count = jobEventMapper.countJobEventInJobIds(ids);
-					if(count > 0) {
-						continue;
+	public HandlerEvent triggerJobEvent(Long agentId) {
+		// 获取所有事件key
+		Set<String> keys = redisService.getKeys(Constant.REDIS_EVENT_PREFIX.concat("*"));
+		for(String key : keys) {
+			if(redisService.hkeyExists(key, String.valueOf(agentId))) {
+				// 可以抢占
+				EventLock lock = new EventLock(redisTemplate, String.valueOf(key));
+				try {
+					if(lock.lock()) {
+						JobEvent event = jobEventMapper
+						        .findJobEventByEventId(key.substring(Constant.REDIS_EVENT_PREFIX.length()));
+						if(null == event) {
+							continue;
+						}
+						
+						String handlers = (String) redisService.hget(key, String.valueOf(agentId));
+						
+						// 获得锁成功
+						event.setStat(EventStatus.HANDLE);
+						event.setHandlerAgentId(agentId);
+						jobEventMapper.upgradeJobEvent(event);
+						redisService.delete(key);
+						HandlerEvent handlerEvent = new HandlerEvent(event.getEventId(),
+						        String.valueOf(event.getJobId()), handlers, event.getCmd(), event.getHandlerType());
+						if(StringUtils.isNotEmpty(event.getParams())) {
+							handlerEvent.setParams(event.getParams().split(System.lineSeparator()));
+						}
+						return handlerEvent;
 					}
-					// 删除与event关联的其他的Agent事件
-					Map<String, Object> param = Maps.newHashMap();
-					param.put("eventId", event.getEventId());
-					param.put("agentId", event.getAgentId());
-					jobEventMapper.deleteJobEventNotEqual(param);
-					// 将 Event 更新为处理中
-					param.put("stat", EventStatus.HANDLE);
-					jobEventMapper.upgradeJobEventStatus(param);
+				} catch (InterruptedException e) {
+					logger.error("event lock error.", e);
+				} finally {
+					lock.unlock();
 				}
-			} catch (InterruptedException e) {
-				logger.error("event lock error.", e);
-			} finally {
-				lock.unlock();
 			}
-			return event;
 		}
-		return null;
+		return new HandlerEvent();
 	}
 	
 	/**
@@ -106,42 +107,42 @@ public class JobEventService {
 	 */
 	@Transactional
 	public void handlerJobEventReport(String eventId, Resp<String> resp) {
-		Map<String, Object> param = Maps.newHashMap();
-		param.put("eventId", eventId);
+		
+		JobEvent jobEvent = jobEventMapper.findJobEventByEventId(eventId);
+		if(null == jobEvent) {
+			return;
+		}
+		
 		if(resp.getCode() == Resp.SUCCESS.getCode()) {
 			// 执行成功, event 事件的状态改为成功
-			param.put("stat", EventStatus.SUCCESS);
-			jobEventMapper.upgradeJobEventStatus(param);
+			jobEvent.setStat(EventStatus.SUCCESS);
+			jobEventMapper.upgradeJobEvent(jobEvent);
 		} else {
 			// 执行失败, 判断任务的失败策略. 
-			List<JobEvent> handlerEvent = jobEventMapper.queryJobEventByEventId(eventId);
-			if(null == handlerEvent || handlerEvent.isEmpty()) {
-				return;
-			}
-			JobInfo jobInfo = jobInfoMapper.findJobInfoById(handlerEvent.get(0).getJobId());
+			JobInfo jobInfo = jobInfoMapper.findJobInfoById(jobEvent.getJobId());
 			if(null == jobInfo) {
 				return;
 			}
-			param.put("stat", EventStatus.FAIL);
+			jobEvent.setStat(EventStatus.FAIL);
 			if (jobInfo.getHandlerFailStrategy().equals(HandlerFailStrategy.RETRY)) {
 				// 重试, 则增加重试次数, 并且更新重试状态
-				param.put("stat", EventStatus.RETRY);
-				param.put("retryCount", new Integer(handlerEvent.get(0).getRetryCount() + 1));
+				jobEvent.setStat(EventStatus.RETRY);
+				jobEvent.setRetryCount(jobEvent.getRetryCount() + 1);
 			}
 			if(jobInfo.getHandlerFailStrategy().equals(HandlerFailStrategy.ALARM)) {
 				// 发送告警邮件或者短信
 				if(StringUtils.isNotEmpty(jobInfo.getAdminEmail())) {
 					try {
-						SendEmailClient.sendEmail(jobInfo.getAdminEmail(), "Radish Handler Fail Alarm", handlerEvent.get(0).toString(),  null);
+						SendEmailClient.sendEmail(jobInfo.getAdminEmail(), "Radish Handler Fail Alarm", jobEvent.toString(),  null);
 					} catch (Exception e) {
-						e.printStackTrace();
+						logger.error("send alarm mail fail.", e);
 					}
 				}
 			}
 			if(jobInfo.getHandlerFailStrategy().equals(HandlerFailStrategy.DISCARD)) {
 				// 丢弃, 则直接更新状态, 什么也不做
 			}
-			jobEventMapper.upgradeJobEventStatus(param);
+			jobEventMapper.upgradeJobEvent(jobEvent);
 		}
 	}
 	

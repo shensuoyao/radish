@@ -7,37 +7,25 @@
         <result column="event_id" property="eventId"/>
         <result column="job_id" property="jobId"/>
         <result column="parent_job_id" property="parentJobId"/>
-        <result column="agent_id" property="agentId"/>
-        <result column="registry_handler" property="registryHandler"/>
+        <result column="executor_handlers" property="executorHandlers"/>
         <result column="handler_type" property="handlerType"/>
         <result column="cmd" property="cmd"/>
         <result column="params" property="params"/>
         <result column="stat" property="stat"/>
+        <result column="handler_agent_id" property="handlerAgentId"/>
         <result column="priority" property="priority"/>
         <result column="retry_count" property="retryCount"/>
         <result column="create_time" property="createTime"/>
     </resultMap>
 
-	<insert id="saveJobEventBatch" parameterType="list">
-	   <![CDATA[
-        INSERT INTO job_event(event_id, job_id, parent_job_id, agent_id, registry_handler, handler_type, 
-                    cmd, params, stat, priority, retry_count, create_time ) 
-        VALUES 
-        ]]>
-		<foreach collection="list" item="item" index="index" separator=",">
-			(#{item.eventId}, #{item.jobId}, #{item.parentJobId}, #{item.agentId}, #{item.registryHandler}, #{item.handlerType}, #{item.cmd}, #{item.params}, 
-			#{item.stat}, #{item.priority}, #{item.retryCount}, #{item.createTime}) 
-		</foreach>
-  </insert>
-  
-  <select id="queryJobEventByAgentId" parameterType="long" resultMap="jobEventMap">
-    <![CDATA[
-        SELECT event_id, job_id, parent_job_id, agent_id, registry_handler, handler_type, cmd, params, stat, priority, retry_count, create_time 
-          FROM job_event 
-         WHERE agent_id = #{agentId} AND stat IN ('READY', 'RETRY') 
-         ORDER BY priority DESC 
-        ]]>
-  </select>
+    <insert id="saveJobEvent" parameterType="JobEvent">
+     <![CDATA[
+        INSERT INTO job_event(event_id, job_id, parent_job_id, executor_handlers, handler_type, 
+                    cmd, params, stat, handler_agent_id, priority, retry_count, create_time ) 
+        VALUES (#{eventId}, #{jobId}, #{parentJobId}, #{executorHandlers}, #{handlerType}, #{cmd}, #{params}, 
+            #{stat}, #{handlerAgentId}, #{priority}, #{retryCount}, #{createTime}) 
+            ]]>
+    </insert>
   
   <select id="countJobEventInJobIds" parameterType="list" resultType="int">
     <![CDATA[
@@ -50,30 +38,22 @@
     </foreach>
   </select>
   
-  <delete id="deleteJobEventNotEqual" parameterType="map">
+  <update id="upgradeJobEvent" parameterType="JobEvent">
     <![CDATA[
-        DELETE FROM job_event WHERE event_id = #{eventId} AND agent_id != #{agentId}
+        UPDATE job_event SET stat = #{stat}, retry_count = #{retryCount} 
         ]]>
-  </delete>
-  
-  <update id="upgradeJobEventStatus" parameterType="map">
-    <![CDATA[
-        UPDATE job_event SET stat = #{stat}
-        ]]>
-    <if test="retryCount != null">
-        <![CDATA[ , retry_count = #{retryCount} ]]>
+    <if test="handlerAgentId != null">
+        <![CDATA[ , handler_agent_id = #{handlerAgentId} ]]> 
     </if>
     <where>
-        <![CDATA[ event_id = #{eventId} ]]>
-        <if test="agentId != null">
-            <![CDATA[ AND agent_id = #{agentId} ]]>
-        </if>
+	    <![CDATA[ event_id = #{eventId} ]]>
     </where>
   </update>
   
-  <select id="queryJobEventByEventId" parameterType="string" resultMap="jobEventMap">
+  <select id="findJobEventByEventId" parameterType="string" resultMap="jobEventMap">
     <![CDATA[
-        SELECT event_id, job_id, parent_job_id, agent_id, registry_handler, handler_type, cmd, params, stat, priority, retry_count, create_time 
+        SELECT event_id, job_id, parent_job_id, executor_handlers, handler_type, cmd, params, 
+               stat, handler_agent_id, priority, retry_count, create_time 
           FROM job_event 
          WHERE event_id = #{eventId} 
         ]]>
@@ -81,7 +61,8 @@
   
   <select id="queryJobEventForPager" resultMap="jobEventMap" parameterType="string">
 	  <![CDATA[
-	      SELECT event_id, job_id, parent_job_id, agent_id, registry_handler, handler_type, cmd, params, stat, priority, retry_count, create_time 
+	      SELECT event_id, job_id, parent_job_id, executor_handlers, handler_type, cmd, params, 
+	             stat, handler_agent_id, priority, retry_count, create_time 
           FROM job_event 
 	     ]]>
 	  <if test="stat != null">

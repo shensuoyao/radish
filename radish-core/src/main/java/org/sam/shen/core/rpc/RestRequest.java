@@ -133,13 +133,13 @@ public class RestRequest {
 		}
 		Resp<Object> resp = restTemplate.getForObject(url, Resp.class, uriVariables);
 		
-		return new Resp<T>(JSON.parseObject(resp.toJsonBody(), clazz));
+		return new Resp<T>(JSON.parseObject(resp.toJsonData(), clazz));
 	}
 	
 	@SuppressWarnings("unchecked")
 	public static <T> Resp<T> getUriVariables(String url, Class<T> clazz, Object... uriVariables) throws Exception {
 		Resp<Object> resp = restTemplate.getForObject(url, Resp.class, uriVariables);
-		return new Resp<T>(JSON.parseObject(resp.toJsonBody(), clazz));
+		return new Resp<T>(JSON.parseObject(resp.toJsonData(), clazz));
 	}
 	
 	/**
@@ -166,7 +166,7 @@ public class RestRequest {
 		ResponseEntity<Resp> resultEntity = restTemplate.exchange(url, method, entity, Resp.class);
 		
 		Resp<?> resp = resultEntity.getBody();
-		return new Resp<T>(JSON.parseObject(resp.toJsonBody(), clazz));
+		return new Resp<T>(JSON.parseObject(resp.toJsonData(), clazz));
 	}
 	
 }

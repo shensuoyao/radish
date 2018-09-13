@@ -50,9 +50,10 @@
        , cols: [[   // 标题栏目
            {field: 'eventId', title: 'Event ID'}
            , {field: 'jobId', title: 'Job ID',}
-           , {field: 'agentId', title: 'Agent ID',}
+           , {field: 'executorHandlers', title: 'Executor Handlers',}
            , {field: 'handlerType', title: '处理器类型'}
            , {field: 'stat', title: '事件状态'}
+           , {field: 'handlerAgentId', title: '执行Agent'}
            , {field: 'priority', title: '优先级',  width: 80}
            , {field: 'retryCount', title: '重试次数' }
            , {field: 'createTime', title: '创建时间'}
@@ -88,7 +89,7 @@
     	    	  , shade: 0
     	    	  , area: ['600px', '500px']
     	    	  , maxmin: true
-    	    	  , content: [[@{/portal/job-event-log}]] + '?eventId=' + obj.data.eventId + '&agentId=' + obj.data.agentId
+    	    	  , content: [[@{/portal/job-event-log}]] + '?eventId=' + obj.data.eventId + '&agentId=' + obj.data.handlerAgentId
     	    		, moveEnd: function(layero) {
     	    			    layer.setTop(layero);
     	    		             }

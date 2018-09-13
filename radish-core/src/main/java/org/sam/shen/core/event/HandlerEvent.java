@@ -31,15 +31,13 @@ public class HandlerEvent implements Serializable {
 		super();
 	}
 
-	public HandlerEvent(String eventId, String jobId, String registryHandler, String cmd, HandlerType handlerType,
-	        String[] params) {
+	public HandlerEvent(String eventId, String jobId, String registryHandler, String cmd, HandlerType handlerType) {
 		this();
 		this.eventId = eventId;
 		this.jobId = jobId;
 		this.registryHandler = registryHandler;
 		this.cmd = cmd;
 		this.handlerType = handlerType;
-		this.params = params;
 	}
 	
 	public String getEventId() {

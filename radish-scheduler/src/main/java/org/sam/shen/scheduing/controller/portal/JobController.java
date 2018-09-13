@@ -305,13 +305,19 @@ public class JobController {
 	}
 	
 	@RequestMapping(value = "job-event-log", method = RequestMethod.GET)
-	public ModelAndView eventLog(ModelAndView model, @RequestParam("eventId") String eventId, @RequestParam("agentId") Long agentId) {
+	public ModelAndView eventLog(ModelAndView model, @RequestParam(value = "eventId", required = false) String eventId,
+	        @RequestParam(value = "agentId", required = false) Long agentId) {
+		model.setViewName("frame/job/job_event_log");
+		if(StringUtils.isEmpty(eventId) || null == agentId) {
+			model.addObject("logs", Lists.newArrayList("Event ID 为空或 Agent ID 为空."));
+			return model;
+		}
+		
 		LogReader logReader = jobEventService.readEventLogFromAgent(eventId, agentId);
 		if(null == logReader) {
 			model.addObject("logs", Lists.newArrayList("日志为空"));
 		}
 		model.addObject("logs", logReader.getLogLines());
-		model.setViewName("frame/job/job_event_log");
 		return model;
 	}
 	

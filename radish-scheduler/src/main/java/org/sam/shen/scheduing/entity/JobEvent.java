@@ -19,9 +19,11 @@ public class JobEvent implements Serializable {
 	
 	private String parentJobId;
 	
-	private Long agentId;
-	
-	private String registryHandler;
+	/**
+	 * 执行任务的Handler处理器
+	 * 格式: agentId-handler[, agentId-handler ...]
+	 */
+	private String executorHandlers;
 	
 	private HandlerType handlerType;    // job handler 处理器 类型
 	
@@ -30,6 +32,8 @@ public class JobEvent implements Serializable {
 	private String params;    // 附加参数
 	
 	private EventStatus stat;
+	
+	private Long handlerAgentId;
 	
 	private int priority;		// 优先级 从 0 - 9
 	
@@ -42,19 +46,19 @@ public class JobEvent implements Serializable {
 		this.createTime = new Date();
 	}
 	
-	public JobEvent(Long jobId, Long agentId, HandlerType handlerType, EventStatus stat, int priority) {
+	public JobEvent(Long jobId, String executorHandlers, HandlerType handlerType, EventStatus stat, int priority) {
 		this();
 		this.eventId = jobId + Constant.SPLIT_CHARACTER + System.currentTimeMillis();
 		this.jobId = jobId;
-		this.agentId = agentId;
+		this.executorHandlers = executorHandlers;
 		this.handlerType = handlerType;
 		this.stat = stat;
 		this.priority = priority;
 	}
 	
-	public JobEvent(Long jobId, Long agentId, HandlerType handlerType, EventStatus stat, int priority, String cmd,
+	public JobEvent(Long jobId, String executorHandlers, HandlerType handlerType, EventStatus stat, int priority, String cmd,
 	        String params) {
-		this(jobId, agentId, handlerType, stat, priority);
+		this(jobId, executorHandlers, handlerType, stat, priority);
 		this.cmd = cmd;
 		this.params = params;
 	}
@@ -83,20 +87,12 @@ public class JobEvent implements Serializable {
 		this.parentJobId = parentJobId;
 	}
 
-	public Long getAgentId() {
-		return agentId;
+	public String getExecutorHandlers() {
+		return executorHandlers;
 	}
 
-	public void setAgentId(Long agentId) {
-		this.agentId = agentId;
-	}
-
-	public String getRegistryHandler() {
-		return registryHandler;
-	}
-
-	public void setRegistryHandler(String registryHandler) {
-		this.registryHandler = registryHandler;
+	public void setExecutorHandlers(String executorHandlers) {
+		this.executorHandlers = executorHandlers;
 	}
 
 	public HandlerType getHandlerType() {
@@ -129,6 +125,14 @@ public class JobEvent implements Serializable {
 
 	public void setStat(EventStatus stat) {
 		this.stat = stat;
+	}
+
+	public Long getHandlerAgentId() {
+		return handlerAgentId;
+	}
+
+	public void setHandlerAgentId(Long handlerAgentId) {
+		this.handlerAgentId = handlerAgentId;
 	}
 
 	public int getPriority() {

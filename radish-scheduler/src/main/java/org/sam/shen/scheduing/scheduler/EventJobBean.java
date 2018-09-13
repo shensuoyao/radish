@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.SchedulerException;
+import org.sam.shen.core.constants.Constant;
 import org.sam.shen.core.constants.EventStatus;
 import org.sam.shen.scheduing.entity.JobEvent;
 import org.sam.shen.scheduing.entity.JobInfo;
@@ -15,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 
 import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
@@ -53,24 +53,24 @@ public class EventJobBean extends QuartzJobBean {
 		} else {
 			// 3. 发送Event事件到抢占任务事件队列
 			List<String> agentHandlers = Splitter.onPattern(",|-").splitToList(jobInfo.getExecutorHandlers());
-			Map<String, JobEvent> m = Maps.newHashMap();
+			Map<String, Object> eventHash = Maps.newHashMap();
 			Stream.iterate(0, i -> i + 1).limit(agentHandlers.size()).forEach(i -> {
 				if(i % 2 == 0) {
-					if(m.containsKey(agentHandlers.get(i))) {
-						JobEvent jobEvent = m.get(agentHandlers.get(i));
-						jobEvent.setRegistryHandler(jobEvent.getRegistryHandler().concat(",").concat(agentHandlers.get(i + 1)));
-						m.put(agentHandlers.get(i), jobEvent);
+					if(eventHash.containsKey(agentHandlers.get(i))) {
+						String val = String.valueOf(eventHash.get(agentHandlers.get(i))).concat(",").concat(agentHandlers.get(i + 1));
+						eventHash.put(agentHandlers.get(i), val);
 					} else {
-						JobEvent jobEvent = new JobEvent(jobInfo.getId(), Long.valueOf(agentHandlers.get(i)),
-						        jobInfo.getHandlerType(), EventStatus.READY, jobInfo.getPriority(), jobInfo.getCmd(),
-						        jobInfo.getParams());
-						jobEvent.setRegistryHandler(agentHandlers.get(i + 1));
-						jobEvent.setParentJobId(jobInfo.getParentJobId());
-						m.put(agentHandlers.get(i), jobEvent);
+						eventHash.put(agentHandlers.get(i), agentHandlers.get(i + 1));
 					}
 				}
 			});
-			RadishDynamicScheduler.jobEventMapper.saveJobEventBatch(Lists.newArrayList(m.values()));
+			JobEvent jobEvent = new JobEvent(jobInfo.getId(), jobInfo.getExecutorHandlers(), jobInfo.getHandlerType(),
+			        EventStatus.READY, jobInfo.getPriority(), jobInfo.getCmd(), jobInfo.getParams());
+			jobEvent.setParentJobId(jobInfo.getParentJobId());
+			RadishDynamicScheduler.jobEventMapper.saveJobEvent(jobEvent);
+			
+			RadishDynamicScheduler.redisService.hmset(Constant.REDIS_EVENT_PREFIX.concat(jobEvent.getEventId()),
+			        eventHash);
 		}
 		destory();
 	}
