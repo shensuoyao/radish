@@ -12,6 +12,8 @@ public class Constant {
 	
 	public static final String SPLIT_CHARACTER = "-";
 	
+	public static final String SPLIT_CHARACTER2 = ",";
+	
 	public static final String SPLIT_CHARACTER_ARROW = "->";
 	
 	public static final String HTTP_PREFIX = "http://";

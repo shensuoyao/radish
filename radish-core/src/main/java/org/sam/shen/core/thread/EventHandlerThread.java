@@ -1,12 +1,18 @@
 package org.sam.shen.core.thread;
 
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
 import org.sam.shen.core.agent.RadishAgent;
+import org.sam.shen.core.constants.Constant;
 import org.sam.shen.core.event.HandlerEvent;
 import org.sam.shen.core.handler.IHandler;
 import org.sam.shen.core.model.Resp;
 import org.sam.shen.core.rpc.RestRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Splitter;
 
 /**
  * @author suoyao
@@ -68,16 +74,25 @@ public class EventHandlerThread extends Thread {
 		}
 	}
 	
-	public boolean runable() {
-		IHandler registryHandler = RadishAgent.loadJobHandler(event.getRegistryHandler());
-		if(null == registryHandler) {
-			logger.error("Callback Handler Is Not Found. {}", event.getRegistryHandler());
+	public synchronized boolean runable() {
+		if(StringUtils.isEmpty(event.getRegistryHandler())) {
+			// 处理器为空
 			return Boolean.FALSE;
 		}
-		this.handler = registryHandler;
-		EventHandlerThreadPool.registryCallbackThread(this);
-		EventHandlerThreadPool.registryHandlerNow(event.getRegistryHandler(), handler);
-		return Boolean.TRUE;
+		List<String> registryHandlers = Splitter.on(Constant.SPLIT_CHARACTER2).splitToList(event.getRegistryHandler());
+		
+		IHandler registryHandler = null;
+		for(String regHandler : registryHandlers) {
+			registryHandler = RadishAgent.loadJobHandler(regHandler);
+			if(null == registryHandler) {
+				continue;
+			}
+			this.handler = registryHandler;
+			EventHandlerThreadPool.registryCallbackThread(this);
+			EventHandlerThreadPool.registryHandlerNow(event.getRegistryHandler(), handler);
+			return Boolean.TRUE;
+		}
+		return Boolean.FALSE;
 	}
 	
 	public void close() {

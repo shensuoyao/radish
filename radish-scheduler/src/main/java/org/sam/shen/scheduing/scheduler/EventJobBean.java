@@ -54,6 +54,7 @@ public class EventJobBean extends QuartzJobBean {
 			// 3. 发送Event事件到抢占任务事件队列
 			List<String> agentHandlers = Splitter.onPattern(",|-").splitToList(jobInfo.getExecutorHandlers());
 			Map<String, Object> eventHash = Maps.newHashMap();
+			eventHash.put("priority", jobInfo.getPriority());    // 设置优先级
 			Stream.iterate(0, i -> i + 1).limit(agentHandlers.size()).forEach(i -> {
 				if(i % 2 == 0) {
 					if(eventHash.containsKey(agentHandlers.get(i))) {

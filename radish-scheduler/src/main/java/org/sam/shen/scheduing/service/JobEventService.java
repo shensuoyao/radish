@@ -1,6 +1,11 @@
 package org.sam.shen.scheduing.service;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.annotation.Resource;
@@ -30,6 +35,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 @Service("jobEventService")
 public class JobEventService {
@@ -62,25 +69,44 @@ public class JobEventService {
 	public HandlerEvent triggerJobEvent(Long agentId) {
 		// 获取所有事件key
 		Set<String> keys = redisService.getKeys(Constant.REDIS_EVENT_PREFIX.concat("*"));
+		
+		// 获取所有Event 的优先级
+		Map<String, Integer> eventKeys = Maps.newHashMap();
 		for(String key : keys) {
-			if(redisService.hkeyExists(key, String.valueOf(agentId))) {
+			eventKeys.put(key, (Integer) redisService.hget(key, "priority"));
+		}
+		
+		// 根据优先级排序
+		// 优先级倒序排列
+		List<Map.Entry<String, Integer>> list = Lists.newArrayList(eventKeys.entrySet()); // new ArrayList<>(eventKeys.entrySet());
+		Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() {
+
+			@Override
+			public int compare(Entry<String, Integer> o1, Entry<String, Integer> o2) {
+				return o2.getValue().compareTo(o1.getValue());
+			}
+			
+		});
+		// 按照优先级从高到低抢占
+		for(Map.Entry<String, Integer> mapping: list) {
+			if(redisService.hkeyExists(mapping.getKey(), String.valueOf(agentId))) {
 				// 可以抢占
-				EventLock lock = new EventLock(redisTemplate, String.valueOf(key));
+				EventLock lock = new EventLock(redisTemplate, String.valueOf(mapping.getKey()));
 				try {
 					if(lock.lock()) {
 						JobEvent event = jobEventMapper
-						        .findJobEventByEventId(key.substring(Constant.REDIS_EVENT_PREFIX.length()));
+						        .findJobEventByEventId(mapping.getKey().substring(Constant.REDIS_EVENT_PREFIX.length()));
 						if(null == event) {
 							continue;
 						}
 						
-						String handlers = (String) redisService.hget(key, String.valueOf(agentId));
+						String handlers = (String) redisService.hget(mapping.getKey(), String.valueOf(agentId));
 						
 						// 获得锁成功
 						event.setStat(EventStatus.HANDLE);
 						event.setHandlerAgentId(agentId);
 						jobEventMapper.upgradeJobEvent(event);
-						redisService.delete(key);
+						redisService.delete(mapping.getKey());
 						HandlerEvent handlerEvent = new HandlerEvent(event.getEventId(),
 						        String.valueOf(event.getJobId()), handlers, event.getCmd(), event.getHandlerType());
 						if(StringUtils.isNotEmpty(event.getParams())) {
