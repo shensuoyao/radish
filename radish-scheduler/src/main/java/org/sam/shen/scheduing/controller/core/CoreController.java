@@ -5,6 +5,7 @@ import java.util.Map;
 import org.sam.shen.core.constants.Constant;
 import org.sam.shen.core.event.HandlerEvent;
 import org.sam.shen.core.model.AgentInfo;
+import org.sam.shen.core.model.AgentMonitorInfo;
 import org.sam.shen.core.model.AgentPerformance;
 import org.sam.shen.core.model.Resp;
 import org.sam.shen.scheduing.service.AgentService;
@@ -63,7 +64,7 @@ public class CoreController {
 	 * @return Agent heartbeat call
 	 */
 	@RequestMapping(value = "/heartbeat", method = RequestMethod.POST)
-	public Resp<AgentPerformance> heartbeat(@RequestBody AgentPerformance agent) {
+	public Resp<AgentMonitorInfo> heartbeat(@RequestBody AgentMonitorInfo agent) {
 		@SuppressWarnings("unchecked")
 		Map<String,  Object> m = JSON.parseObject(agent.toString(), Map.class);
 		redisService.hmsetEx(Constant.REDIS_AGENT_PREFIX + agent.getAgentId(), m, 60);

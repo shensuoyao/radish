@@ -4,6 +4,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sam.shen.core.constants.Constant;
+import org.sam.shen.core.model.Monitor;
 import org.sam.shen.core.model.PerformanceBuilder;
 import org.sam.shen.core.model.Resp;
 import org.sam.shen.core.rpc.RestRequest;
@@ -40,7 +41,7 @@ public class AgentHeartBeatThread extends Thread {
 			logger.warn(">>>>>>>>>>> radish, agent heartbeat fail, agentName is null.");
 		}
 		
-		PerformanceBuilder performanceBuilder = new PerformanceBuilder(agentId, agentName);
+		Monitor monitor = new Monitor(agentId, agentName);
 		
 		beatThread = new Thread(new Runnable() {
 			
@@ -49,7 +50,7 @@ public class AgentHeartBeatThread extends Thread {
 				// HeartBeat
 				while(!toStop) {
 					try {
-						Resp<Object> resp = RestRequest.post(rpcUrl, performanceBuilder.buildMemory().buildThread().build());
+						Resp<Object> resp = RestRequest.post(rpcUrl, monitor.collect(Monitor.MonitorType.All));
 						if(Resp.SUCCESS.getCode() != resp.getCode()) {
 							logger.error(JSON.toJSONString(resp));
 							logger.error("HeartBeat failed the reason is: {}, detail: {}", resp.getMsg(), resp.getData());

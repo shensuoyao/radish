@@ -1,11 +1,18 @@
 package org.sam.shen.core.util;
 
+import com.alibaba.fastjson.JSON;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.PumpStreamHandler;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.sam.shen.core.model.AgentMonitorInfo;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
   * 1、内嵌编译器如"PythonInterpreter"无法引用扩展包，因此推荐使用java调用控制台进程方式"Runtime.getRuntime().exec()"来运行脚本(shell或python)；
@@ -91,5 +98,71 @@ public class ScriptUtil {
 			}
 		}
 	}
+
+
+    /**
+     * 执行shell脚本
+     * @author clock
+     * @date 2018/10/31 上午10:05
+     * @param command shell命令
+     * @param params 传递参数
+     * @return shell脚本执行的结果
+     */
+	public static String execShellCmd(String command, String... params) {
+	    try {
+            String cmd = command.concat(" ").concat(StringUtils.join(params, " "));
+            Process process = Runtime.getRuntime().exec(new String[] {"/bin/sh", "-c", cmd});
+            process.waitFor();
+            return IOUtils.toString(process.getInputStream(), Charset.forName("utf-8"));
+        } catch (Exception e) {
+	        e.printStackTrace();
+        }
+	    return "";
+    }
+
+
+    public static void main(String[] args) {
+        String re = execShellCmd("/Users/zhongsj/Documents/ideaworkspace/radish/radish-agent/src/main/resources/monitor.sh", "CPJMN");
+        String[] lines = re.split("\n");
+        AgentMonitorInfo agentMonitorInfo = new AgentMonitorInfo();
+        agentMonitorInfo.setCpuCount(SystemUtil.cpuCount());
+        if (StringUtils.isEmpty(agentMonitorInfo.getIp())) {
+            agentMonitorInfo.setIp(IpUtil.getIp());
+        }
+        agentMonitorInfo.setOsName(SystemUtil.osName());
+        agentMonitorInfo.setOsVersion(SystemUtil.osVersion());
+        agentMonitorInfo.setAgentName(IpUtil.getHostName());
+
+        Map<String, Object> map = JSON.parseObject(JSON.toJSONString(agentMonitorInfo));
+        List<Map<String, Object>> javaList = new ArrayList<>();
+        Map<String, Map<String, Object>> netMap = new HashMap<>();
+        for (String line : lines) {
+            String[] kv = line.split(":");
+            if (kv.length == 2 && StringUtils.isNotEmpty(kv[0].trim()) && StringUtils.isNotEmpty(kv[1].trim())) {
+                if (kv[0].trim().startsWith("java")) { // java服务占用内存一对多关系，特殊处理
+                    Map<String, Object> jMap = new HashMap<>();
+                    jMap.put("name", kv[0].split("\\.")[1]);
+                    jMap.put("rss", kv[1].trim());
+                    javaList.add(jMap);
+                } else if (kv[0].trim().startsWith("network")) { // 网卡一对多关系，特殊处理
+                    String iface = kv[0].split("\\.")[1];
+                    if (netMap.get(iface) == null) {
+                        Map<String, Object> nMap = new HashMap<>();
+                        nMap.put("iface", iface);
+                        nMap.put(kv[0].split("\\.")[2], kv[1].trim());
+                        netMap.put(iface, nMap);
+                    } else {
+                        netMap.get(iface).put(kv[0].split("\\.")[2], kv[1].trim());
+                    }
+                } else {
+                    map.put(kv[0].trim(), kv[1].trim());
+                }
+            }
+        }
+        map.put("javaMemoryList", javaList);
+        map.put("networkIOList", netMap.values());
+        agentMonitorInfo = JSON.parseObject(JSON.toJSONString(map), AgentMonitorInfo.class);
+        System.out.println(agentMonitorInfo.getCpuIdle());
+    }
 
 }
