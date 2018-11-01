@@ -73,24 +73,24 @@ public class Monitor {
             Map<String, Map<String, Object>> netMap = new HashMap<>();
             for (String line : lines) {
                 String[] kv = line.split(":");
-                if (kv.length == 2 && StringUtils.isNotEmpty(kv[0].trim()) && StringUtils.isNotEmpty(kv[1].trim())) {
-                    if (kv[0].trim().startsWith("java")) { // java服务占用内存一对多关系，特殊处理
+                if (kv.length == 2 && StringUtils.isNotEmpty(kv[0]) && StringUtils.isNotEmpty(kv[1])) {
+                    if (kv[0].startsWith("java")) { // java服务占用内存一对多关系，特殊处理
                         Map<String, Object> jMap = new HashMap<>();
                         jMap.put("name", kv[0].split("\\.")[1]);
-                        jMap.put("rss", kv[1].trim());
+                        jMap.put("rss", kv[1]);
                         javaList.add(jMap);
-                    } else if (kv[0].trim().startsWith("network")) { // 网卡一对多关系，特殊处理
+                    } else if (kv[0].startsWith("network")) { // 网卡一对多关系，特殊处理
                         String iface = kv[0].split("\\.")[1];
                         if (netMap.get(iface) == null) {
                             Map<String, Object> nMap = new HashMap<>();
                             nMap.put("iface", iface);
-                            nMap.put(kv[0].split("\\.")[2], kv[1].trim());
+                            nMap.put(kv[0].split("\\.")[2], kv[1]);
                             netMap.put(iface, nMap);
                         } else {
-                            netMap.get(iface).put(kv[0].split("\\.")[2], kv[1].trim());
+                            netMap.get(iface).put(kv[0].split("\\.")[2], kv[1]);
                         }
                     } else {
-                        map.put(kv[0].trim(), kv[1].trim());
+                        map.put(kv[0], kv[1]);
                     }
                 }
             }

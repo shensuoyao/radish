@@ -27,7 +27,7 @@ function parseToJson1() {
 			local key="${prefix}${key_arr[i]}";
 			local value="${value_arr[i]}";
 		fi
-		echo "${key}: ${value}"
+		echo "${key}:${value}"
 		#info=$(jq -n "$info + {\"$key\": \"$value\"}");
 	done
 }
@@ -71,7 +71,7 @@ function parseToJson2() {
 				local key="${k_prefix}${key_arr[k_index]}";
 				local value="${value_arr[i]}";
 			fi
-			info="${info}${key}: ${value}\n"
+			info="${info}${key}:${value}\n"
 			#info=$(jq -n "$info + {\"$key\": \"$value\"}");
 		fi
 	done
@@ -93,7 +93,7 @@ function getPhpAndJava() {
         for (( i = 0; i < ${#js_array[@]}; i++ )); do
             local array=(${js_array[i]});
             local name_arr=($(echo "$js_name" | grep "${array[1]}"));
-            local key="java.${name_arr[1]}.rss: ";
+            local key="java.${name_arr[1]}.rss:";
             echo "${key}${array[5]}"
         done
 	fi
