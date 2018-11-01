@@ -48,8 +48,8 @@ public class JobEventService {
 	
 	@Resource
 	private JobInfoMapper jobInfoMapper;
-	
-	@Autowired
+
+	@Resource
 	private AgentMapper agentMapper;
 	
 	@Resource
@@ -114,7 +114,7 @@ public class JobEventService {
 						}
 						return handlerEvent;
 					}
-				} catch (InterruptedException e) {
+				} catch (Exception e) {
 					logger.error("event lock error.", e);
 				} finally {
 					lock.unlock();
