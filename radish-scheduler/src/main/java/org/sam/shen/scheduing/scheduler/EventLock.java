@@ -26,17 +26,20 @@ public class EventLock {
      */
     private String lockKey;
 
+    private String lockValue;
+
     private long expireTime = 30L;
 
     private volatile boolean locked = false;
 
-    public EventLock(RedisTemplate<String, Object> redisTemplate, String lockKey) {
+    public EventLock(RedisTemplate<String, Object> redisTemplate, String lockKey, String lockValue) {
         this.redisTemplate = redisTemplate;
         this.lockKey = lockKey + "_lock";
+        this.lockValue = lockValue;
     }
 
-    public EventLock(RedisTemplate<String, Object> redisTemplate, String lockKey, long expireTime) {
-        this(redisTemplate, lockKey);
+    public EventLock(RedisTemplate<String, Object> redisTemplate, String lockKey, String lockValue, long expireTime) {
+        this(redisTemplate, lockKey, lockValue);
         this.expireTime = expireTime;
     }
 
@@ -44,13 +47,16 @@ public class EventLock {
         return lockKey;
     }
 
+    public String getLockValue() {
+        return lockValue;
+    }
+
     private boolean setNX(final String key, final String value) {
         Object obj = null;
         try {
             obj = redisTemplate.execute((RedisCallback<Object>) connection -> {
                 StringRedisSerializer serializer = new StringRedisSerializer();
-//					Boolean success = connection.setNX(serializer.serialize(key), serializer.serialize(value));
-                // 通过jedisCluster.set(final String key, final String value, final String nxxx, final String expx, final long time)实现
+                // 该方法通过jedisCluster.set(final String key, final String value, final String nxxx, final String expx, final long time)实现，是原子性操作
                 Boolean success = connection.set(serializer.serialize(key), serializer.serialize(value),
                         Expiration.seconds(expireTime), RedisStringCommands.SetOption.SET_IF_ABSENT);
                 connection.close();
@@ -71,7 +77,7 @@ public class EventLock {
      * @date 下午5:12:17
      */
     public synchronized boolean lock() {
-        if (this.setNX(lockKey, String.valueOf(expireTime))) {
+        if (this.setNX(lockKey, lockValue)) {
             // lock acquired
             locked = true;
         }

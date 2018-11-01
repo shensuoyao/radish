@@ -1,11 +1,8 @@
 package org.sam.shen.scheduing.service;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.annotation.Resource;
@@ -79,19 +76,12 @@ public class JobEventService {
 		// 根据优先级排序
 		// 优先级倒序排列
 		List<Map.Entry<String, Integer>> list = Lists.newArrayList(eventKeys.entrySet()); // new ArrayList<>(eventKeys.entrySet());
-		Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() {
-
-			@Override
-			public int compare(Entry<String, Integer> o1, Entry<String, Integer> o2) {
-				return o2.getValue().compareTo(o1.getValue());
-			}
-			
-		});
+		list.sort((o1, o2) -> o2.getValue().compareTo(o1.getValue()));
 		// 按照优先级从高到低抢占
 		for(Map.Entry<String, Integer> mapping: list) {
 			if(redisService.hkeyExists(mapping.getKey(), String.valueOf(agentId))) {
 				// 可以抢占
-				EventLock lock = new EventLock(redisTemplate, String.valueOf(mapping.getKey()));
+				EventLock lock = new EventLock(redisTemplate, String.valueOf(mapping.getKey()), String.valueOf(agentId));
 				try {
 					if(lock.lock()) {
 						JobEvent event = jobEventMapper
