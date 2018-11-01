@@ -6,8 +6,8 @@
 export LANG=en_US
 export LC_TIME="POSIX"
 param=$1
-#sar_result=$(sar -bruq -n DEV 1 1 | grep -E "(0[0-9]|1[0-9]|2[0-3])(:[0-5][0-9]){2}")
-sar_result=$(cat /Users/zhongsj/Desktop/data1.txt | grep -E "(0[0-9]|1[0-9]|2[0-3])(:[0-5][0-9]){2}")
+sar_result=$(sar -bruq -n DEV 1 1 | grep -E "(0[0-9]|1[0-9]|2[0-3])(:[0-5][0-9]){2}")
+#sar_result=$(cat /Users/zhongsj/Desktop/data1.txt | grep -E "(0[0-9]|1[0-9]|2[0-3])(:[0-5][0-9]){2}")
 
 function parseToJson1() {
 	local nr_t=$1;
