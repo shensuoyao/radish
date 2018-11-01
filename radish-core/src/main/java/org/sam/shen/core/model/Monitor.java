@@ -2,6 +2,7 @@ package org.sam.shen.core.model;
 
 import com.alibaba.fastjson.JSON;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.sam.shen.core.util.IpUtil;
 import org.sam.shen.core.util.ScriptUtil;
@@ -17,6 +18,7 @@ import java.util.stream.Collectors;
  * @author clock
  * @date 2018/10/30 下午5:59
  */
+@Slf4j
 public class Monitor {
 
     @Getter
@@ -63,6 +65,8 @@ public class Monitor {
         }
         if (shFile != null) {
             String result = ScriptUtil.execShellCmd(shFile.getAbsolutePath(), param);
+            log.info(shFile.getAbsolutePath().concat(" ").concat(param).concat("执行结果:\r\n{}"), result);
+
             String[] lines = result.split("\n");
             Map<String, Object> map = JSON.parseObject(JSON.toJSONString(agentMonitorInfo));
             List<Map<String, Object>> javaList = new ArrayList<>();
@@ -94,7 +98,6 @@ public class Monitor {
             map.put("networkIOList", netMap.values());
             agentMonitorInfo = JSON.parseObject(JSON.toJSONString(map), AgentMonitorInfo.class);
         }
-
         return agentMonitorInfo;
     }
 }

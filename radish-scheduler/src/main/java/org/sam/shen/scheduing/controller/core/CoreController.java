@@ -6,7 +6,6 @@ import org.sam.shen.core.constants.Constant;
 import org.sam.shen.core.event.HandlerEvent;
 import org.sam.shen.core.model.AgentInfo;
 import org.sam.shen.core.model.AgentMonitorInfo;
-import org.sam.shen.core.model.AgentPerformance;
 import org.sam.shen.core.model.Resp;
 import org.sam.shen.scheduing.service.AgentService;
 import org.sam.shen.scheduing.service.JobEventService;
