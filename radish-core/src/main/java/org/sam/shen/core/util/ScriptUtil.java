@@ -4,13 +4,10 @@ import com.alibaba.fastjson.JSON;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.PumpStreamHandler;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.sam.shen.core.model.AgentMonitorInfo;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.charset.Charset;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -108,13 +105,68 @@ public class ScriptUtil {
      * @return shell脚本执行的结果
      */
 	public static String execShellCmd(String command, String... params) {
+	    Process process = null;
+        String cmd = command.concat(" ").concat(StringUtils.join(params, " "));
+        try {
+            process = Runtime.getRuntime().exec(new String[] {"/bin/sh", "-c", cmd});
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (process == null) {
+            return "";
+        }
+
+        final ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        final ByteArrayOutputStream ebos = new ByteArrayOutputStream();
+        final InputStream is = process.getInputStream();
+        final InputStream es = process.getErrorStream();
+        // 启动执行命令结果输出线程
+        new Thread(() -> {
+            byte[] buffer = new byte[1024];
+            int length;
+            try {
+                while ((length = is.read(buffer)) != -1) {
+                    bos.write(buffer, 0, length);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
+        // 启动执行命令错误流输出线程
+        new Thread(() -> {
+            byte[] buffer = new byte[1024];
+            int length;
+            try {
+                while ((length = es.read(buffer)) != -1) {
+                    ebos.write(buffer, 0, length);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
+
 	    try {
-            String cmd = command.concat(" ").concat(StringUtils.join(params, " "));
-            Process process = Runtime.getRuntime().exec(new String[] {"/bin/sh", "-c", cmd});
+            // 等待线程执行完毕
             process.waitFor();
-            return IOUtils.toString(process.getInputStream(), Charset.forName("utf-8"));
+            String msg = bos.toString("utf-8").trim();
+            String errMsg = ebos.toString("utf-8").trim();
+            if (StringUtils.isNotEmpty(msg)) {
+                return msg;
+            }
+            if (StringUtils.isNotEmpty(errMsg)) {
+                return  errMsg;
+            }
         } catch (Exception e) {
 	        e.printStackTrace();
+        } finally {
+	        try {
+	            bos.close();
+	            ebos.close();
+	            if (is != null) is.close();
+	            if (es != null) es.close();
+            } catch (IOException e) {
+	            e.printStackTrace();
+            }
         }
 	    return "";
     }
