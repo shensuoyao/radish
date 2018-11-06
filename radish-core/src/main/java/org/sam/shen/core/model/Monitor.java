@@ -9,8 +9,7 @@ import org.sam.shen.core.util.ScriptUtil;
 import org.sam.shen.core.util.SystemUtil;
 import org.springframework.util.ResourceUtils;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -55,6 +54,14 @@ public class Monitor {
         agentMonitorInfo.setAgentName(agentName);
     }
 
+
+    /**
+     * 采集服务器的监控信息
+     * @author clock
+     * @date 2018/11/6 上午10:29
+     * @param monitorType 监控内容
+     * @return 监控信息
+     */
     public AgentMonitorInfo collect(MonitorType... monitorType) {
         String param = Arrays.stream(monitorType).map(MonitorType::getName).collect(Collectors.joining(""));
         File shFile = null;
@@ -67,31 +74,42 @@ public class Monitor {
             String result = ScriptUtil.execShellCmd(shFile.getAbsolutePath(), param);
             log.info(shFile.getAbsolutePath().concat(" ").concat(param).concat("执行结果:\r\n{}"), result);
 
-            String[] lines = result.split("\n");
             Map<String, Object> map = JSON.parseObject(JSON.toJSONString(agentMonitorInfo));
             List<Map<String, Object>> javaList = new ArrayList<>();
             Map<String, Map<String, Object>> netMap = new HashMap<>();
-            for (String line : lines) {
-                String[] kv = line.split(":");
-                if (kv.length == 2 && StringUtils.isNotEmpty(kv[0]) && StringUtils.isNotEmpty(kv[1])) {
-                    if (kv[0].startsWith("java")) { // java服务占用内存一对多关系，特殊处理
-                        Map<String, Object> jMap = new HashMap<>();
-                        jMap.put("name", kv[0].split("\\.")[1]);
-                        jMap.put("rss", kv[1]);
-                        javaList.add(jMap);
-                    } else if (kv[0].startsWith("network")) { // 网卡一对多关系，特殊处理
-                        String iface = kv[0].split("\\.")[1];
-                        if (netMap.get(iface) == null) {
-                            Map<String, Object> nMap = new HashMap<>();
-                            nMap.put("iface", iface);
-                            nMap.put(kv[0].split("\\.")[2], kv[1]);
-                            netMap.put(iface, nMap);
+            BufferedReader br = new BufferedReader(new StringReader(result));
+            try {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    String[] kv = line.split(":");
+                    if (kv.length == 2 && StringUtils.isNotEmpty(kv[0]) && StringUtils.isNotEmpty(kv[1])) {
+                        if (kv[0].startsWith("java")) { // java服务占用内存一对多关系，特殊处理
+                            Map<String, Object> jMap = new HashMap<>();
+                            jMap.put("name", kv[0].split("\\.")[1]);
+                            jMap.put("rss", kv[1]);
+                            javaList.add(jMap);
+                        } else if (kv[0].startsWith("network")) { // 网卡一对多关系，特殊处理
+                            String iface = kv[0].split("\\.")[1];
+                            if (netMap.get(iface) == null) {
+                                Map<String, Object> nMap = new HashMap<>();
+                                nMap.put("iface", iface);
+                                nMap.put(kv[0].split("\\.")[2], kv[1]);
+                                netMap.put(iface, nMap);
+                            } else {
+                                netMap.get(iface).put(kv[0].split("\\.")[2], kv[1]);
+                            }
                         } else {
-                            netMap.get(iface).put(kv[0].split("\\.")[2], kv[1]);
+                            map.put(kv[0], kv[1]);
                         }
-                    } else {
-                        map.put(kv[0], kv[1]);
                     }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    br.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
             map.put("javaMemoryList", javaList);
