@@ -11,6 +11,7 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.sam.shen.core.agent.RadishAgent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,12 +25,7 @@ import com.google.common.collect.Lists;
 public class RadishLogFileAppender {
 	private static Logger logger = LoggerFactory.getLogger(RadishLogFileAppender.class);
 
-	private static String logBasePath = "/var/log/radish/";
-	
 	public static void initLogPath(String logPath) {
-		if(StringUtils.isNotEmpty(logPath)) {
-			logBasePath = logPath;
-		}
 		// Make LogPath
 		File logBasePathDir = new File(logPath);
 		try {
@@ -39,10 +35,16 @@ public class RadishLogFileAppender {
 		}
 	}
 
-	public static String getLogBasePath() {
-		return logBasePath;
-	}
-	
+	public static void initShPath(String shPath) {
+        // Make LogPath
+        File shBasePathDir = new File(shPath);
+        try {
+            FileUtils.forceMkdir(shBasePathDir);
+        } catch (IOException e) {
+            logger.error("Make Shell Path Failed. [{}]", shPath, e);
+        }
+    }
+
 	/**
 	 * @author suoyao
 	 * @date 下午3:07:41
@@ -51,7 +53,7 @@ public class RadishLogFileAppender {
 	 *  创建日志文件
 	 */
 	public static String makeLogFile(String logId) {
-		File logFilePath = new File(getLogBasePath(), new DateTime().toString("yyyyMMdd"));
+		File logFilePath = new File(RadishAgent.getLogPath(), new DateTime().toString("yyyyMMdd"));
 		try {
 			FileUtils.forceMkdir(logFilePath);
 		} catch (IOException e) {

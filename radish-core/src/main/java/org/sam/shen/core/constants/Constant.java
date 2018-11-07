@@ -27,5 +27,11 @@ public class Constant {
 	public static final String REDIS_AGENT_PREFIX = "agent_";
 	
 	public static final String REDIS_EVENT_PREFIX = "event_";
+
+	public static final String DEFAULT_LOG_FILE_PATH = "/var/log/radish/";
+
+    public static final String DEFAULT_SHELL_SCRIPT_FILE_PATH = "/var/log/radish/";
+
+	public static final String SHELL_SCRIPT_NAME = "monitor.sh";
 	
 }

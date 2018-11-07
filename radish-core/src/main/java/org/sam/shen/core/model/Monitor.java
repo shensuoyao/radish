@@ -4,10 +4,10 @@ import com.alibaba.fastjson.JSON;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.sam.shen.core.agent.RadishAgent;
 import org.sam.shen.core.util.IpUtil;
 import org.sam.shen.core.util.ScriptUtil;
 import org.sam.shen.core.util.SystemUtil;
-import org.springframework.util.ResourceUtils;
 
 import java.io.*;
 import java.util.*;
@@ -64,58 +64,50 @@ public class Monitor {
      */
     public AgentMonitorInfo collect(MonitorType... monitorType) {
         String param = Arrays.stream(monitorType).map(MonitorType::getName).collect(Collectors.joining(""));
-        File shFile = null;
-        try {
-            shFile = ResourceUtils.getFile("classpath:monitor.sh");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        if (shFile != null) {
-            String result = ScriptUtil.execShellCmd(shFile.getAbsolutePath(), param);
-            log.info(shFile.getAbsolutePath().concat(" ").concat(param).concat("执行结果:\r\n{}"), result);
+        String result = ScriptUtil.execShellCmd(RadishAgent.getShFilePath(), param);
+        log.info(RadishAgent.getShFilePath().concat(" ").concat(param).concat("执行结果:\r\n{}"), result);
 
-            Map<String, Object> map = JSON.parseObject(JSON.toJSONString(agentMonitorInfo));
-            List<Map<String, Object>> javaList = new ArrayList<>();
-            Map<String, Map<String, Object>> netMap = new HashMap<>();
-            BufferedReader br = new BufferedReader(new StringReader(result));
-            try {
-                String line;
-                while ((line = br.readLine()) != null) {
-                    String[] kv = line.split(":");
-                    if (kv.length == 2 && StringUtils.isNotEmpty(kv[0]) && StringUtils.isNotEmpty(kv[1])) {
-                        if (kv[0].startsWith("java")) { // java服务占用内存一对多关系，特殊处理
-                            Map<String, Object> jMap = new HashMap<>();
-                            jMap.put("name", kv[0].split("\\.")[1]);
-                            jMap.put("rss", kv[1]);
-                            javaList.add(jMap);
-                        } else if (kv[0].startsWith("network")) { // 网卡一对多关系，特殊处理
-                            String iface = kv[0].split("\\.")[1];
-                            if (netMap.get(iface) == null) {
-                                Map<String, Object> nMap = new HashMap<>();
-                                nMap.put("iface", iface);
-                                nMap.put(kv[0].split("\\.")[2], kv[1]);
-                                netMap.put(iface, nMap);
-                            } else {
-                                netMap.get(iface).put(kv[0].split("\\.")[2], kv[1]);
-                            }
+        Map<String, Object> map = JSON.parseObject(JSON.toJSONString(agentMonitorInfo));
+        List<Map<String, Object>> javaList = new ArrayList<>();
+        Map<String, Map<String, Object>> netMap = new HashMap<>();
+        BufferedReader br = new BufferedReader(new StringReader(result));
+        try {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] kv = line.split(":");
+                if (kv.length == 2 && StringUtils.isNotEmpty(kv[0]) && StringUtils.isNotEmpty(kv[1])) {
+                    if (kv[0].startsWith("java")) { // java服务占用内存一对多关系，特殊处理
+                        Map<String, Object> jMap = new HashMap<>();
+                        jMap.put("name", kv[0].split("\\.")[1]);
+                        jMap.put("rss", kv[1]);
+                        javaList.add(jMap);
+                    } else if (kv[0].startsWith("network")) { // 网卡一对多关系，特殊处理
+                        String iface = kv[0].split("\\.")[1];
+                        if (netMap.get(iface) == null) {
+                            Map<String, Object> nMap = new HashMap<>();
+                            nMap.put("iface", iface);
+                            nMap.put(kv[0].split("\\.")[2], kv[1]);
+                            netMap.put(iface, nMap);
                         } else {
-                            map.put(kv[0], kv[1]);
+                            netMap.get(iface).put(kv[0].split("\\.")[2], kv[1]);
                         }
+                    } else {
+                        map.put(kv[0], kv[1]);
                     }
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                try {
-                    br.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
             }
-            map.put("javaMemoryList", javaList);
-            map.put("networkIOList", netMap.values());
-            agentMonitorInfo = JSON.parseObject(JSON.toJSONString(map), AgentMonitorInfo.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                br.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+        map.put("javaMemoryList", javaList);
+        map.put("networkIOList", netMap.values());
+        agentMonitorInfo = JSON.parseObject(JSON.toJSONString(map), AgentMonitorInfo.class);
         return agentMonitorInfo;
     }
 }

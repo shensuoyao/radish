@@ -37,23 +37,27 @@ public class AgentConfig {
 	
 	@Value("${scheduing.server}")
 	private String scheduingServer;
+
+	@Value("${agent.shpath}")
+	private String shPath;
 	
 	@Bean(initMethod="start", destroyMethod = "destroy")
-	public RadishAgent ssyJobAgent() {
-		logger.info(">>>>>>>>>>> radish-agent config init.");
-		RadishAgent radishAgent = new RadishAgent();
-		radishAgent.setScheduingServer(scheduingServer);
-		radishAgent.setLogPath(logPath);
-		
-		AgentInfo agentInfo = new AgentInfo();
-		agentInfo.setAgentIp(agentIp);
-		if(StringUtils.isEmpty(agentName)) {
-			agentName = IpUtil.getHostName();
-		}
-		agentInfo.setAgentName(agentName);
-		agentInfo.setAgentPort(agentPort);
-		radishAgent.setAgentInfo(agentInfo);
-		return radishAgent;
-	}
-	
+	public RadishAgent ssyJobAgent() throws Exception {
+        logger.info(">>>>>>>>>>> radish-agent config init.");
+
+        RadishAgent radishAgent = new RadishAgent();
+        radishAgent.setScheduingServer(scheduingServer);
+        radishAgent.setLogPath(logPath);
+        radishAgent.setShPath(shPath);
+
+        AgentInfo agentInfo = new AgentInfo();
+        agentInfo.setAgentIp(agentIp);
+        if (StringUtils.isEmpty(agentName)) {
+            agentName = IpUtil.getHostName();
+        }
+        agentInfo.setAgentName(agentName);
+        agentInfo.setAgentPort(agentPort);
+        radishAgent.setAgentInfo(agentInfo);
+        return radishAgent;
+    }
 }
