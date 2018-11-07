@@ -8,11 +8,12 @@ spring:
         name: radish-agent
 
 scheduing:
-    server: http://192.168.140.21:8888/radish-scheduing
+    server: http://192.168.140.215:8888/radish-scheduing
 
 agent:
     ip: 127.0.0.1
     port: 8083
     name: test
     logpath: /tmp/log/radish
+    shpath: /tmp/log/radish
     
