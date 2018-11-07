@@ -12,63 +12,89 @@
 </head>
 <body class="body">
 
-	<div class="layui-row layui-col-space10 my-index-main">
-			<div class="layui-col-xs12 layui-col-sm6 layui-col-md3" th:each="agent : ${agentOnlines}">
-         <fieldset class="layui-elem-field">
-	         <legend><a th:text="${agent['agentName']}" th:id="${agent['agentId']}" name="agentOnline" href="javascript:;"></a></legend>
-	         <div class="layui-field-box">
-               <table class="layui-table" lay-skin="nob">
-										 <tbody>
-										    <tr>
+<div class="layui-row layui-col-space10 my-index-main">
+    <div class="layui-col-xs12 layui-col-sm6 layui-col-md3" th:each="agent : ${agentOnlines}">
+        <fieldset class="layui-elem-field">
+            <legend><a th:text="${agent['agentName']}" th:id="${agent['agentId']}" name="agentOnline" href="javascript:;"></a></legend>
+            <div class="layui-field-box">
+                <table class="layui-table" lay-skin="nob">
+                    <tbody>
+                    <tr>
                         <td>ID :</td>
                         <td th:text="${agent['agentId']}"></td>
-                      </tr>
-										    <tr>
-										      <td>IP :</td>
-										      <td th:text="${agent['ip']}"></td>
-										    </tr>
-										    <tr>
-										      <td>OS Name :</td>
-										      <td th:text="${agent['osName']}"></td>
-										    </tr>
-										    <tr>
-										      <td>OS Version :</td>
-										      <td th:text="${agent['osVersion']}"></td>
-										    </tr>
-										    <tr>
-										      <td>CPU Count :</td>
-										      <td th:text="${agent['cpuCount']}"></td>
-										    </tr>
-										    <tr>
-										      <td>CPU Ratio :</td>
-										      <td th:text="${agent['cpuRatio']}"></td>
-										    </tr>
-										    <tr>
-                         <td>JVM Max Memory :</td>
-                         <td th:text="${agent['jvmMaxMemory']} + K"></td>
-                       </tr>
-                       <tr>
-                         <td>JVM Total Memory :</td>
-                         <td th:text="${agent['jvmTotalMemory']} + K"></td>
-                       </tr>
-                       <tr>
-                         <td>JVM Free Memory :</td>
-                         <td th:text="${agent['jvmFreeMemory']} + K"></td>
-                       </tr>
-                       <tr>
-                         <td>Physical Total Memory :</td>
-                         <td th:text="${agent['physicalTotalMemory']} + K"></td>
-                       </tr>
-                       <tr>
-                         <td>Physical Free Memory :</td>
-                         <td th:text="${agent['physicalFreeMemory']} + K"></td>
-                       </tr>
-										 </tbody>
-								</table>
-	         </div>
-	       </fieldset>
-     </div>
-	</div>
+                    </tr>
+                    <tr>
+                        <td>IP :</td>
+                        <td th:text="${agent['ip']}"></td>
+                    </tr>
+                    <tr>
+                        <td>OS Name :</td>
+                        <td th:text="${agent['osName']}"></td>
+                    </tr>
+                    <tr>
+                        <td>OS Version :</td>
+                        <td th:text="${agent['osVersion']}"></td>
+                    </tr>
+                    <tr>
+                        <td>CPU Count :</td>
+                        <td th:text="${agent['cpuCount']}"></td>
+                    </tr>
+                    <tr>
+                        <td>CPU Idle :</td>
+                        <td th:text="${agent['cpuIdle']}"></td>
+                    </tr>
+                    <tr>
+                        <td>Memory Used:</td>
+                        <td th:text="${agent['memoryUsed']} ? (${agent['memoryUsed']} + 'K') : ''"></td>
+                    </tr>
+                    <tr>
+                        <td>IO Tps :</td>
+                        <td th:text="${agent['ioTps']}"></td>
+                    </tr>
+                    <tr>
+                        <td>System Load Average :</td>
+                        <td th:text="${agent['ldavg1']}"></td>
+                    </tr>
+                    <tr>
+                        <td>PHP RSS :</td>
+                        <td th:text="${agent['phpRss']} ? (${agent['phpRss']} + 'K') : ''"></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <table class="layui-table" lay-skin="line">
+                    <thead>
+                    <tr>
+                        <th>iface</th>
+                        <th>receive(KB/s)</th>
+                        <th>transmit(KB/s)</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="net:${agent['networkIOList']}">
+                        <td th:text="${net['iface']}"></td>
+                        <td th:text="${net['tx']}"></td>
+                        <td th:text="${net['rx']}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <table class="layui-table" lay-skin="line">
+                    <thead>
+                    <tr>
+                        <th>java process</th>
+                        <th>rss(KB)</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="java:${agent['javaMemoryList']}">
+                        <td th:text="${java['name']}"></td>
+                        <td th:text="${java['rss']}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </fieldset>
+    </div>
+</div>
 
 <script type="text/javascript" th:src="@{/static/layui/layui.js}"></script>
 <script type="text/javascript" th:src="@{/static/js/index.js}"></script>
@@ -77,26 +103,24 @@
     layui.use(['layer'], function () {
 
         // 操作对象
-    var layer = layui.layer
-            , $ = layui.jquery
+        var layer = layui.layer
+            , $ = layui.jquery;
 
         // 刷新
-    $('a[name="agentOnline"]').on('click', function () {
-    	console.log(this.id);
-    	layer.open({
-            title: '内存监控' 
-            , type: 2
-            , shade: 0
-            , area: ['850px', '520px']
-            , content: [[@{/monitor/agent-online-monitor/}]] + this.id
-              , moveEnd: function(layero) {
-                      layer.setTop(layero);
-                           }
-                }); 
-         });
-
-   // you code ...
-
+        $('a[name="agentOnline"]').on('click', function () {
+            console.log(this.id);
+            layer.open({
+                title: '内存监控',
+                type: 2,
+                shade: 0,
+                area: ['850px', '520px'],
+                content: [[@{/monitor/agent-online-monitor/}]] + this.id,
+                moveEnd: function (layero) {
+                    layer.setTop(layero);
+                }
+            });
+        });
+        // you code ...
     });
 </script>
 </body>
