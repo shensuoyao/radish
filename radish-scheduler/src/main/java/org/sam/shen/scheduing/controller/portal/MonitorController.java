@@ -3,6 +3,7 @@ package org.sam.shen.scheduing.controller.portal;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -90,8 +91,14 @@ public class MonitorController {
                 break;
             case "net":
                 if (monitorInfo.getNetworkIOList().size() > 0) {
-                    yAxis.put("rx", monitorInfo.getNetworkIOList().get(0).getRx());
-                    yAxis.put("tx", monitorInfo.getNetworkIOList().get(0).getTx());
+                    List<AgentMonitorInfo.NetworkIO> eth = monitorInfo.getNetworkIOList().stream().filter(net -> "eth0".equals(net.getIface())).collect(Collectors.toList());
+                    if (eth.size() > 0) {
+                        yAxis.put("rx", eth.get(0).getRx());
+                        yAxis.put("tx", eth.get(0).getTx());
+                    } else {
+                        yAxis.put("rx", monitorInfo.getNetworkIOList().get(0).getRx());
+                        yAxis.put("tx", monitorInfo.getNetworkIOList().get(0).getTx());
+                    }
                 } else {
                     yAxis.put("rx", null);
                     yAxis.put("tx", null);
