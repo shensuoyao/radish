@@ -1,6 +1,5 @@
 package org.sam.shen.scheduing.controller.portal;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -9,7 +8,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.sam.shen.core.constants.Constant;
 import org.sam.shen.core.model.AgentMonitorInfo;
-import org.sam.shen.core.model.AgentPerformance;
 import org.sam.shen.scheduing.service.RedisService;
 import org.sam.shen.scheduing.vo.DynamicChartNodeVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,12 +38,12 @@ public class MonitorController {
 	 */
 	@RequestMapping(value = "agent-online", method = RequestMethod.GET)
 	public ModelAndView agentOnline(ModelAndView model) {
-		List<Map<String, Object>> agentOnlines = Lists.newArrayList();
+		List<AgentMonitorInfo> agentOnlines = Lists.newArrayList();
 		Set<String> keys = redisService.getKeys(Constant.REDIS_AGENT_PREFIX.concat("*"));
 		if(null != keys && keys.size() > 0) {
 			keys.forEach(key -> {
 				Map<String, Object> hash = redisService.hmget(key);
-				agentOnlines.add(hash);
+				agentOnlines.add(JSON.parseObject(JSON.toJSONString(hash), AgentMonitorInfo.class));
 			});
 		}
 		model.addObject("agentOnlines", agentOnlines);
@@ -56,8 +54,8 @@ public class MonitorController {
 	@RequestMapping(value = "agent-online-monitor/{agentId}", method = RequestMethod.GET)
 	public ModelAndView agentOnlineMonitor(ModelAndView model, @PathVariable("agentId") Long agentId) {
 		Map<String, Object> hash = redisService.hmget(Constant.REDIS_AGENT_PREFIX + agentId);
-		AgentPerformance performance = JSON.parseObject(JSON.toJSONString(hash), AgentPerformance.class);
-		model.addObject("performance", performance);
+		AgentMonitorInfo agentMonitorInfo = JSON.parseObject(JSON.toJSONString(hash), AgentMonitorInfo.class);
+		model.addObject("agentMonitorInfo", agentMonitorInfo);
 		model.setViewName("frame/monitor/agent_online_monitor");
 		return model;
 	}
@@ -70,7 +68,8 @@ public class MonitorController {
 			return new DynamicChartNodeVo();
 		}
 		AgentMonitorInfo monitorInfo = JSON.parseObject(JSON.toJSONString(hash), AgentMonitorInfo.class);
-        DynamicChartNodeVo dynamicChartVo = new DynamicChartNodeVo();
+		String t = new DateTime().toString("HH:mm:ss");
+        DynamicChartNodeVo dynamicChartVo = new DynamicChartNodeVo(t);
         Map<String, Object> yAxis = Maps.newHashMap();
 
         switch (type) {
@@ -100,9 +99,6 @@ public class MonitorController {
                 break;
         }
         dynamicChartVo.setyAxis(yAxis);
-
-
-
 //		AgentPerformance performance = JSON.parseObject(JSON.toJSONString(hash), AgentPerformance.class);
 //
 //		String t = new DateTime().toString("HH:mm:ss");
@@ -119,7 +115,6 @@ public class MonitorController {
 //		yAxis.put("Physical", b2.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
 //
 //		dynamicChartVo.setyAxis(yAxis);
-		
 		return dynamicChartVo;
 	}
 

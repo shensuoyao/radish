@@ -12,6 +12,12 @@
 </head>
 <body class="body">
 
+<div class="layui-btn-container">
+    <button class="layui-btn layui-btn-sm" data-type="cpu">CPU</button>
+    <button class="layui-btn layui-btn-sm" data-type="mem">Memory</button>
+    <button class="layui-btn layui-btn-sm" data-type="disk">Disk</button>
+    <button class="layui-btn layui-btn-sm" data-type="net">Network</button>
+</div>
     <div id="agent-line" style="height: 450px;"></div>
 
 <script type="text/javascript" th:src="@{/static/layui/layui.js}"></script>
@@ -23,55 +29,73 @@
                 , $ = layui.jquery;
 
         // you code ...
-        var isFirst = true;
         var myChart = echarts.init(document.getElementById('agent-line'));
+        var isFirst = true;
         var xAxis = [];
         var yAxisMap = {};
-
-        var option = {
-            title: {
-                text: 'CPU'
-            },
-            tooltip: {
-                trigger: 'none',
-                axisPointer: {
-                    type: 'cross'
+        var interval;
+        initChart('CPU', 'cpu');
+        
+        function initChart(title, type) {
+            myChart.clear();
+            isFirst = true;
+            xAxis = [];
+            yAxisMap = {};
+            clearInterval(interval);
+            var option = {
+                title: {
+                    text: title
+                },
+                tooltip: {
+                    trigger: 'none',
+                    axisPointer: {
+                        type: 'cross'
+                    }
+                },
+                xAxis: {
+                    type: 'category'
+                },
+                yAxis: {
+                    type: 'value'
                 }
-            },
-            legend: {
-                data: ['JVM', 'Physical']
-            },
-            xAxis: {
-                type: 'category'
-            },
-            yAxis: {
-                type: 'value'
-            }
-        };
-        getDataAndRenderChart();
-        setInterval(getDataAndRenderChart, 1000);
-        function getDataAndRenderChart() {
-            $.get([[@{/monitor/agent-online-monitor-dynamic/}]] + [[${performance.agentId}]] + '?type=cpu').done(function(data) {
+            };
+            getDataAndRenderChart(type, option).then(function () {
+                interval = setInterval(function () {
+                    getDataAndRenderChart(type)
+                }, 5000);
+            });
+        }
+
+        $('.layui-btn').on('click', function () {
+            var title = $(this).text().trim();
+            var type = $(this).attr('data-type');
+            initChart(title, type);
+        });
+
+        function getDataAndRenderChart(type, option) {
+            return $.get([[@{/monitor/agent-online-monitor-dynamic/}]] + [[${agentMonitorInfo.agentId}]] + '?type=' + type).done(function(data) {
                 xAxis.push(data.xAxis);
                 $.each(data.yAxis, function (key, value) {
                     if (yAxisMap[key] != null) {
-                        yAxisMap[key].put(value);
+                        yAxisMap[key].push(value);
                     } else {
                         yAxisMap[key] = [value];
                     }
                 });
                 var series = [];
+                var legends = [];
                 $.each(yAxisMap, function (key, value) {
-                    series.put({
+                    series.push({
                         name: key,
                         type: 'line',
                         showSymbol: false,
                         hoverAnimation: false,
                         data: value
                     });
+                    legends.push(key);
                 });
                 if (isFirst) {
-                    option.legend = {data: series.keys()};
+                    option.legend = {data: legends};
                     option.xAxis = {data: xAxis};
                     option.series = series;
                     myChart.setOption(option);
