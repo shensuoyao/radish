@@ -297,7 +297,7 @@ public class AgentMonitorInfo implements Serializable {
 
     @Getter
     @Setter
-    static class JavaMemory implements Serializable {
+    public static class JavaMemory implements Serializable {
         private static final long serialVersionUID = 1595010069385273164L;
 
         /**
@@ -311,7 +311,7 @@ public class AgentMonitorInfo implements Serializable {
     }
 
     @Getter
-    static class NetworkIO implements Serializable {
+    public static class NetworkIO implements Serializable {
         private static final long serialVersionUID = -5244193663281737881L;
 
         /**

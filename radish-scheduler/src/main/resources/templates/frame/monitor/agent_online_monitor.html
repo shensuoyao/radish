@@ -23,67 +23,69 @@
                 , $ = layui.jquery;
 
         // you code ...
+        var isFirst = true;
         var myChart = echarts.init(document.getElementById('agent-line'));
         var xAxis = [];
-        var jvm_yAxis = [];
-        var physical_yAxis = [];
+        var yAxisMap = {};
 
-        option = {
+        var option = {
             title: {
-                text: 'Memory (JVM & Physical)'
-                           },
+                text: 'CPU'
+            },
             tooltip: {
-            	   trigger: 'none',
+                trigger: 'none',
                 axisPointer: {
                     type: 'cross'
-                                    }
-                           },
+                }
+            },
             legend: {
                 data: ['JVM', 'Physical']
-                           },
+            },
             xAxis: {
                 type: 'category'
-                          },
+            },
             yAxis: {
                 type: 'value'
-                          },
-            series: [{
-                name: 'JVM',
-                type: 'line',
-                showSymbol: false,
-                hoverAnimation: false,
-                data: jvm_yAxis
-                       }, 
-                       {
-                name: 'Physical',
-                type: 'line',
-                showSymbol: false,
-                hoverAnimation: false,
-                data: physical_yAxis
-                       }]
+            }
         };
-
-        myChart.setOption(option);
-	      setInterval(function () {
-	    	  $.get([[@{/monitor/agent-online-monitor-dynamic/}]] + [[${performance.agentId}]]).done(function(data) {
-	    		    xAxis.push(data.xAxis);
-	    		    jvm_yAxis.push(data.yAxis.JVM);
-	    		    physical_yAxis.push(data.yAxis.Physical);
-	    		    myChart.setOption({
-			    		    xAxis: {
-			    	          data: xAxis
-			    	                 },
-                 series: [{
-                	     name: 'JVM',
-                     data: jvm_yAxis
-                                      },
-                                      {
-                     name: 'Physical',
-                     data: physical_yAxis
-                                  }]
-                             });
-	    	          });
-	        	}, 1000);
+        getDataAndRenderChart();
+        setInterval(getDataAndRenderChart, 1000);
+        function getDataAndRenderChart() {
+            $.get([[@{/monitor/agent-online-monitor-dynamic/}]] + [[${performance.agentId}]] + '?type=cpu').done(function(data) {
+                xAxis.push(data.xAxis);
+                $.each(data.yAxis, function (key, value) {
+                    if (yAxisMap[key] != null) {
+                        yAxisMap[key].put(value);
+                    } else {
+                        yAxisMap[key] = [value];
+                    }
+                });
+                var series = [];
+                $.each(yAxisMap, function (key, value) {
+                    series.put({
+                        name: key,
+                        type: 'line',
+                        showSymbol: false,
+                        hoverAnimation: false,
+                        data: value
+                    });
+                });
+                if (isFirst) {
+                    option.legend = {data: series.keys()};
+                    option.xAxis = {data: xAxis};
+                    option.series = series;
+                    myChart.setOption(option);
+                    isFirst = false;
+                } else {
+                    myChart.setOption({
+                        xAxis: {
+                            data: xAxis
+                        },
+                        series: series
+                    });
+                }
+            });
+        }
     });
 </script>
 </body>

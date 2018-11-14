@@ -5,7 +5,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.sam.shen.core.constants.Constant;
 import org.sam.shen.core.model.Monitor;
-import org.sam.shen.core.model.PerformanceBuilder;
 import org.sam.shen.core.model.Resp;
 import org.sam.shen.core.rpc.RestRequest;
 import org.slf4j.Logger;
