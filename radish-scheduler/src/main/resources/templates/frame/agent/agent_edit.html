@@ -16,7 +16,7 @@
 	    <legend>编辑 Agent 信息</legend>
 	</fieldset>
 	
-	<form class="layui-form" name="agent" th:action="@{/portal/agent-edit-save}" method="post">
+	<form class="layui-form" name="agent" th:action="@{/portal/agent-edit-save(id=${view.agent.id}, port=${view.agent.agentPort})}" method="post">
 	    <div class="layui-form-item">
 	        <label class="layui-form-label">ID</label>
 	        <div class="layui-input-inline layui-col-xs6">
@@ -96,9 +96,9 @@
                 ,layedit = layui.layedit;
 
         //监听提交
-    form.on('submit(agentSave)', function(data){
-        layer.msg('数据正在提交 ...');
-          });
+		form.on('submit(agentSave)', function(data){
+			layer.msg('数据正在提交 ...');
+		});
 
     });
 </script>
