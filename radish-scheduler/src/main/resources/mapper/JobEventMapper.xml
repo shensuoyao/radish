@@ -80,5 +80,13 @@
          WHERE stat = #{stat}
         ]]>
  </select>
+    <select id="queryJobEventByJobId" parameterType="long" resultMap="jobEventMap">
+        <![CDATA[
+            SELECT a.event_id, a.job_id, a.parent_job_id, a.executor_handlers, a.handler_type, a.cmd, a.params,
+               a.stat, a.handler_agent_id, a.priority, a.retry_count, a.create_time
+            FROM job_event a, job_info b
+            WHERE a.job_id=b.id AND a.stat<>'SUCCESS' AND a.stat<>'FAIL' AND a.job_id=#{jobId}
+        ]]>
+    </select>
   
 </mapper>

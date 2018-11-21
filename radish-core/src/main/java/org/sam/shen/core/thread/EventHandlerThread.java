@@ -57,9 +57,18 @@ public class EventHandlerThread extends Thread {
 				RestRequest.post(rpcReportUrl, initRsp, eventId);
 				return;
 			}
-			Resp<String> resp = handler.start(event);
-			// 上报执行结果
-			RestRequest.post(rpcReportUrl, resp, eventId);
+
+			if (!event.isLoop()) {
+                Resp<String> resp = handler.start(event);
+                // 上报执行结果
+                RestRequest.post(rpcReportUrl, resp, eventId);
+            } else {
+			    for (;;) {
+                    Resp<String> resp = handler.start(event);
+                    // 上报执行结果
+//                    RestRequest.post(rpcReportUrl, resp, eventId);
+                }
+            }
 		} catch (Exception e) {
 			logger.error("Start Handler Error.", e);
 			// 上报出错信息

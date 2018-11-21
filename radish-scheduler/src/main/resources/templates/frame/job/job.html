@@ -34,6 +34,7 @@
     <a class="layui-btn layui-btn-sm" lay-event="view"><i class="layui-icon">&#xe621;</i></a>
     <a class="layui-btn layui-btn-sm layui-btn-normal" lay-event="edit"><i class="layui-icon">&#xe642;</i></a>
     <a class="layui-btn layui-btn-sm layui-btn-danger" lay-event="del"><i class="layui-icon">&#xe640;</i></a>
+    <a class="layui-btn layui-btn-sm layui-btn-warm" lay-event="run"><i class="layui-icon">&#xe623;</i></a>
 </script>
 <script type="text/html" id="enableTpl">
 {{#  if(d.enable == 1){ }}
@@ -60,7 +61,7 @@
        , height: 'full-200'    //容器高度
        , cols: [[   // 标题栏目
            {field: 'id', title: 'ID'}
-           , {field: 'jobName', title: '任务名称',}
+           , {field: 'jobName', title: '任务名称'}
            , {field: 'crontab', title: '定时规则'}
            , {field: 'handlerType', title: '任务类型'}
            , {field: 'handlerFailStrategy', title: '失败策略' }
@@ -71,7 +72,7 @@
            , {field: 'updateTime', title: '更新时间'}
            , {field: 'priority', title: '优先级',  width: 80}
            , {field: 'enable', title: '是否启用',  templet: '#enableTpl', width: 100}
-           , {fixed: 'right', title: '操作', align: 'center', toolbar: '#barOption', width: 180} ]]
+           , {fixed: 'right', title: '操作', align: 'center', toolbar: '#barOption', width: 250} ]]
        , id: 'jobTable'
        , url: [[@{/portal/job/json-pager}]]
        , method: 'get'
@@ -99,11 +100,14 @@
         	window.location.href = [[@{/portal/job-view/}]] + obj.data.id;
         } else if(obj.event == 'edit') {
         	window.location.href = [[@{/portal/job-edit/}]] + obj.data.id;
-		    } else if(obj.event == 'del') {
-		    	layer.msg('Sorry! 删除 Job 暂时没有完成');
-		    }
-        // 
+        } else if(obj.event == 'del') {
+            layer.msg('Sorry! 删除 Job 暂时没有完成');
+        } else if(obj.event == 'run') {
+            $.post([[@{/portal/job-event-save/}]], {jobId: obj.data.id}, function(data) {
+                layer.msg(data.msg);
             });
+        }
+    });
 
         // 刷新
     $('#btn-search').on('click', function () {

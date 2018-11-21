@@ -6,6 +6,8 @@ import org.sam.shen.scheduing.entity.JobEvent;
 
 import com.github.pagehelper.Page;
 
+import java.util.List;
+
 @Mapper
 public interface JobEventMapper {
 
@@ -19,5 +21,6 @@ public interface JobEventMapper {
 	
 	// ------------  统计 -----------------------------------
 	Integer countJobEventByStat(String stat);
-	
+
+	List<JobEvent> queryJobEventByJobId(Long jobId);
 }

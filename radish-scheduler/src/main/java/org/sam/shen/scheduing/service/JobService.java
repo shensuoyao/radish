@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.quartz.SchedulerException;
 import org.sam.shen.core.constants.Constant;
 import org.sam.shen.scheduing.entity.JobInfo;
+import org.sam.shen.scheduing.mapper.JobEventMapper;
 import org.sam.shen.scheduing.mapper.JobInfoMapper;
 import org.sam.shen.scheduing.scheduler.RadishDynamicScheduler;
 import org.slf4j.Logger;
@@ -31,7 +32,10 @@ public class JobService {
 
 	@Resource
 	private JobInfoMapper jobInfoMapper;
-	
+
+	@Resource
+    private JobEventMapper jobEventMapper;
+
 	/**
 	 * 添加任务
 	 * @author suoyao
@@ -43,13 +47,16 @@ public class JobService {
 		// 插入数据库
 		jobInfoMapper.saveJobInfo(jobInfo);
 		// 加入任务调度
-		if (jobInfo.getEnable() == Constant.YES && StringUtils.isNotEmpty(jobInfo.getCrontab())
-		        && StringUtils.isNotEmpty(jobInfo.getExecutorHandlers())) {
-			try {
-				RadishDynamicScheduler.addJob(jobInfo.getId(), jobInfo.getJobName(), jobInfo.getCrontab());
-			} catch (SchedulerException e) {
-				logger.error("add job to Scheduler failed. {}", e);
-			}
+		if (jobInfo.getEnable() == Constant.YES && StringUtils.isNotEmpty(jobInfo.getExecutorHandlers())) {
+		    try {
+                if (StringUtils.isNotEmpty(jobInfo.getCrontab())) { // 存在调度规则则生成job
+                    RadishDynamicScheduler.addJob(jobInfo.getId(), jobInfo.getJobName(), jobInfo.getCrontab());
+                } else { // 不存在调度规则表示立即执行，直接生成event
+                    RadishDynamicScheduler.addJobEvent(jobInfo);
+                }
+            } catch (SchedulerException e) {
+		        logger.info("add job to Scheduler failed. {}");
+            }
 		}
 	}
 	
@@ -64,13 +71,18 @@ public class JobService {
 		// 更新JobInfo信息
 		jobInfoMapper.upgradeJonInfo(jobInfo);
 		// 修改scheduler 调度
-		if (jobInfo.getEnable() == Constant.YES && StringUtils.isNotEmpty(jobInfo.getCrontab())
-		        && StringUtils.isNotEmpty(jobInfo.getExecutorHandlers())) {
-			try {
-				RadishDynamicScheduler.UpgradeScheduleJob(jobInfo.getId(), jobInfo.getJobName(), jobInfo.getCrontab());
-			} catch (SchedulerException e) {
-				logger.error("add job to Scheduler failed. {}", e);
-			}
+		if (jobInfo.getEnable() == Constant.YES && StringUtils.isNotEmpty(jobInfo.getExecutorHandlers())) {
+            try {
+		        if (StringUtils.isNotEmpty(jobInfo.getCrontab())) {
+		            RadishDynamicScheduler.UpgradeScheduleJob(jobInfo.getId(), jobInfo.getJobName(), jobInfo.getCrontab());
+                } else {
+                    // 如果之前是以job形式存在则先移除
+                    RadishDynamicScheduler.removeJob(jobInfo.getId(), jobInfo.getJobName());
+                    // TODO: 2018/11/21 关闭执行中的线程
+                }
+            } catch (SchedulerException e) {
+                logger.error("add job to Scheduler failed. {}", e);
+            }
 		}
 	}
 	

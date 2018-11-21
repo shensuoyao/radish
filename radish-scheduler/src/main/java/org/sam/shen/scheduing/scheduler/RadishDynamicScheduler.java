@@ -1,13 +1,13 @@
 package org.sam.shen.scheduing.scheduler;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import com.google.common.base.Splitter;
+import com.google.common.collect.Maps;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
 import org.quartz.Job;
@@ -21,6 +21,10 @@ import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
 import org.quartz.impl.matchers.GroupMatcher;
+import org.sam.shen.core.constants.Constant;
+import org.sam.shen.core.constants.EventStatus;
+import org.sam.shen.scheduing.entity.JobEvent;
+import org.sam.shen.scheduing.entity.JobInfo;
 import org.sam.shen.scheduing.mapper.JobEventMapper;
 import org.sam.shen.scheduing.mapper.JobInfoMapper;
 import org.sam.shen.scheduing.service.RedisService;
@@ -137,7 +141,7 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 		TriggerKey triggerKey = getTriggerKey(jobId, jobName);
 		CronTrigger oldTrigger = (CronTrigger) scheduler.getTrigger(triggerKey);
 		if(null != oldTrigger) {
-			// 存在久的触发器
+			// 存在旧的触发器
 			// avoid repeat
 			String oldCron = oldTrigger.getCronExpression();
 			if (oldCron.equals(crontab)) {
@@ -271,5 +275,33 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 		}
 		return list;
 	}
-	
+
+	public static boolean addJobEvent(JobInfo jobInfo) {
+        List<String> agentHandlers = Splitter.onPattern(",|-").splitToList(jobInfo.getExecutorHandlers());
+        Map<String, Object> eventHash = Maps.newHashMap();
+        eventHash.put("priority", jobInfo.getPriority());    // 设置优先级
+        Stream.iterate(0, i -> i + 1).limit(agentHandlers.size()).forEach(i -> {
+            if(i % 2 == 0) {
+                if(eventHash.containsKey(agentHandlers.get(i))) {
+                    String val = String.valueOf(eventHash.get(agentHandlers.get(i))).concat(",").concat(agentHandlers.get(i + 1));
+                    eventHash.put(agentHandlers.get(i), val);
+                } else {
+                    eventHash.put(agentHandlers.get(i), agentHandlers.get(i + 1));
+                }
+            }
+        });
+        JobEvent jobEvent = new JobEvent(jobInfo.getId(), jobInfo.getExecutorHandlers(), jobInfo.getHandlerType(),
+                EventStatus.READY, jobInfo.getPriority(), jobInfo.getCmd(), jobInfo.getParams());
+        jobEvent.setParentJobId(jobInfo.getParentJobId());
+        jobEventMapper.saveJobEvent(jobEvent);
+
+        redisService.hmset(Constant.REDIS_EVENT_PREFIX.concat(jobEvent.getEventId()),
+                eventHash);
+        return true;
+    }
+
+	public static boolean addJobEvent(Long jobId) {
+        JobInfo jobInfo = jobInfoMapper.findJobInfoById(jobId);
+        return jobInfo != null && addJobEvent(jobInfo);
+    }
 }

@@ -320,5 +320,29 @@ public class JobController {
 		model.addObject("logs", logReader.getLogLines());
 		return model;
 	}
+
+	@ResponseBody
+    @RequestMapping(value = "job-event-save", method = RequestMethod.POST)
+	public Resp<String> saveJobEvent(Long jobId) {
+	    if (jobId == null) {
+	        return new Resp<>(0, "job id cannot be null.");
+        }
+        JobInfo jobInfo = jobService.findJobInfo(jobId);
+	    if (jobInfo == null) {
+            return new Resp<>(0, "invalid job id.");
+        }
+        if (jobInfo.getEnable() == Constant.NO || StringUtils.isNotEmpty(jobInfo.getCrontab())) {
+            return new Resp<>(0, "invalid job.");
+        }
+        List<JobEvent> jobEvents = jobEventService.queryJobEventByJobId(jobId);
+	    if (jobEvents != null && jobEvents.size() > 0) {
+            return new Resp<>(0, "exist job event.");
+        }
+        if (RadishDynamicScheduler.addJobEvent(jobId)) {
+	        return new Resp<>(1, "add job event success.");
+        } else {
+            return new Resp<>(0, "add job event failed.");
+        }
+    }
 	
 }
