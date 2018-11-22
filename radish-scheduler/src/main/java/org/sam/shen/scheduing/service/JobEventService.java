@@ -102,7 +102,7 @@ public class JobEventService {
 						if(StringUtils.isNotEmpty(event.getParams())) {
 							handlerEvent.setParams(event.getParams().split(System.lineSeparator()));
 						}
-						return new HandlerEvent();
+						return handlerEvent;
 					}
 				} catch (Exception e) {
 					logger.error("event lock error.", e);
