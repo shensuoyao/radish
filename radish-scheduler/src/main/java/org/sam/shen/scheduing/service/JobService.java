@@ -12,7 +12,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.quartz.SchedulerException;
 import org.sam.shen.core.constants.Constant;
 import org.sam.shen.scheduing.entity.JobInfo;
-import org.sam.shen.scheduing.mapper.JobEventMapper;
 import org.sam.shen.scheduing.mapper.JobInfoMapper;
 import org.sam.shen.scheduing.scheduler.RadishDynamicScheduler;
 import org.slf4j.Logger;
@@ -33,9 +32,6 @@ public class JobService {
 	@Resource
 	private JobInfoMapper jobInfoMapper;
 
-	@Resource
-    private JobEventMapper jobEventMapper;
-
 	/**
 	 * 添加任务
 	 * @author suoyao
@@ -47,15 +43,11 @@ public class JobService {
 		// 插入数据库
 		jobInfoMapper.saveJobInfo(jobInfo);
 		// 加入任务调度
-		if (jobInfo.getEnable() == Constant.YES && StringUtils.isNotEmpty(jobInfo.getExecutorHandlers())) {
+		if (jobInfo.getEnable() == Constant.YES && StringUtils.isNotEmpty(jobInfo.getExecutorHandlers()) && StringUtils.isNotEmpty(jobInfo.getCrontab())) {
 		    try {
-                if (StringUtils.isNotEmpty(jobInfo.getCrontab())) { // 存在调度规则则生成job
-                    RadishDynamicScheduler.addJob(jobInfo.getId(), jobInfo.getJobName(), jobInfo.getCrontab());
-                } else { // 不存在调度规则表示立即执行，直接生成event
-                    RadishDynamicScheduler.addJobEvent(jobInfo);
-                }
+		        RadishDynamicScheduler.addJob(jobInfo.getId(), jobInfo.getJobName(), jobInfo.getCrontab());
             } catch (SchedulerException e) {
-		        logger.info("add job to Scheduler failed. {}");
+		        logger.info("add job to Scheduler failed. {}", e);
             }
 		}
 	}

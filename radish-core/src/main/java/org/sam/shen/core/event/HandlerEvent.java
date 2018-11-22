@@ -26,8 +26,6 @@ public class HandlerEvent implements Serializable {
 	private HandlerType handlerType;
 
 	private String[] params;
-
-    private boolean isLoop;
 	
 	public HandlerEvent() {
 		super();
@@ -89,14 +87,6 @@ public class HandlerEvent implements Serializable {
 	public void setParams(String[] params) {
 		this.params = params;
 	}
-
-    public boolean isLoop() {
-        return isLoop;
-    }
-
-    public void setLoop(boolean loop) {
-        isLoop = loop;
-    }
 
 	@Override
 	public String toString() {

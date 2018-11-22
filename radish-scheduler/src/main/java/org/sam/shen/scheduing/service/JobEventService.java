@@ -102,13 +102,7 @@ public class JobEventService {
 						if(StringUtils.isNotEmpty(event.getParams())) {
 							handlerEvent.setParams(event.getParams().split(System.lineSeparator()));
 						}
-						JobInfo jobInfo = jobInfoMapper.findJobInfoById(event.getJobId());
-						if (jobInfo != null) { // 如果不存在定时规则，则设置循环运行
-							handlerEvent.setLoop(StringUtils.isEmpty(jobInfo.getCrontab()));
-							return handlerEvent;
-						} else {
-						    return new HandlerEvent();
-                        }
+						return new HandlerEvent();
 					}
 				} catch (Exception e) {
 					logger.error("event lock error.", e);
