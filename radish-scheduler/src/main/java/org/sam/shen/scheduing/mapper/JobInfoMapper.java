@@ -28,5 +28,7 @@ public interface JobInfoMapper {
 	// ---------------  统计  ------------------------
 	
 	Integer countJobInfoByEnable(int enable);
+
+	JobInfo findJobInfoByParentId(String id);
 	
 }

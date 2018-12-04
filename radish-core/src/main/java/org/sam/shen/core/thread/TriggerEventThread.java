@@ -36,59 +36,51 @@ public class TriggerEventThread {
 	
 	private volatile boolean toStop = false;
 	
-	public void start(String rpcTriggerUrl, String rpcReportUrl, Long agentId) {
-		triggerThread = new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-				while(!toStop) {
-					try {
-						logger.info(" Callback Queue size is: {}", EventHandlerThreadPool.callbackQueueSize());
-						if (EventHandlerThreadPool.isCallbackQueueFull()) {
-							logger.error("Callback Queue is Full.");
-						} else {
-							Resp<HandlerEvent> resp = RestRequest.getUriVariables(rpcTriggerUrl, HandlerEvent.class, agentId);
-							if(Resp.SUCCESS.getCode() == resp.getCode()) {
-								if(null != resp.getData() && StringUtils.isNotEmpty(resp.getData().getEventId())) {
-									EventHandlerThreadPool.pushCallbackQueue(resp.getData());
-								}
-							}
-						}
-					} catch (Exception e) {
-						logger.error(e.getMessage(), e);
-					}
-					
-					try {
-						TimeUnit.SECONDS.sleep(Constant.BEAT_TIMEOUT);
-					} catch (InterruptedException e) {
-						logger.error(e.getMessage(), e);
-					}
-				}
-			}
-		});
+	public void start(String rpcTriggerUrl, String rpcSubeventUrl, String rpcReportUrl, Long agentId) {
+		triggerThread = new Thread(() -> {
+            while(!toStop) {
+                try {
+                    logger.info(" Callback Queue size is: {}", EventHandlerThreadPool.callbackQueueSize());
+                    if (EventHandlerThreadPool.isCallbackQueueFull()) {
+                        logger.error("Callback Queue is Full.");
+                    } else {
+                        Resp<HandlerEvent> resp = RestRequest.getUriVariables(rpcTriggerUrl, HandlerEvent.class, agentId);
+                        if(Resp.SUCCESS.getCode() == resp.getCode()) {
+                            if(null != resp.getData() && StringUtils.isNotEmpty(resp.getData().getEventId())) {
+                                EventHandlerThreadPool.pushCallbackQueue(resp.getData());
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    logger.error(e.getMessage(), e);
+                }
+
+                try {
+                    TimeUnit.SECONDS.sleep(Constant.BEAT_TIMEOUT);
+                } catch (InterruptedException e) {
+                    logger.error(e.getMessage(), e);
+                }
+            }
+        });
 		triggerThread.setDaemon(true);
 		triggerThread.start();
 		
 		// 启动任务线程队列
-		callbckThread = new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-				while(!toStop) {
-					if(EventHandlerThreadPool.isAvailable()) {
-						EventHandlerThreadPool.run(rpcReportUrl);
-					} else {
-						logger.error("CallbackThreadPool is Full.");
-					}
-					
-					try {
-						TimeUnit.SECONDS.sleep(Constant.BEAT_TIMEOUT);
-					} catch (InterruptedException e) {
-						logger.error(e.getMessage(), e);
-					}
-				}
-			}
-		});
+		callbckThread = new Thread(() -> {
+            while(!toStop) {
+                if(EventHandlerThreadPool.isAvailable()) {
+                    EventHandlerThreadPool.run(rpcSubeventUrl, rpcReportUrl);
+                } else {
+                    logger.error("CallbackThreadPool is Full.");
+                }
+
+                try {
+                    TimeUnit.SECONDS.sleep(Constant.BEAT_TIMEOUT);
+                } catch (InterruptedException e) {
+                    logger.error(e.getMessage(), e);
+                }
+            }
+        });
 		callbckThread.setDaemon(true);
 		callbckThread.start();
 	}

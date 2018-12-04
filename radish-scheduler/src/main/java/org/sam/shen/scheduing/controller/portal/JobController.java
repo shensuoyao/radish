@@ -95,22 +95,21 @@ public class JobController {
 	 * @date 下午3:36:08
 	 * @param model
 	 * @param jobInfo
-	 * @param parameter
 	 * @param parentJob
-	 * @param chidJob
+	 * @param childJob
 	 * @param agentHandlers
 	 * @return
 	 */
 	@RequestMapping(value = "job-save", method = RequestMethod.POST)
 	public ModelAndView jobSave(ModelAndView model, @ModelAttribute JobInfo jobInfo,
-	        @RequestParam("parentJob") List<String> parentJob, @RequestParam("chidJob") List<String> chidJob,
+	        @RequestParam("parentJob") List<String> parentJob, @RequestParam(name = "childJob", required = false) List<String> childJob,
 	        @RequestParam("agentHandlers") List<String> agentHandlers) {
-		model.setViewName("frame/job/job_add");
+        model.setViewName("frame/job/job_add");
 		if (null != parentJob && parentJob.size() > 0) {
 			jobInfo.setParentJobId(Joiner.on(",").join(parentJob));
 		}
-		if (null != chidJob && chidJob.size() > 0) {
-			jobInfo.setChildJobId(Joiner.on(",").join(chidJob));
+		if (null != childJob && childJob.size() > 0) {
+			jobInfo.setChildJobId(Joiner.on(",").join(childJob));
 		}
 		if (null != agentHandlers && agentHandlers.size() > 0) {
 			jobInfo.setExecutorHandlers(Joiner.on(",").join(agentHandlers));

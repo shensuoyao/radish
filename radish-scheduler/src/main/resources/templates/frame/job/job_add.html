@@ -28,36 +28,36 @@
 	        </div>
 	    </div>
 	    <div class="layui-form-item">
-		      <div class="layui-inline">
+            <div class="layui-inline">
 	            <label class="layui-form-label">任务类型</label>
 	            <div class="layui-input-inline">
 	                <select name="handlerType" class="layui-input" lay-filter="handlerType">
-										  <option value=""></option>
-										  <option th:each="enum : ${handlerType}" th:value="${enum}" th:text="${enum.desc}" />
-										</select>
+                        <option value=""></option>
+                        <option th:each="enum : ${handlerType}" th:value="${enum}" th:text="${enum.desc}" />
+                    </select>
 	            </div>
 	        </div>
 	        <div class="layui-inline">
-              <label class="layui-form-label" id="crontab-tips"><i class="layui-icon">&#xe60b;</i> 调度规则</label>
-              <div class="layui-input-inline">
-                  <input type="input" name="crontab" autocomplete="off" placeholder="0 * 1 * * ?" class="layui-input">
-              </div>
-          </div>
+                <label class="layui-form-label" id="crontab-tips"><i class="layui-icon">&#xe60b;</i> 调度规则</label>
+                <div class="layui-input-inline">
+                    <input type="input" id="crontab" lay-verify="pJob" name="crontab" autocomplete="off" placeholder="0 * 1 * * ?" class="layui-input">
+                </div>
+            </div>
 	    </div>
 	    <div class="layui-form-item">
-	       <div class="layui-inline">
-	           <label class="layui-form-label">管理员</label>
-	           <div class="layui-input-inline">
-	               <input type="input" name="admin" autocomplete="off" placeholder="管理员" class="layui-input">
-	           </div>
-	       </div>
-	       <div class="layui-inline">
-	           <label class="layui-form-label">管理员手机</label>
-	           <div class="layui-input-inline">
-                <input type="input" name="adminPhone" autocomplete="off" placeholder="管理员手机号" class="layui-input">
+            <div class="layui-inline">
+                <label class="layui-form-label">管理员</label>
+                <div class="layui-input-inline">
+                    <input type="input" name="admin" autocomplete="off" placeholder="管理员" class="layui-input">
+                </div>
             </div>
-	       </div>
-	    </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">管理员手机</label>
+                <div class="layui-input-inline">
+                    <input type="input" name="adminPhone" autocomplete="off" placeholder="管理员手机号" class="layui-input">
+                </div>
+            </div>
+        </div>
 	    <div class="layui-form-item">
 	        <label class="layui-form-label">管理员邮箱</label>
 	        <div class="layui-input-block">
@@ -65,66 +65,58 @@
 	        </div>
 	    </div>
 	    <div class="layui-form-item">
-          <label class="layui-form-label">父节点任务</label>
-          <div class="layui-input-block">
-              <select name="parentJob" xm-select="parent-select" xm-select-search="" xm-select-search-type="dl">
-                  <option value=""></option>
+            <label class="layui-form-label">父节点任务</label>
+            <div class="layui-input-block">
+                <select name="parentJob" xm-select="parent-select" xm-select-search="" xm-select-search-type="dl" xm-select-radio>
+                    <option value=""></option>
                 </select>
-          </div>
-      </div>
-      <div class="layui-form-item">
-          <label class="layui-form-label">子节点任务</label>
-          <div class="layui-input-block">
-              <select name="chidJob" xm-select="child-select" xm-select-search="" xm-select-search-type="dl">
-                  <option value=""></option>
-                </select>
-          </div>
-      </div>
-	    <div class="layui-form-item">
-          <label class="layui-form-label">处理器</label>
-          <div class="layui-input-block">
-              <select name="agentHandlers" xm-select="agent-select" xm-select-search="" xm-select-search-type="dl">
-	              <option value=""></option>
-	            </select>
-          </div>
-      </div>
-      <div class="layui-form-item">
-          <label class="layui-form-label">失败策略</label>
-          <div class="layui-input-block">
-              <select name="handlerFailStrategy" class="layui-input" lay-filter="handlerFailStrategy">
-               <option value=""></option>
-               <option th:each="enum : ${handlerFailStrategy}" th:value="${enum}" th:text="${enum.desc}" />
-              </select>
-          </div>
-      </div>
-	    <div class="layui-form-item">
-	       <div class="layui-inline">
-            <label class="layui-form-label">优先级</label>
-            <div class="layui-input-inline">
-                <input type="input" name="priority" placeholder="0 - 9 越大优先级越高"  class="layui-input">
             </div>
         </div>
-        <div class="layui-inline">
-	         <label class="layui-form-label">启用 / 禁用</label>
-	         <div class="layui-input-block">
-	             <input type="checkbox" name="enable" lay-skin="switch" value="1" lay-text="启用|禁用"  th:checked="true" />
-	         </div>
-	      </div>
-	    </div>
+	    <div class="layui-form-item">
+            <label class="layui-form-label">处理器</label>
+            <div class="layui-input-block">
+                <select name="agentHandlers" xm-select="agent-select" xm-select-search="" xm-select-search-type="dl">
+                    <option value=""></option>
+	            </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">失败策略</label>
+            <div class="layui-input-block">
+                <select name="handlerFailStrategy" class="layui-input" lay-filter="handlerFailStrategy">
+                    <option value=""></option>
+                    <option th:each="enum : ${handlerFailStrategy}" th:value="${enum}" th:text="${enum.desc}" />
+                </select>
+            </div>
+        </div>
+	    <div class="layui-form-item">
+            <div class="layui-inline">
+                <label class="layui-form-label">优先级</label>
+                <div class="layui-input-inline">
+                    <input type="input" name="priority" placeholder="0 - 9 越大优先级越高"  class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">启用 / 禁用</label>
+                <div class="layui-input-block">
+                    <input type="checkbox" name="enable" lay-skin="switch" value="1" lay-text="启用|禁用"  th:checked="true" />
+                </div>
+            </div>
+        </div>
 	    <div class="layui-form-item">
 	        <label class="layui-form-label">脚本代码</label>
 	        <div class="layui-input-block layui-collapse">
-            <!-- begin code -->
-            <textarea class="layui-textarea" id="cmdCode" name="cmd"></textarea>
-            <!-- end code-->
-	        </div>
-	    </div>
+                <!-- begin code -->
+                <textarea class="layui-textarea" id="cmdCode" name="cmd"></textarea>
+                <!-- end code-->
+            </div>
+        </div>
 	    <div class="layui-form-item">
-         <label class="layui-form-label" id="param-tips"><i class="layui-icon">&#xe60b;</i> 附加参数</label>
-         <div class="layui-input-block layui-collapse">
-            <textarea class="layui-textarea" id="params" name="params"></textarea>
-         </div>
-      </div>
+            <label class="layui-form-label" id="param-tips"><i class="layui-icon">&#xe60b;</i> 附加参数</label>
+            <div class="layui-input-block layui-collapse">
+                <textarea class="layui-textarea" id="params" name="params"></textarea>
+            </div>
+        </div>
 	
 	    <div class="layui-form-item">
 	        <div class="layui-input-block">
@@ -188,24 +180,6 @@
                            },
             clearInput: false
         }, false);
-                  // 子节点任务下拉选择
-        formSelects.config('child-select', {
-            type: 'get',
-            searchUrl: [[@{/portal/job/json}]],
-            searchName: 'jobName',
-            searchVal: '',
-            keyName: 'jobName',            //自定义返回数据中name的key, 默认 name
-            keyVal: 'id',
-            delay: 1000,
-            beforeSearch: function(id, url, searchVal){         //搜索前调用此方法, return true将触发搜索, 否则不触发
-                //console.log(searchVal);
-           if(!searchVal){//如果搜索内容为空,就不触发搜索
-              return false;
-                        } 
-              return true;
-                     },
-                clearInput: false
-        }, false);
 
         $("#param-tips").on('click', function() {
         	  var tip = "如 Handler 处理器需要附加参数, 请为每一条参数独立一行, 多行将会作为多条参数处理...";
@@ -225,60 +199,69 @@
             styleActiveLine: true,
             lineNumbers: true,
             theme: "idea"
-            	 });
-		    var codeEditor = CodeMirror.fromTextArea(document.getElementById("cmdCode"), {
-		    	indentUnit: 4,
-		    	styleActiveLine: true,
-		    	lineNumbers: true,
-		    	matchBrackets: true,
-		    	theme: "idea",
-		    	mode: "shell"
-		    	//mode: "python",
-		    	//mode: "text/x-java",
-		        });
-    
-		    codeEditor.setOption("extraKeys", {
-						// Tab键换成4个空格
-						Tab : function(cm) {
-							var spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
-							cm.replaceSelection(spaces);
-						},
-						// F11键切换全屏
-						"F11" : function(cm) {
-							cm.setOption("fullScreen", !cm.getOption("fullScreen"));
-						},
-						// Esc键退出全屏
-						"Esc" : function(cm) {
-							if (cm.getOption("fullScreen")) {
-								cm.setOption("fullScreen", false);
-							}
-						}
-				});
-		    
-		    form.on('select(handlerType)', function(data){
-		    	var tp = data.value.toLowerCase();
-		    	if(tp.indexOf('java') > 0) {
-		    		paramsEditor.setOption("mode", "text/x-java");
-		    		codeEditor.setOption("mode", "text/x-java");
-		    	} else if(tp.indexOf('shell') > 0) {
-		    		paramsEditor.setOption("mode", "shell");
-           codeEditor.setOption("mode", "shell");
-    	    } else if(tp.indexOf('python') > 0) {
-             paramsEditor.setOption("mode", "python");
-             codeEditor.setOption("mode", "python");
-          }else if(tp.indexOf('javascript') > 0) {
-             paramsEditor.setOption("mode", "javascript");
-             codeEditor.setOption("mode", "javascript");
-                      }
-		    	  console.log(data);
-		    	});
-		    
-				//监听提交
-				form.on('submit(jobSave)', function(data) {
-					layer.msg('数据正在提交 ...');
-				});
-
         });
+        var codeEditor = CodeMirror.fromTextArea(document.getElementById("cmdCode"), {
+            indentUnit: 4,
+            styleActiveLine: true,
+            lineNumbers: true,
+            matchBrackets: true,
+            theme: "idea",
+            mode: "shell"
+            //mode: "python",
+            //mode: "text/x-java",
+        });
+    
+        codeEditor.setOption("extraKeys", {
+            // Tab键换成4个空格
+            Tab : function(cm) {
+                var spaces = Array(cm.getOption("indentUnit") + 1).join(" ");
+                cm.replaceSelection(spaces);
+            },
+            // F11键切换全屏
+            "F11" : function(cm) {
+                cm.setOption("fullScreen", !cm.getOption("fullScreen"));
+            },
+            // Esc键退出全屏
+            "Esc" : function(cm) {
+                if (cm.getOption("fullScreen")) {
+                    cm.setOption("fullScreen", false);
+                }
+            }
+        });
+		    
+        form.on('select(handlerType)', function(data){
+            var tp = data.value.toLowerCase();
+            if(tp.indexOf('java') > 0) {
+                paramsEditor.setOption("mode", "text/x-java");
+                codeEditor.setOption("mode", "text/x-java");
+            } else if(tp.indexOf('shell') > 0) {
+                paramsEditor.setOption("mode", "shell");
+                codeEditor.setOption("mode", "shell");
+            } else if(tp.indexOf('python') > 0) {
+                paramsEditor.setOption("mode", "python");
+                codeEditor.setOption("mode", "python");
+            }else if(tp.indexOf('javascript') > 0) {
+                paramsEditor.setOption("mode", "javascript");
+                codeEditor.setOption("mode", "javascript");
+            }
+            console.log(data);
+        });
+
+        // 表单校验
+        form.verify({
+            pJob: function () {
+                var selectVals = formSelects.value('parent-select', 'val');
+                if (selectVals != null && selectVals.length > 0 && $('#crontab').val() !== '') {
+                    return '子任务不能设置调度规则！'
+                }
+            }
+        });
+
+        //监听提交
+        form.on('submit(jobSave)', function() {
+            layer.msg('数据正在提交 ...');
+        });
+    });
 </script>
 </body>
 </html>

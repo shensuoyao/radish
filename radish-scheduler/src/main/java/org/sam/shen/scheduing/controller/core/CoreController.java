@@ -2,16 +2,18 @@ package org.sam.shen.scheduing.controller.core;
 
 import java.util.Map;
 
+import lombok.extern.slf4j.Slf4j;
 import org.sam.shen.core.constants.Constant;
 import org.sam.shen.core.event.HandlerEvent;
 import org.sam.shen.core.model.AgentInfo;
 import org.sam.shen.core.model.AgentMonitorInfo;
 import org.sam.shen.core.model.Resp;
+import org.sam.shen.scheduing.entity.JobInfo;
+import org.sam.shen.scheduing.scheduler.RadishDynamicScheduler;
 import org.sam.shen.scheduing.service.AgentService;
 import org.sam.shen.scheduing.service.JobEventService;
+import org.sam.shen.scheduing.service.JobService;
 import org.sam.shen.scheduing.service.RedisService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,42 +27,47 @@ import com.alibaba.fastjson.JSON;
  * @author suoyao
  * @date 2018年7月31日 下午3:23:54 Agent core APIs
  */
+@Slf4j
 @RestController
 @RequestMapping(value = "/core")
 public class CoreController {
-	Logger logger = LoggerFactory.getLogger(CoreController.class);
 
 	@Autowired
 	private AgentService agentService;
 	
 	@Autowired
 	private JobEventService jobEventService;
+
+	@Autowired
+    private JobService jobService;
 	
 	@Autowired
 	private RedisService redisService;
 
 	/**
+     * Agent registry
 	 * @author suoyao
 	 * @date 下午12:58:09
-	 * @param agentInfo
-	 * @return Agent Registry
+	 * @param agentInfo agent information
+	 * @return agent id or failure information
 	 */
 	@RequestMapping(value = "/registry", method = RequestMethod.PUT)
 	public Resp<Long> registry(@RequestBody AgentInfo agentInfo) {
-		if (logger.isInfoEnabled()) {
-			logger.info("Agent Registry : {}", agentInfo.toString());
+		if (log.isInfoEnabled()) {
+			log.info("Agent Registry : {}", agentInfo.toString());
 		}
 		Long agentId = agentService.registry(agentInfo);
 		if (agentId > 0) {
-			return new Resp<Long>(agentId);
+			return new Resp<>(agentId);
 		}
-		return new Resp<Long>(0, "Resigtry Fail", -1L);
+		return new Resp<>(0, "Registry Fail", -1L);
 	}
 
 	/**
+     * Agent heartbeat call
 	 * @author suoyao
 	 * @date 下午3:24:44
-	 * @return Agent heartbeat call
+	 * @return agent monitoring information
 	 */
 	@RequestMapping(value = "/heartbeat", method = RequestMethod.POST)
 	public Resp<AgentMonitorInfo> heartbeat(@RequestBody AgentMonitorInfo agent) {
@@ -71,10 +78,11 @@ public class CoreController {
 	}
 
 	/**
+     * Preempt event
 	 * @author suoyao
 	 * @date 下午5:57:48
-	 * @param agentName
-	 * @return 触发任务接口
+	 * @param agentId agent id
+	 * @return preemptive event
 	 */
 	@RequestMapping(value = "/trigger-event/{agentId}", method = RequestMethod.GET)
 	public Resp<HandlerEvent> triggerEvent(@PathVariable(value = "agentId", required = false) Long agentId) {
@@ -84,12 +92,12 @@ public class CoreController {
 	}
 	
 	/**
-	 * 客户端处理 event 结果上报
+	 * Handle report that agent execute event
 	 * @author suoyao
 	 * @date 下午4:57:50
-	 * @param agentId
-	 * @param resp
-	 * @return
+	 * @param eventId event id
+	 * @param resp report agent execute event
+	 * @return handle result
 	 */
 	@RequestMapping(value = "/handler-event-report/{eventId}", method = RequestMethod.POST)
 	public Resp<String> handlerEventReport(@PathVariable(value = "eventId", required = false) String eventId,
@@ -97,5 +105,24 @@ public class CoreController {
 		jobEventService.handlerJobEventReport(eventId, resp);
 		return Resp.SUCCESS;
 	}
+
+    /**
+     * Handle child event
+     * @author clock
+     * @date 2018/12/4 下午3:13
+     * @param jobId parent job id
+     * @return handle result
+     */
+	@RequestMapping(value = "/handle-child-event/{jobId}", method = RequestMethod.POST)
+	public Resp<String> handleChildEvent(@PathVariable("jobId") String jobId) {
+        JobInfo jobInfo = jobService.getChildJobByParentJobId(jobId);
+        if (jobInfo == null) {
+            return new Resp<>(Resp.FAIL.getCode(), "have no child job");
+        }
+        if (!RadishDynamicScheduler.addJobEvent(jobInfo)) {
+            return new Resp<>(Resp.FAIL.getCode(), "add job event failed");
+        }
+        return Resp.SUCCESS;
+    }
 
 }

@@ -23,6 +23,8 @@ public class EventHandlerThread extends Thread {
 	Logger logger = LoggerFactory.getLogger(EventHandlerThread.class);
 	
 	private String rpcReportUrl;
+
+    private String rpcSubeventUrl;
 	
 	private String eventId;
 	
@@ -34,7 +36,8 @@ public class EventHandlerThread extends Thread {
 		return eventId;
 	}
 
-	public EventHandlerThread(HandlerEvent event, String rpcReportUrl) {
+	public EventHandlerThread(HandlerEvent event, String rpcSubeventUrl, String rpcReportUrl) {
+	    this.rpcSubeventUrl = rpcSubeventUrl;
 		this.rpcReportUrl = rpcReportUrl;
 		this.event = event;
 		this.eventId = event.getEventId();
@@ -49,7 +52,7 @@ public class EventHandlerThread extends Thread {
 			Resp<String> initRsp = handler.init();
 			if(null == initRsp) {
 				logger.error("Handler Init Method Return Null.");
-				RestRequest.post(rpcReportUrl, new Resp<String>(1, "Handler Init Method Return Null."), eventId);
+				RestRequest.post(rpcReportUrl, new Resp<>(1, "Handler Init Method Return Null."), eventId);
 				return;
 			}
 			if (initRsp.getCode() != Resp.SUCCESS.getCode()) {
@@ -58,13 +61,17 @@ public class EventHandlerThread extends Thread {
 				return;
 			}
             Resp<String> resp = handler.start(event);
+			// 如果任务执行成功，查看是否存在子任务
+			if (resp.getCode() == Resp.SUCCESS.getCode()) {
+			    RestRequest.post(rpcSubeventUrl, null, event.getJobId());
+            }
             // 上报执行结果
             RestRequest.post(rpcReportUrl, resp, eventId);
 		} catch (Exception e) {
 			logger.error("Start Handler Error.", e);
 			// 上报出错信息
 			try {
-				RestRequest.post(rpcReportUrl, new Resp<String>(1, "Start Handler Error.", e.getMessage()), eventId);
+				RestRequest.post(rpcReportUrl, new Resp<>(1, "Start Handler Error.", e.getMessage()), eventId);
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}

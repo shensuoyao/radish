@@ -128,7 +128,7 @@ public class JobService {
 	 * @param edges
 	 * @param jobInfo
 	 */
-	public void forDagre(Set<String> nodes, Set<String> edges, JobInfo jobInfo) {
+	private void forDagre(Set<String> nodes, Set<String> edges, JobInfo jobInfo) {
 		List<Long> ids = Lists.newArrayList();
 		if(StringUtils.isNotEmpty(jobInfo.getParentJobId())) {
 			Splitter.on(",").splitToList(jobInfo.getParentJobId()).forEach(id -> ids.add(Long.valueOf(id)));
@@ -142,10 +142,10 @@ public class JobService {
 				depend.forEach(jf -> {
 					nodes.add(jf.getJobName());
 					String arrow = null;
-					if (null != jobInfo.getParentJobId() && jobInfo.getParentJobId().indexOf(String.valueOf(jf.getId())) >= 0) {
+					if (null != jobInfo.getParentJobId() && jobInfo.getParentJobId().contains(String.valueOf(jf.getId()))) {
 						arrow = jf.getJobName() + Constant.SPLIT_CHARACTER_ARROW.concat(jobInfo.getJobName());
 					}
-					if(null != jobInfo.getChildJobId() && jobInfo.getChildJobId().indexOf(String.valueOf(jf.getId())) >= 0) {
+					if(null != jobInfo.getChildJobId() && jobInfo.getChildJobId().contains(String.valueOf(jf.getId()))) {
 						arrow = jobInfo.getJobName() + Constant.SPLIT_CHARACTER_ARROW.concat(jf.getJobName());
 					}
 					if(StringUtils.isNotEmpty(arrow) && !edges.contains(arrow)) {
@@ -155,6 +155,17 @@ public class JobService {
 				});
 			}
 		}
+	}
+
+	/**
+	 * Get child job information by parent job id
+	 * @author clock
+	 * @date 2018/12/4 下午3:25
+	 * @param jobId job id
+	 * @return job information
+	 */
+	public JobInfo getChildJobByParentJobId(String jobId) {
+		return jobInfoMapper.findJobInfoByParentId(jobId);
 	}
 	
 }

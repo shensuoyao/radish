@@ -276,6 +276,13 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 		return list;
 	}
 
+    /**
+     * Add job event
+     * @author clock
+     * @date 2018/12/4 下午3:23
+     * @param jobInfo job information
+     * @return add result
+     */
 	public static boolean addJobEvent(JobInfo jobInfo) {
         List<String> agentHandlers = Splitter.onPattern(",|-").splitToList(jobInfo.getExecutorHandlers());
         Map<String, Object> eventHash = Maps.newHashMap();
@@ -300,8 +307,16 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
         return true;
     }
 
+    /**
+     * Add job event
+     * @author clock
+     * @date 2018/12/4 下午3:23
+     * @param jobId job id
+     * @return add result
+     */
 	public static boolean addJobEvent(Long jobId) {
         JobInfo jobInfo = jobInfoMapper.findJobInfoById(jobId);
         return jobInfo != null && addJobEvent(jobInfo);
     }
+
 }

@@ -103,5 +103,14 @@
         SELECT COUNT(*) FROM job_info WHERE enable = #{enable}
          ]]>
  </select>
+
+    <select id="findJobInfoByParentId" parameterType="string" resultMap="jobInfoMap">
+        <![CDATA[
+        SELECT id, job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone,
+                 executor_handlers, cmd, params, parent_job_id, child_job_id, create_time, update_time, priority, enable
+        FROM job_info
+        WHERE parent_job_id = #{jobId}
+        ]]>
+    </select>
   
 </mapper>

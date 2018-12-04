@@ -196,6 +196,7 @@ public class RadishAgent implements ApplicationContextAware {
 	// ---------------------- Init Agent Trigger Callback ----------------------
 	public void initTriggerCallback() {
 		TriggerEventThread.getInstance().start(scheduingServer.concat("/core/trigger-event/{agentId}"),
+		        scheduingServer.concat("/core/handle-child-event/{jobId}"),
 		        scheduingServer.concat("/core/handler-event-report/{eventId}"), agentInfo.getAgentId());
 	}
 

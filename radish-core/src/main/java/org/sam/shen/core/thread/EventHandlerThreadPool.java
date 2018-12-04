@@ -45,10 +45,10 @@ public class EventHandlerThreadPool {
 		return avalibleCount > 0;
 	}
 	
-	public static void run(String rpcReportUrl) {
+	public static void run(String rpcSubeventUrl, String rpcReportUrl) {
 		HandlerEvent handlerEvent = takeCallbackQueue();
 		if(null != handlerEvent && StringUtils.isNotEmpty(handlerEvent.getEventId())) {
-			fixedThreadPool.execute(new EventHandlerThread(handlerEvent, rpcReportUrl));
+			fixedThreadPool.execute(new EventHandlerThread(handlerEvent, rpcSubeventUrl, rpcReportUrl));
 		}
 	}
 	
