@@ -147,22 +147,22 @@
                 ,formSelects = layui.formSelects
                 ,$ = layui.jquery;
 
-                    // 处理器下拉选择框
+        // 处理器下拉选择框
         formSelects.config('agent-select', {
             type: 'get',
             searchUrl: [[@{/common/agent-handler-group}]],
             searchName: 'agentName',
             delay: 1000,
             beforeSearch: function(id, url, searchVal){         //搜索前调用此方法, return true将触发搜索, 否则不触发
-                // console.log(searchVal);
-           if(!searchVal){//如果搜索内容为空,就不触发搜索
-              return false;
-                        }
-                  return true;
-                     },
-                clearInput: false
+                console.log(searchVal);
+                if(!searchVal){//如果搜索内容为空,就不触发搜索
+                    return false;
+                }
+                return true;
+            },
+            clearInput: false
         }, false);
-                    // 父节点任务下拉选择
+        // 父节点任务下拉选择
         formSelects.config('parent-select', {
             type: 'get',
             searchUrl: [[@{/portal/job/json}]],
@@ -171,28 +171,28 @@
             keyName: 'jobName',            //自定义返回数据中name的key, 默认 name
             keyVal: 'id',
             delay: 1000,
-            beforeSearch: function(id, url, searchVal){         //搜索前调用此方法, return true将触发搜索, 否则不触发
+            beforeSearch: function(id, url, searchVal) {         //搜索前调用此方法, return true将触发搜索, 否则不触发
                 // console.log(searchVal);
-	            if(!searchVal){//如果搜索内容为空,就不触发搜索
-	               return false;
-	                           } 
-              return true;
-                           },
+                if(!searchVal){//如果搜索内容为空,就不触发搜索
+                    return false;
+                }
+                return true;
+            },
             clearInput: false
         }, false);
 
         $("#param-tips").on('click', function() {
-        	  var tip = "如 Handler 处理器需要附加参数, 请为每一条参数独立一行, 多行将会作为多条参数处理...";
-	        	layer.tips(tip,  '#param-tips', {
-	                tips: [3, '#78BA32']
-	                    });
-                  }); 
+            var tip = "如 Handler 处理器需要附加参数, 请为每一条参数独立一行, 多行将会作为多条参数处理...";
+            layer.tips(tip,  '#param-tips', {
+                tips: [3, '#78BA32']
+            });
+        });
         $("#crontab-tips").on('click', function() {
             var tip = "crontab 可以不填写, 如果不填写, 则该Job为手动触发任务, 需要手动触发执行.";
-              layer.tips(tip,  '#crontab-tips', {
-                  tips: [1, '#78BA32']
-                      });
-                }); 
+            layer.tips(tip,  '#crontab-tips', {
+                tips: [1, '#78BA32']
+            });
+        });
         
         var paramsEditor = CodeMirror.fromTextArea(document.getElementById("params"), {
             indentUnit: 4,
