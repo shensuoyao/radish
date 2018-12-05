@@ -213,9 +213,29 @@ public class AgentService {
 		}
 		return list;
 	}
-	
+
 	public void deleteAgentGroup(Long id) {
 		agentGroupMapper.deleteAgentGroup(id);
 	}
-	
+
+    /**
+     * 根据客户端名称查询客户端和处理器的信息
+     * @param name 客户端名称
+     * @return 客户端和处理器的列表信息
+     */
+	public List<Map<String, ?>> queryAgentHandlerByAgentName(String name) {
+	    return agentHandlerMapper.queryAgentHandlerByAgentName(name);
+    }
+
+    /**
+     * 根据客户端名称分页查询客户端和处理器的信息
+     * @param index 页码
+     * @param limit 每页数量
+     * @param name 客户端名称
+     * @return 客户端和处理器的列表信息
+     */
+    public List<Map<String, ?>> queryAgentHandlerByAgentNameForPage(int index, int limit, String name) {
+	    PageHelper.startPage(index, limit);
+	    return agentHandlerMapper.queryAgentHandlerByAgentName(name);
+    }
 }
