@@ -16,7 +16,6 @@
         <result column="cmd" property="cmd"/>
         <result column="params" property="params"/>
         <result column="parent_job_id" property="parentJobId"/>
-        <result column="child_job_id" property="childJobId"/>
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
         <result column="priority" property="priority"/>
@@ -26,16 +25,16 @@
 	<insert id="saveJobInfo" parameterType="JobInfo" useGeneratedKeys="true" keyProperty="id">
 	   <![CDATA[
         INSERT INTO job_info(job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone, 
-                    executor_handlers, cmd, params, parent_job_id, child_job_id, create_time, update_time, priority, enable) 
+                    executor_handlers, cmd, params, parent_job_id, create_time, update_time, priority, enable)
         VALUES (#{jobName}, #{crontab}, #{handlerType}, #{handlerFailStrategy}, #{admin}, #{adminEmail}, #{adminPhone}, 
-                #{executorHandlers}, #{cmd}, #{params}, #{parentJobId}, #{childJobId}, #{createTime}, #{updateTime}, #{priority}, #{enable}) 
+                #{executorHandlers}, #{cmd}, #{params}, #{parentJobId}, #{createTime}, #{updateTime}, #{priority}, #{enable})
         ]]>
   </insert>
   
   <select id="findJobInfoById" resultMap="jobInfoMap" parameterType="long">
      <![CDATA[
           SELECT id, job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone, 
-                 executor_handlers, cmd, params, parent_job_id, child_job_id, create_time, update_time, priority, enable 
+                 executor_handlers, cmd, params, parent_job_id, create_time, update_time, priority, enable
             FROM job_info 
            WHERE id = #{id}
             ]]>
@@ -44,7 +43,7 @@
   <select id="queryJobInfoForPager" resultMap="jobInfoMap" parameterType="string">
   <![CDATA[
       SELECT id, job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone, 
-                 executor_handlers, cmd, params, parent_job_id, child_job_id, create_time, update_time, priority, enable 
+                 executor_handlers, cmd, params, parent_job_id, create_time, update_time, priority, enable
         FROM job_info 
      ]]>
   <if test="jobName != null">
@@ -57,7 +56,7 @@
  <select id="queryJobInfoForList" resultMap="jobInfoMap" parameterType="string">
   <![CDATA[
       SELECT id, job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone, 
-                 executor_handlers, cmd, params, parent_job_id, child_job_id, create_time, update_time, priority, enable 
+                 executor_handlers, cmd, params, parent_job_id, create_time, update_time, priority, enable
         FROM job_info 
      ]]>
   <if test="jobName != null">
@@ -70,7 +69,7 @@
  <select id="queryJobInfoInIds" parameterType="list" resultMap="jobInfoMap">
      <![CDATA[
       SELECT id, job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone, 
-                 executor_handlers, cmd, params, parent_job_id, child_job_id, create_time, update_time, priority, enable 
+                 executor_handlers, cmd, params, parent_job_id, create_time, update_time, priority, enable
         FROM job_info  
        WHERE id IN 
          ]]>
@@ -84,7 +83,7 @@
 	 UPDATE job_info 
 	    SET crontab = #{crontab}, handler_type = #{handlerType}, handler_fail_strategy = #{handlerFailStrategy}, admin = #{admin}, admin_phone = #{adminPhone}, 
 	        admin_email = #{adminEmail}, executor_handlers = #{executorHandlers}, cmd = #{cmd}, params = #{params}, parent_job_id = #{parentJobId}, 
-	        child_job_id = #{childJobId}, create_time = #{createTime}, update_time = #{updateTime}, priority = #{priority}, enable = #{enable} 
+	        create_time = #{createTime}, update_time = #{updateTime}, priority = #{priority}, enable = #{enable}
 	  WHERE id = #{id}
 	   ]]>
  </update>
@@ -92,7 +91,7 @@
  <select id="queryJobInfoByEnable" parameterType="int" resultMap="jobInfoMap">
     <![CDATA[
       SELECT id, job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone, 
-                 executor_handlers, cmd, params, parent_job_id, child_job_id, create_time, update_time, priority, enable 
+                 executor_handlers, cmd, params, parent_job_id, create_time, update_time, priority, enable
         FROM job_info  
        WHERE enable = #{enable}
          ]]>
@@ -107,7 +106,7 @@
     <select id="findJobInfoByParentId" parameterType="string" resultMap="jobInfoMap">
         <![CDATA[
         SELECT id, job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone,
-                 executor_handlers, cmd, params, parent_job_id, child_job_id, create_time, update_time, priority, enable
+                 executor_handlers, cmd, params, parent_job_id, create_time, update_time, priority, enable
         FROM job_info
         WHERE parent_job_id = #{jobId}
         ]]>

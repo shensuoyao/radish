@@ -103,7 +103,6 @@ CREATE TABLE `job_info` (
   `cmd` text COMMENT '执行脚本',
   `params` varchar(512) DEFAULT NULL COMMENT '附加参数',
   `parent_job_id` varchar(125) DEFAULT NULL COMMENT '父任务ID, 多个用逗号分割',
-  `child_job_id` varchar(125) DEFAULT NULL COMMENT '子任务ID, 多个用逗号分割',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
   `priority` tinyint(2) DEFAULT '0' COMMENT '任务优先级 0 - 9',
@@ -136,5 +135,6 @@ CREATE TABLE `job_event` (
   `handler_agent_id` int(11) DEFAULT NULL COMMENT '执行处理的Agent ID',
   `priority` tinyint(2) DEFAULT '0' COMMENT '任务优先级 0 - 9',
   `retry_count` smallint(3) DEFAULT '0' COMMENT '重试次数',
-  `create_time` datetime DEFAULT NULL COMMENT '创建时间'
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  PRIMARY KEY (`event_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

@@ -133,9 +133,6 @@ public class JobService {
 		if(StringUtils.isNotEmpty(jobInfo.getParentJobId())) {
 			Splitter.on(",").splitToList(jobInfo.getParentJobId()).forEach(id -> ids.add(Long.valueOf(id)));
 		}
-		if(StringUtils.isNotEmpty(jobInfo.getChildJobId())) {
-			Splitter.on(",").splitToList(jobInfo.getChildJobId()).forEach(id -> ids.add(Long.valueOf(id)));
-		}
 		if(ids.size() > 0) {
 			List<JobInfo> depend = jobInfoMapper.queryJobInfoInIds(ids);
 			if(null != depend && depend.size() > 0) {
@@ -144,9 +141,6 @@ public class JobService {
 					String arrow = null;
 					if (null != jobInfo.getParentJobId() && jobInfo.getParentJobId().contains(String.valueOf(jf.getId()))) {
 						arrow = jf.getJobName() + Constant.SPLIT_CHARACTER_ARROW.concat(jobInfo.getJobName());
-					}
-					if(null != jobInfo.getChildJobId() && jobInfo.getChildJobId().contains(String.valueOf(jf.getId()))) {
-						arrow = jobInfo.getJobName() + Constant.SPLIT_CHARACTER_ARROW.concat(jf.getJobName());
 					}
 					if(StringUtils.isNotEmpty(arrow) && !edges.contains(arrow)) {
 						edges.add(arrow);

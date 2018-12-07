@@ -40,8 +40,6 @@ public class JobInfo extends Identity {
 	
 	private String parentJobId;    // 父任务ID
 	
-	private String childJobId;    // 子任务Id
-	
 	private Date createTime;
 	
 	private Date updateTime;
@@ -132,14 +130,6 @@ public class JobInfo extends Identity {
 
 	public void setParams(String params) {
 		this.params = params;
-	}
-
-	public String getChildJobId() {
-		return childJobId;
-	}
-
-	public void setChildJobId(String childJobId) {
-		this.childJobId = childJobId;
 	}
 
 	public String getParentJobId() {

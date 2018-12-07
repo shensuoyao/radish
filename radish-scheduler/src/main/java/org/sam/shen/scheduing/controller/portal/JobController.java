@@ -96,20 +96,15 @@ public class JobController {
 	 * @param model
 	 * @param jobInfo
 	 * @param parentJob
-	 * @param childJob
 	 * @param agentHandlers
 	 * @return
 	 */
 	@RequestMapping(value = "job-save", method = RequestMethod.POST)
 	public ModelAndView jobSave(ModelAndView model, @ModelAttribute JobInfo jobInfo,
-	        @RequestParam("parentJob") List<String> parentJob, @RequestParam(name = "childJob", required = false) List<String> childJob,
-	        @RequestParam("agentHandlers") List<String> agentHandlers) {
+	        @RequestParam("parentJob") List<String> parentJob, @RequestParam("agentHandlers") List<String> agentHandlers) {
         model.setViewName("frame/job/job_add");
 		if (null != parentJob && parentJob.size() > 0) {
 			jobInfo.setParentJobId(Joiner.on(",").join(parentJob));
-		}
-		if (null != childJob && childJob.size() > 0) {
-			jobInfo.setChildJobId(Joiner.on(",").join(childJob));
 		}
 		if (null != agentHandlers && agentHandlers.size() > 0) {
 			jobInfo.setExecutorHandlers(Joiner.on(",").join(agentHandlers));
@@ -220,24 +215,16 @@ public class JobController {
 			if(StringUtils.isNotEmpty(jobInfo.getParentJobId())) {
 				Arrays.asList(jobInfo.getParentJobId().split(",")).forEach(jid -> ids.add(Long.valueOf(jid)));
 			}
-			if(StringUtils.isNotEmpty(jobInfo.getChildJobId())) {
-				Arrays.asList(jobInfo.getChildJobId().split(",")).forEach(jid -> ids.add(Long.valueOf(jid)));
-			}
 			if(ids.size() > 0) {
 				List<JobInfo> parentJob = Lists.newArrayList();
-				List<JobInfo> childJob = Lists.newArrayList();
 				List<JobInfo> depend = jobService.queryJobInfoByIds(ids);
 				depend.forEach(job -> {
 					
 					if(null != jobInfo.getParentJobId() && jobInfo.getParentJobId().indexOf(String.valueOf(job.getId())) >= 0) {
 						parentJob.add(job);
 					}
-					if(null != jobInfo.getChildJobId() && jobInfo.getChildJobId().indexOf(String.valueOf(job.getId())) >= 0) {
-						childJob.add(job);
-					}
 				});
 				model.addObject("parentJob", parentJob);
-				model.addObject("childJob", childJob);
 			}
 			if(StringUtils.isNotEmpty(jobInfo.getExecutorHandlers())) {
 				model.addObject("handlers", Arrays.asList(jobInfo.getExecutorHandlers().split(",")));
