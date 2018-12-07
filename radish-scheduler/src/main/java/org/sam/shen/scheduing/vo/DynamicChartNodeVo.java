@@ -7,6 +7,8 @@ public class DynamicChartNodeVo {
 	private Object xAxis;
 	
 	private Map<String, Object> yAxis;
+
+    private String measurement;
 	
 	public DynamicChartNodeVo() {
 		super();
@@ -32,5 +34,13 @@ public class DynamicChartNodeVo {
 	public void setyAxis(Map<String, Object> yAxis) {
 		this.yAxis = yAxis;
 	}
-	
+
+    public String getMeasurement() {
+        return measurement;
+    }
+
+    public void setMeasurement(String measurement) {
+        this.measurement = measurement;
+    }
+
 }

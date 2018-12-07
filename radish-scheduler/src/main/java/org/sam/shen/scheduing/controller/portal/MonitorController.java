@@ -29,7 +29,7 @@ public class MonitorController {
 
 	@Autowired
 	private RedisService redisService;
-	
+
 	/**
 	 *   获取在线的Agent
 	 * @author suoyao
@@ -75,6 +75,7 @@ public class MonitorController {
 
         switch (type) {
             case "cpu":
+            	dynamicChartVo.setMeasurement("%");
                 yAxis.put("idle", getObjByStr(monitorInfo.getCpuIdle()));
                 yAxis.put("user", getObjByStr(monitorInfo.getCpuUser()));
                 yAxis.put("system", getObjByStr(monitorInfo.getCpuSystem()));
@@ -83,45 +84,32 @@ public class MonitorController {
                 yAxis.put("steal", getObjByStr(monitorInfo.getCpuSteal()));
                 break;
             case "mem":
+				dynamicChartVo.setMeasurement("KB");
                 yAxis.put("used", monitorInfo.getMemoryUsed());
                 break;
             case "disk":
-                yAxis.put("wtps", monitorInfo.getIoWtps());
-                yAxis.put("rtps", monitorInfo.getIoRtps());
+                dynamicChartVo.setMeasurement("KB/s");
+                yAxis.put("write-tps", monitorInfo.getIoWtps());
+                yAxis.put("read-tps", monitorInfo.getIoRtps());
                 break;
             case "net":
+                dynamicChartVo.setMeasurement("KB/s");
                 if (monitorInfo.getNetworkIOList().size() > 0) {
                     List<AgentMonitorInfo.NetworkIO> eth = monitorInfo.getNetworkIOList().stream().filter(net -> "eth0".equals(net.getIface())).collect(Collectors.toList());
                     if (eth.size() > 0) {
-                        yAxis.put("rx", eth.get(0).getRx());
-                        yAxis.put("tx", eth.get(0).getTx());
+                        yAxis.put("receive", eth.get(0).getRx());
+                        yAxis.put("transmit", eth.get(0).getTx());
                     } else {
-                        yAxis.put("rx", monitorInfo.getNetworkIOList().get(0).getRx());
-                        yAxis.put("tx", monitorInfo.getNetworkIOList().get(0).getTx());
+                        yAxis.put("receive", monitorInfo.getNetworkIOList().get(0).getRx());
+                        yAxis.put("transmit", monitorInfo.getNetworkIOList().get(0).getTx());
                     }
                 } else {
-                    yAxis.put("rx", null);
-                    yAxis.put("tx", null);
+                    yAxis.put("receive", null);
+                    yAxis.put("transmit", null);
                 }
                 break;
         }
         dynamicChartVo.setyAxis(yAxis);
-//		AgentPerformance performance = JSON.parseObject(JSON.toJSONString(hash), AgentPerformance.class);
-//
-//		String t = new DateTime().toString("HH:mm:ss");
-//		DynamicChartNodeVo dynamicChartVo = new DynamicChartNodeVo(t);
-//
-//		Map<String, Object> yAxis = Maps.newHashMap();
-//
-//		double d1 = (performance.getJvmTotalMemory() - performance.getJvmFreeMemory()) / (double)performance.getJvmTotalMemory();
-//		BigDecimal b1 = new BigDecimal(d1);
-//		yAxis.put("JVM", b1.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-//
-//		double d2 = (performance.getPhysicalTotalMemory() - performance.getPhysicalFreeMemory()) / (double)performance.getPhysicalTotalMemory();
-//		BigDecimal b2 = new BigDecimal(d2);
-//		yAxis.put("Physical", b2.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
-//
-//		dynamicChartVo.setyAxis(yAxis);
 		return dynamicChartVo;
 	}
 

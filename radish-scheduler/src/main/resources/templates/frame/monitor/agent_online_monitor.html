@@ -96,7 +96,9 @@
                 });
                 if (isFirst) {
                     option.legend = {data: legends};
-                    option.xAxis = {data: xAxis};
+                    option.yAxis.name = data.measurement;
+                    option.yAxis.nameLocation = 'end';
+                    option.xAxis.data = xAxis;
                     option.series = series;
                     myChart.setOption(option);
                     isFirst = false;
