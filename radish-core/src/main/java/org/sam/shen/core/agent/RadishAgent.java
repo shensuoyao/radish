@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.commons.io.FileUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.sam.shen.core.constants.Constant;
 import org.sam.shen.core.handler.IHandler;
@@ -16,8 +16,7 @@ import org.sam.shen.core.model.Resp;
 import org.sam.shen.core.rpc.RestRequest;
 import org.sam.shen.core.thread.AgentHeartBeatThread;
 import org.sam.shen.core.thread.TriggerEventThread;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.sam.shen.core.util.ScriptUtil;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -32,11 +31,10 @@ import com.google.common.collect.Maps;
  * @date 2018年7月31日 下午5:43:52
  * Agent 客户端启动器
  */
+@Slf4j
 @Component
 public class RadishAgent implements ApplicationContextAware {
 	
-	private static Logger logger = LoggerFactory.getLogger(RadishAgent.class);
-
 	private static ApplicationContext applicationContext;
 	
 	private static AgentInfo agentInfo;
@@ -102,11 +100,11 @@ public class RadishAgent implements ApplicationContextAware {
         return applicationContext;
     }
 	
-	public void start() throws Exception {
+	public void start() {
 		// 初始化 Agent registry
 		int exit = initHandlerRegistry(applicationContext);
 		if(Constant.SUCCESS_EXIT != exit) {
-			logger.error("Agent Registry Failed.");
+			log.error("Agent Registry Failed.");
 			System.exit(0);
 		}
 
@@ -117,7 +115,7 @@ public class RadishAgent implements ApplicationContextAware {
         RadishLogFileAppender.initShPath(shPath);
 
         // 生成shell脚本并赋予执行权限
-        createAndAuthShellScript();
+        initMonitorScriptFile();
 		
 		// 建立心跳
 		initHeartBeat();
@@ -131,7 +129,7 @@ public class RadishAgent implements ApplicationContextAware {
 	private static ConcurrentHashMap<String, IHandler> handlerRepository = new ConcurrentHashMap<String, IHandler>();
 	
 	public static IHandler registJobHandler(String name, IHandler jobHandler) {
-		logger.info(">>>>>>>>>>> radish register handler success, name:{}, jobHandler:{}", name, jobHandler);
+		log.info(">>>>>>>>>>> radish register handler success, name:{}, jobHandler:{}", name, jobHandler);
 		return handlerRepository.put(name, jobHandler);
 	}
 	
@@ -155,11 +153,11 @@ public class RadishAgent implements ApplicationContextAware {
 	 */
 	public static int initHandlerRegistry(ApplicationContext applicationContext) {
 		if(null == applicationContext) {
-			logger.error("aplicationContext is not ready.");
+			log.error("aplicationContext is not ready.");
 			return 1;
 		}
 		Map<String, Object> serviceBeanMap = applicationContext.getBeansWithAnnotation(AHandler.class);
-		if (serviceBeanMap != null && serviceBeanMap.size() > 0) {
+		if (serviceBeanMap.size() > 0) {
 			for (Object serviceBean : serviceBeanMap.values()) {
 				if (serviceBean instanceof IHandler) {
 					String name = serviceBean.getClass().getAnnotation(AHandler.class).name();
@@ -180,7 +178,7 @@ public class RadishAgent implements ApplicationContextAware {
 					agentInfo.setAgentId(resp.getData());
 				}
 			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
+				log.error(e.getMessage(), e);
 				return 1;
 			}
 		}
@@ -200,36 +198,22 @@ public class RadishAgent implements ApplicationContextAware {
 		        scheduingServer.concat("/core/handler-event-report/{eventId}"), agentInfo.getAgentId());
 	}
 
-	private void createAndAuthShellScript() {
-	    shFilePath = shPath.endsWith(File.separator) ? shPath.concat(Constant.SHELL_SCRIPT_NAME) : shPath.concat(File.separator).concat(Constant.SHELL_SCRIPT_NAME);
-	    // 生成shell脚本
+    /**
+     * Initialize monitor shell script file
+     */
+	private void initMonitorScriptFile() {
+	    shFilePath = shPath.concat(File.separator).concat(Constant.SHELL_SCRIPT_NAME);
+        ClassPathResource cpr = new ClassPathResource(Constant.SHELL_SCRIPT_PATH.concat(File.separator).concat(Constant.SHELL_SCRIPT_NAME));
 	    try {
-            File file = new File(shFilePath);
-            ClassPathResource cpr = new ClassPathResource(Constant.SHELL_SCRIPT_NAME);
-            if (file.exists() && !file.delete()) {
-                throw new IOException("Can't Delete Existed File");
-            }
-            if (!file.createNewFile()) {
-                throw new IOException("Can't Create New File");
-            }
-            FileUtils.copyInputStreamToFile(cpr.getInputStream(), file);
+            ScriptUtil.createAndAuthShellScript(shFilePath, cpr.getInputStream());
         } catch (IOException e) {
-	        logger.error("Create Shell Script File Failed. [{}]", e);
-        }
-
-        // 赋予shell脚本执行权限
-        try {
-            ProcessBuilder pb = new ProcessBuilder("/bin/chmod", "755", shFilePath);
-            Process process = pb.start();
-            process.waitFor();
-        } catch (Exception e) {
-            logger.error("Auth Shell Script File Failed. [{}]", e);
+	        log.error("Initialize monitor shell script file failed. [{}]", e.getMessage());
         }
     }
 	
 	public void destroy() {
 		// TODO
-		logger.info("Destory RadishAgent ...");
+		log.info("Destroy RadishAgent ...");
 	}
 
 }

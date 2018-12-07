@@ -28,10 +28,14 @@ public class Constant {
 	
 	public static final String REDIS_EVENT_PREFIX = "event_";
 
-	public static final String DEFAULT_LOG_FILE_PATH = "/var/log/radish/";
+	public static final String DEFAULT_LOG_FILE_PATH = "/tmp/log/radish";
 
-    public static final String DEFAULT_SHELL_SCRIPT_FILE_PATH = "/var/log/radish/";
+    public static final String DEFAULT_SHELL_SCRIPT_FILE_PATH = "/tmp/log/radish";
+
+    public static final String SHELL_SCRIPT_PATH = "shell";
 
 	public static final String SHELL_SCRIPT_NAME = "monitor.sh";
+
+	public static final String CHECK_SHELL_SCRIPT_NAME = "check-sysstat.sh";
 	
 }

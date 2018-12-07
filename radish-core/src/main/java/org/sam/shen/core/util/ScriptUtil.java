@@ -1,14 +1,13 @@
 package org.sam.shen.core.util;
 
-import com.alibaba.fastjson.JSON;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
+import org.apache.commons.exec.ExecuteWatchdog;
 import org.apache.commons.exec.PumpStreamHandler;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.sam.shen.core.model.AgentMonitorInfo;
 
 import java.io.*;
-import java.util.*;
 
 /**
   * 1、内嵌编译器如"PythonInterpreter"无法引用扩展包，因此推荐使用java调用控制台进程方式"Runtime.getRuntime().exec()"来运行脚本(shell或python)；
@@ -95,136 +94,87 @@ public class ScriptUtil {
 		}
 	}
 
-
-    /**
-     * 执行shell脚本
-     * @author clock
-     * @date 2018/10/31 上午10:05
-     * @param command shell命令
-     * @param params 传递参数
-     * @return shell脚本执行的结果
-     */
-	public static String execShellCmd(String command, String... params) {
-	    Process process = null;
-        String cmd = command.concat(" ").concat(StringUtils.join(params, " "));
-        try {
-            process = Runtime.getRuntime().exec(new String[] {"/bin/sh", "-c", cmd});
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (process == null) {
-            return "";
-        }
-
-        final ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        final ByteArrayOutputStream ebos = new ByteArrayOutputStream();
-        final InputStream is = process.getInputStream();
-        final InputStream es = process.getErrorStream();
-        // 启动执行命令结果输出线程
-        new Thread(() -> {
-            byte[] buffer = new byte[1024];
-            int length;
-            try {
-                while ((length = is.read(buffer)) != -1) {
-                    bos.write(buffer, 0, length);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }).start();
-        // 启动执行命令错误流输出线程
-        new Thread(() -> {
-            byte[] buffer = new byte[1024];
-            int length;
-            try {
-                while ((length = es.read(buffer)) != -1) {
-                    ebos.write(buffer, 0, length);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }).start();
-
+    public static String execShellWithResult(String command, String... params) {
+        // 正常结果流
+        ByteArrayOutputStream sucBos = new ByteArrayOutputStream();
+        // 异常结果流
+        ByteArrayOutputStream errBos = new ByteArrayOutputStream();
 	    try {
-            // 等待线程执行完毕
-            process.waitFor();
-            String msg = bos.toString("utf-8").trim();
-            String errMsg = ebos.toString("utf-8").trim();
+            CommandLine commandLine = new CommandLine(command);
+            if (params.length > 0) {
+                commandLine.addArguments(params);
+            }
+            DefaultExecutor executor = new DefaultExecutor();
+            executor.setExitValues(null);
+            // 设置超时时间
+            ExecuteWatchdog watchdog = new ExecuteWatchdog(60 * 1000);
+            executor.setWatchdog(watchdog);
+            PumpStreamHandler pump = new PumpStreamHandler(sucBos, errBos);
+            executor.setStreamHandler(pump);
+            executor.execute(commandLine);
+
+            String msg = sucBos.toString("utf-8").trim();
+            String errMsg = errBos.toString("utf-8").trim();
             if (StringUtils.isNotEmpty(msg)) {
                 return msg;
             }
             if (StringUtils.isNotEmpty(errMsg)) {
                 return  errMsg;
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
 	        e.printStackTrace();
         } finally {
-	        try {
-	            bos.close();
-	            ebos.close();
-	            if (is != null) is.close();
-	            if (es != null) es.close();
-            } catch (IOException e) {
-	            e.printStackTrace();
-            }
-        }
-	    return "";
-    }
-
-
-    public static void main(String[] args) {
-        String re = execShellCmd("/Users/zhongsj/Documents/ideaworkspace/radish/radish-agent/src/main/resources/monitor.sh", "CPJMN");
-        AgentMonitorInfo agentMonitorInfo = new AgentMonitorInfo();
-        agentMonitorInfo.setCpuCount(SystemUtil.cpuCount());
-        if (StringUtils.isEmpty(agentMonitorInfo.getIp())) {
-            agentMonitorInfo.setIp(IpUtil.getIp());
-        }
-        agentMonitorInfo.setOsName(SystemUtil.osName());
-        agentMonitorInfo.setOsVersion(SystemUtil.osVersion());
-        agentMonitorInfo.setAgentName(IpUtil.getHostName());
-
-        Map<String, Object> map = JSON.parseObject(JSON.toJSONString(agentMonitorInfo));
-        List<Map<String, Object>> javaList = new ArrayList<>();
-        Map<String, Map<String, Object>> netMap = new HashMap<>();
-        BufferedReader br = new BufferedReader(new StringReader(re));
-        try {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] kv = line.split(":");
-                if (kv.length == 2 && StringUtils.isNotEmpty(kv[0]) && StringUtils.isNotEmpty(kv[1])) {
-                    if (kv[0].startsWith("java")) { // java服务占用内存一对多关系，特殊处理
-                        Map<String, Object> jMap = new HashMap<>();
-                        jMap.put("name", kv[0].split("\\.")[1]);
-                        jMap.put("rss", kv[1]);
-                        javaList.add(jMap);
-                    } else if (kv[0].startsWith("network")) { // 网卡一对多关系，特殊处理
-                        String iface = kv[0].split("\\.")[1];
-                        if (netMap.get(iface) == null) {
-                            Map<String, Object> nMap = new HashMap<>();
-                            nMap.put("iface", iface);
-                            nMap.put(kv[0].split("\\.")[2], kv[1]);
-                            netMap.put(iface, nMap);
-                        } else {
-                            netMap.get(iface).put(kv[0].split("\\.")[2], kv[1]);
-                        }
-                    } else {
-                        map.put(kv[0], kv[1]);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
             try {
-                br.close();
+                sucBos.close();
+                errBos.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        map.put("javaMemoryList", javaList);
-        map.put("networkIOList", netMap.values());
-        agentMonitorInfo = JSON.parseObject(JSON.toJSONString(map), AgentMonitorInfo.class);
-        System.out.println(agentMonitorInfo.getCpuIdle());
+        return "";
+    }
+
+
+    /**
+     * Create and authorize shell script
+     * @author clock
+     * @date 2018/12/7 下午1:39
+     * @param filePath shell script file path
+     * @param is shell script content
+     */
+    public static void createAndAuthShellScript(String filePath, InputStream is) {
+        createAndAuthShellScript(new File(filePath), is);
+    }
+
+    /**
+     * Create and authorize shell script
+     * @author clock
+     * @date 2018/12/7 下午1:39
+     * @param file shell script file
+     * @param is shell script content
+     */
+    public static void createAndAuthShellScript(File file, InputStream is) {
+        try {
+            // create shell script file
+            if (file.exists() && !file.delete()) {
+                throw new IOException("Can't delete original shell script file.");
+            }
+            if (!file.createNewFile()) {
+                throw new IOException("Can't create shell script file.");
+            }
+            FileUtils.copyInputStreamToFile(is, file);
+
+            // authorize script file
+            try {
+                ProcessBuilder pb = new ProcessBuilder("/bin/chmod", "755", file.getAbsolutePath());
+                Process process = pb.start();
+                process.waitFor();
+            } catch (Exception e) {
+                throw new IOException("Authorize script file failed.");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

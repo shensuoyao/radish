@@ -8,22 +8,21 @@ import java.io.LineNumberReader;
 import java.util.Arrays;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.sam.shen.core.agent.RadishAgent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
 /**
+ * 自定义日志适配器
  * @author suoyao
  * @date 2018年8月3日 下午5:56:29
-  *   自定义日志适配器
  */
+@Slf4j
 public class RadishLogFileAppender {
-	private static Logger logger = LoggerFactory.getLogger(RadishLogFileAppender.class);
 
 	public static void initLogPath(String logPath) {
 		// Make LogPath
@@ -31,17 +30,17 @@ public class RadishLogFileAppender {
 		try {
 			FileUtils.forceMkdir(logBasePathDir);
 		} catch (IOException e) {
-			logger.error("Make Log Path Failed. [{}]", logPath, e);
+			log.error("Make Log Path Failed. [{}]", logPath, e);
 		}
 	}
 
 	public static void initShPath(String shPath) {
-        // Make LogPath
+        // Make shPath
         File shBasePathDir = new File(shPath);
         try {
             FileUtils.forceMkdir(shBasePathDir);
         } catch (IOException e) {
-            logger.error("Make Shell Path Failed. [{}]", shPath, e);
+            log.error("Make Shell Path Failed. [{}]", shPath, e);
         }
     }
 
@@ -57,7 +56,7 @@ public class RadishLogFileAppender {
 		try {
 			FileUtils.forceMkdir(logFilePath);
 		} catch (IOException e) {
-			logger.error("Make Log Path Failed. [{}]", logFilePath);
+			log.error("Make Log Path Failed. [{}]", logFilePath);
 		}
 		String logFileName = logFilePath.getPath().concat(File.separator).concat(logId).concat(".log");
 		return logFileName;
@@ -78,7 +77,7 @@ public class RadishLogFileAppender {
 		try {
 			FileUtils.writeLines(logFile, appendLogLines, true);
 		} catch (IOException e) {
-			logger.error("Make Log File Failed. [{}]", logFile);
+			log.error("Make Log File Failed. [{}]", logFile);
 		}
 	}
 	
@@ -117,13 +116,13 @@ public class RadishLogFileAppender {
 				}
 			}
 		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
+			log.error(e.getMessage(), e);
 		} finally {
 			if (reader != null) {
 				try {
 					reader.close();
 				} catch (IOException e) {
-					logger.error(e.getMessage(), e);
+					log.error(e.getMessage(), e);
 				}
 			}
 		}
@@ -153,7 +152,7 @@ public class RadishLogFileAppender {
 		try {
 			return FileUtils.readLines(logFile, "UTF-8");
 		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
+			log.error(e.getMessage(), e);
 			return lines;
 		}
 	}

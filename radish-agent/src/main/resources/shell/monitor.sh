@@ -1,13 +1,12 @@
 #!/bin/bash
 :<<!
-获取服务器监控信息
+Get monitoring information of server
 !
 
 export LANG=en_US
 export LC_TIME="POSIX"
 param=$1
 sar_result=$(sar -bruq -n DEV 1 1 | grep -E "(0[0-9]|1[0-9]|2[0-3])(:[0-5][0-9]){2}")
-#sar_result=$(cat /Users/zhongsj/Desktop/data1.txt | grep -E "(0[0-9]|1[0-9]|2[0-3])(:[0-5][0-9]){2}")
 
 function parseToJson1() {
 	local nr_t=$1;
@@ -28,7 +27,6 @@ function parseToJson1() {
 			local value="${value_arr[i]}";
 		fi
 		echo "${key}:${value}"
-		#info=$(jq -n "$info + {\"$key\": \"$value\"}");
 	done
 }
 
@@ -72,7 +70,6 @@ function parseToJson2() {
 				local value="${value_arr[i]}";
 			fi
 			info="${info}${key}:${value}\n"
-			#info=$(jq -n "$info + {\"$key\": \"$value\"}");
 		fi
 	done
 }
@@ -98,23 +95,23 @@ function getPhpAndJava() {
         done
 	fi
 }
-# 解析cpu信息
+# analyze cpu information
 if [[ "$param" =~ "C" ]]; then
     parseToJson1 1 3 "cpu.util." &
 fi
-# 解析IO和传输速率
+# analyze IO
 if [[ "$param" =~ "I" ]]; then
     parseToJson1 3 2 "io." &
 fi
-# 解析内存利用率
+# analyze memory util
 if [[ "$param" =~ "M" ]]; then
     parseToJson1 5 2 "mem." &
 fi
-# 系统平均负载
+# analyze system average load
 if [[ "$param" =~ "S" ]]; then
     parseToJson1 7 2 "system." &
 fi
-# 获取php和java消耗的物理内存
+# get physical memory php and java used
 getPhpAndJava &
 if [[ "$param" =~ "N" ]]; then
     s_nr=9

@@ -31,6 +31,7 @@ public class Monitor {
         }
     }
 
+    @Getter
     private AgentMonitorInfo agentMonitorInfo;
 
     public Monitor() {
@@ -64,7 +65,8 @@ public class Monitor {
      */
     public AgentMonitorInfo collect(MonitorType... monitorType) {
         String param = Arrays.stream(monitorType).map(MonitorType::getName).collect(Collectors.joining(""));
-        String result = ScriptUtil.execShellCmd(RadishAgent.getShFilePath(), param);
+        log.info(RadishAgent.getShFilePath().concat(" ").concat(param));
+        String result = ScriptUtil.execShellWithResult(RadishAgent.getShFilePath(), param);
         log.info(RadishAgent.getShFilePath().concat(" ").concat(param).concat("执行结果:\r\n{}"), result);
 
         Map<String, Object> map = JSON.parseObject(JSON.toJSONString(agentMonitorInfo));
