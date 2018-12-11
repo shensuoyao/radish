@@ -145,16 +145,16 @@ public class JobEventService {
 				jobEvent.setStat(EventStatus.RETRY);
 				jobEvent.setRetryCount(jobEvent.getRetryCount() + 1);
 			}
-			if(jobInfo.getHandlerFailStrategy().equals(HandlerFailStrategy.ALARM)) {
-				// 发送告警邮件或者短信
-				if(StringUtils.isNotEmpty(jobInfo.getAdminEmail())) {
-					try {
-						SendEmailClient.sendEmail(jobInfo.getAdminEmail(), "Radish Handler Fail Alarm", jobEvent.toString(),  null);
-					} catch (Exception e) {
-						logger.error("send alarm mail fail.", e);
-					}
-				}
-			}
+//			if(jobInfo.getHandlerFailStrategy().equals(HandlerFailStrategy.ALARM)) {
+//				// 发送告警邮件或者短信
+//				if(StringUtils.isNotEmpty(jobInfo.getAdminEmail())) {
+//					try {
+//						SendEmailClient.sendEmail(jobInfo.getAdminEmail(), "Radish Handler Fail Alarm", jobEvent.toString(),  null);
+//					} catch (Exception e) {
+//						logger.error("send alarm mail fail.", e);
+//					}
+//				}
+//			}
 			if(jobInfo.getHandlerFailStrategy().equals(HandlerFailStrategy.DISCARD)) {
 				// 丢弃, 则直接更新状态, 什么也不做
 			}

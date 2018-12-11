@@ -8,12 +8,12 @@ package org.sam.shen.core.constants;
 public enum HandlerFailStrategy {
 
 	DISCARD("丢弃"),
-	RETRY("重试"),
-	ALARM("告警");
+	RETRY("重试");
+//	ALARM("告警");
 	
 	private String desc;
 	
-	private HandlerFailStrategy(String desc) {
+	HandlerFailStrategy(String desc) {
         this.desc = desc;
     }
 
