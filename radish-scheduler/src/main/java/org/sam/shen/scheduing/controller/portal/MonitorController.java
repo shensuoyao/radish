@@ -27,11 +27,15 @@ import com.google.common.collect.Maps;
 @RequestMapping(value = "monitor")
 public class MonitorController {
 
-	@Autowired
-	private RedisService redisService;
+	private final RedisService redisService;
 
-	/**
-	 *   获取在线的Agent
+    @Autowired
+    public MonitorController(RedisService redisService) {
+        this.redisService = redisService;
+    }
+
+    /**
+	 * 获取在线的Agent
 	 * @author suoyao
 	 * @date 下午3:15:52
 	 * @param model
@@ -44,7 +48,7 @@ public class MonitorController {
 		if(null != keys && keys.size() > 0) {
 			keys.forEach(key -> {
 				Map<String, Object> hash = redisService.hmget(key);
-				agentOnlines.add(JSON.parseObject(JSON.toJSONString(hash), AgentMonitorInfo.class));
+                agentOnlines.add(JSON.parseObject(JSON.toJSONString(hash), AgentMonitorInfo.class));
 			});
 		}
 		model.addObject("agentOnlines", agentOnlines);
@@ -56,7 +60,6 @@ public class MonitorController {
 	public ModelAndView agentOnlineMonitor(ModelAndView model, @PathVariable("agentId") Long agentId) {
 		Map<String, Object> hash = redisService.hmget(Constant.REDIS_AGENT_PREFIX + agentId);
 		AgentMonitorInfo agentMonitorInfo = JSON.parseObject(JSON.toJSONString(hash), AgentMonitorInfo.class);
-
 
 		model.addObject("agentMonitorInfo", agentMonitorInfo);
 		model.setViewName("frame/monitor/agent_online_monitor");
@@ -81,13 +84,10 @@ public class MonitorController {
                 yAxis.put("空闲", monitorInfo.getCpuIdle());
                 yAxis.put("用户", monitorInfo.getCpuUser());
                 yAxis.put("系统", monitorInfo.getCpuSystem());
-//                yAxis.put("nice", getObjByStr(monitorInfo.getCpuNice()));
-//                yAxis.put("iowait", getObjByStr(monitorInfo.getCpuIowait()));
-//                yAxis.put("steal", getObjByStr(monitorInfo.getCpuSteal()));
                 break;
             case "mem":
 				dynamicChartVo.setMeasurement("KB");
-                yAxis.put("used", monitorInfo.getMemoryUsed());
+                yAxis.put("空闲内存", monitorInfo.getMemoryFree());
                 break;
             case "disk":
                 dynamicChartVo.setMeasurement("KB/s");
