@@ -76,12 +76,12 @@ public class MonitorController {
         switch (type) {
             case "cpu":
             	dynamicChartVo.setMeasurement("%");
-                yAxis.put("idle", getObjByStr(monitorInfo.getCpuIdle()));
-                yAxis.put("user", getObjByStr(monitorInfo.getCpuUser()));
-                yAxis.put("system", getObjByStr(monitorInfo.getCpuSystem()));
-                yAxis.put("nice", getObjByStr(monitorInfo.getCpuNice()));
-                yAxis.put("iowait", getObjByStr(monitorInfo.getCpuIowait()));
-                yAxis.put("steal", getObjByStr(monitorInfo.getCpuSteal()));
+                yAxis.put("空闲", getObjByStr(monitorInfo.getCpuIdle()));
+                yAxis.put("用户", getObjByStr(monitorInfo.getCpuUser()));
+                yAxis.put("系统", getObjByStr(monitorInfo.getCpuSystem()));
+//                yAxis.put("nice", getObjByStr(monitorInfo.getCpuNice()));
+//                yAxis.put("iowait", getObjByStr(monitorInfo.getCpuIowait()));
+//                yAxis.put("steal", getObjByStr(monitorInfo.getCpuSteal()));
                 break;
             case "mem":
 				dynamicChartVo.setMeasurement("KB");
@@ -89,23 +89,23 @@ public class MonitorController {
                 break;
             case "disk":
                 dynamicChartVo.setMeasurement("KB/s");
-                yAxis.put("write-tps", monitorInfo.getIoWtps());
-                yAxis.put("read-tps", monitorInfo.getIoRtps());
+                yAxis.put("写出/秒", monitorInfo.getIoWtps());
+                yAxis.put("读入/秒", monitorInfo.getIoRtps());
                 break;
             case "net":
                 dynamicChartVo.setMeasurement("KB/s");
                 if (monitorInfo.getNetworkIOList().size() > 0) {
                     List<AgentMonitorInfo.NetworkIO> eth = monitorInfo.getNetworkIOList().stream().filter(net -> "eth0".equals(net.getIface())).collect(Collectors.toList());
                     if (eth.size() > 0) {
-                        yAxis.put("receive", eth.get(0).getRx());
-                        yAxis.put("transmit", eth.get(0).getTx());
+                        yAxis.put("接受数据/秒", eth.get(0).getRx());
+                        yAxis.put("发送数据/秒", eth.get(0).getTx());
                     } else {
-                        yAxis.put("receive", monitorInfo.getNetworkIOList().get(0).getRx());
-                        yAxis.put("transmit", monitorInfo.getNetworkIOList().get(0).getTx());
+                        yAxis.put("接受数据/秒", monitorInfo.getNetworkIOList().get(0).getRx());
+                        yAxis.put("发送数据/秒", monitorInfo.getNetworkIOList().get(0).getTx());
                     }
                 } else {
-                    yAxis.put("receive", null);
-                    yAxis.put("transmit", null);
+                    yAxis.put("接受数据/秒", null);
+                    yAxis.put("发送数据/秒", null);
                 }
                 break;
         }
