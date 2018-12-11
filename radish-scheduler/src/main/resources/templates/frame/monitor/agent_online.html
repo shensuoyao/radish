@@ -41,11 +41,11 @@
                     </tr>
                     <tr>
                         <td>CPU Idle :</td>
-                        <td th:text="${agent['cpuIdle']}"></td>
+                        <td th:text="${agent['cpuIdle']} ? (${agent['cpuIdle']} + '%') : ''"></td>
                     </tr>
                     <tr>
                         <td>Memory Used:</td>
-                        <td th:text="${agent['memoryUsedUtil']}"></td>
+                        <td th:text="${agent['memoryUsedUtil']} ? (${agent['memoryUsedUtil']} + '%') : ''"></td>
                     </tr>
                     <tr>
                         <td>IO Tps :</td>

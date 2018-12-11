@@ -110,6 +110,7 @@ public class Monitor {
         map.put("javaMemoryList", javaList);
         map.put("networkIOList", netMap.values());
         agentMonitorInfo = JSON.parseObject(JSON.toJSONString(map), AgentMonitorInfo.class);
+        agentMonitorInfo.computeAgentStatus();
         return agentMonitorInfo;
     }
 }

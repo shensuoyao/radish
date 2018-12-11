@@ -19,6 +19,26 @@ public class AgentMonitorInfo implements Serializable {
 
     private static final long serialVersionUID = -3919488232847843771L;
 
+    @Getter
+    public enum AgentStatus {
+        NULL(0), FINE(1), COMMON(2), WARNING(3);
+
+        private int value;
+
+        AgentStatus(int value) {
+            this.value = value;
+        }
+
+        public static AgentStatus fromValue(int value) {
+            for (AgentStatus agentStatus : AgentStatus.values()) {
+                if (agentStatus.getValue() == value) {
+                    return agentStatus;
+                }
+            }
+            return null;
+        }
+    }
+
     /**
      * 客户端唯一Id
      */
@@ -50,40 +70,45 @@ public class AgentMonitorInfo implements Serializable {
     private int cpuCount;
 
     /**
+     * 客户端运行状态
+     */
+    private AgentStatus agentStatus;
+
+    /**
      * 用户级别运行CPU时间占比
      */
     @JSONField(name = "cpu.util.user")
-    private String cpuUser;
+    private Double cpuUser;
 
     /**
      * 系统级别运行CPU时间占比
      */
     @JSONField(name = "cpu.util.system")
-    private String cpuSystem;
+    private Double cpuSystem;
 
     /**
      * 用户级别执行nice优先级操作CPU时间占比
      */
     @JSONField(name = "cpu.util.nice")
-    private String cpuNice;
+    private Double cpuNice;
 
     /**
      * IO等待时间占CPU运行时间的百分比
      */
     @JSONField(name = "cpu.util.iowait")
-    private String cpuIowait;
+    private Double cpuIowait;
 
     /**
      * 管理程序为另一个虚拟机进程提供服务等待虚拟CPU的时间占CPU总时间的百分比
      */
     @JSONField(name = "cpu.util.steal")
-    private String cpuSteal;
+    private Double cpuSteal;
 
     /**
      * 空闲时间占CPU运行总时间的百分比
      */
     @JSONField(name = "cpu.util.idle")
-    private String cpuIdle;
+    private Double cpuIdle;
 
     /**
      * 空闲内存
@@ -119,13 +144,13 @@ public class AgentMonitorInfo implements Serializable {
      * 已用内存的百分比
      */
     @JSONField(name = "mem.memused")
-    private String memoryUsedUtil;
+    private Double memoryUsedUtil;
 
     /**
      * 保证内存不溢出所需内存的百分比
      */
     @JSONField(name = "mem.commit")
-    private String memoryCommitUtil;
+    private Double memoryCommitUtil;
 
     /**
      * 磁盘每秒的传输总次数
@@ -218,5 +243,38 @@ public class AgentMonitorInfo implements Serializable {
          */
         @JSONField(name = "txkB")
         private Double tx;
+    }
+
+
+    public void computeAgentStatus() {
+        AgentStatus cpuStatus = AgentStatus.NULL;
+        if (cpuSystem != null && cpuUser != null) {
+            double sysAndUser = cpuSystem + cpuUser;
+            if (sysAndUser < 70) {
+                cpuStatus = AgentStatus.FINE;
+            } else if (sysAndUser >= 70 && sysAndUser < 90) {
+                cpuStatus = AgentStatus.COMMON;
+            } else if (sysAndUser >= 90) {
+                cpuStatus = AgentStatus.WARNING;
+            }
+        }
+
+        AgentStatus memStatus = AgentStatus.NULL;
+        if (memoryUsed != null && memoryFree != null && memoryBuffers != null && memoryCached != null) {
+            // 这里计算应用可用物理内存，buffers和cached表示被分配但未被使用的内存，当实际可用内存不足时，buffers和cached
+            // 会释放一部分内存
+            long memFree = memoryFree + memoryCached + memoryBuffers;
+            long total = memoryFree + memoryUsed;
+            double freeUtil = memFree * 100d / total;
+            if (freeUtil > 70) {
+                memStatus = AgentStatus.FINE;
+            } else if (freeUtil <= 70 && freeUtil > 20) {
+                memStatus = AgentStatus.COMMON;
+            } else if (freeUtil <= 20) {
+                memStatus = AgentStatus.WARNING;
+            }
+        }
+
+        agentStatus = AgentStatus.fromValue(Math.max(cpuStatus.getValue(), memStatus.getValue()));
     }
 }

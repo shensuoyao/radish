@@ -18,7 +18,7 @@ function parseToJson1() {
 	for (( i = 0; i < ${#key_arr[@]}; i++ )); do
 		if [[ "$(echo "${key_arr[i]}" | grep -E "%")" ]]; then
 			local key="${prefix}${key_arr[i]:1}";
-			local value="${value_arr[i]}%";
+			local value="${value_arr[i]}";
 		elif [[ "$(echo "${key_arr[i]}" | grep -E "/s")" ]]; then
 			local key="${prefix}${key_arr[i]//\/s}";
 			local value="${value_arr[i]}";
@@ -61,7 +61,7 @@ function parseToJson2() {
 			local k_index=$(( i % v_size + 1 ))
 			if [[ "$(echo "${key_arr[k_index]}" | grep -E "%")" ]]; then
 				local key="${k_prefix}${key_arr[k_index]:1}";
-				local value="${value_arr[i]}%";
+				local value="${value_arr[i]}";
 			elif [[ "$(echo "${key_arr[k_index]}" | grep -E "/s")" ]]; then
 				local key="${k_prefix}${key_arr[k_index]//\/s}";
 				local value="${value_arr[i]}";

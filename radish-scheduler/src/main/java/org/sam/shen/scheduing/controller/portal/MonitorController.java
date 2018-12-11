@@ -56,6 +56,8 @@ public class MonitorController {
 	public ModelAndView agentOnlineMonitor(ModelAndView model, @PathVariable("agentId") Long agentId) {
 		Map<String, Object> hash = redisService.hmget(Constant.REDIS_AGENT_PREFIX + agentId);
 		AgentMonitorInfo agentMonitorInfo = JSON.parseObject(JSON.toJSONString(hash), AgentMonitorInfo.class);
+
+
 		model.addObject("agentMonitorInfo", agentMonitorInfo);
 		model.setViewName("frame/monitor/agent_online_monitor");
 		return model;
@@ -76,9 +78,9 @@ public class MonitorController {
         switch (type) {
             case "cpu":
             	dynamicChartVo.setMeasurement("%");
-                yAxis.put("空闲", getObjByStr(monitorInfo.getCpuIdle()));
-                yAxis.put("用户", getObjByStr(monitorInfo.getCpuUser()));
-                yAxis.put("系统", getObjByStr(monitorInfo.getCpuSystem()));
+                yAxis.put("空闲", monitorInfo.getCpuIdle());
+                yAxis.put("用户", monitorInfo.getCpuUser());
+                yAxis.put("系统", monitorInfo.getCpuSystem());
 //                yAxis.put("nice", getObjByStr(monitorInfo.getCpuNice()));
 //                yAxis.put("iowait", getObjByStr(monitorInfo.getCpuIowait()));
 //                yAxis.put("steal", getObjByStr(monitorInfo.getCpuSteal()));
@@ -112,13 +114,5 @@ public class MonitorController {
         dynamicChartVo.setyAxis(yAxis);
 		return dynamicChartVo;
 	}
-
-	private Object getObjByStr(String str) {
-        if (StringUtils.isNotEmpty(str) && str.endsWith("%")) {
-            return Double.parseDouble(str.replace("%", ""));
-        } else {
-            return null;
-        }
-    }
 	
 }
