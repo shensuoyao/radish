@@ -43,6 +43,8 @@ public class Monitor {
         agentMonitorInfo.setOsName(SystemUtil.osName());
         agentMonitorInfo.setOsVersion(SystemUtil.osVersion());
         agentMonitorInfo.setAgentName(IpUtil.getHostName());
+        // agent设置默认运行状态
+        agentMonitorInfo.setAgentStatus(AgentMonitorInfo.AgentStatus.NULL);
     }
 
     public Monitor(Long agentId) {
