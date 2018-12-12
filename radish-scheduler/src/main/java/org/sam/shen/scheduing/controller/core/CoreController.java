@@ -110,16 +110,16 @@ public class CoreController {
      * Handle child event
      * @author clock
      * @date 2018/12/4 下午3:13
-     * @param jobId parent job id
+     * @param event handler event
      * @return handle result
      */
-	@RequestMapping(value = "/handle-child-event/{jobId}", method = RequestMethod.POST)
-	public Resp<String> handleChildEvent(@PathVariable("jobId") String jobId) {
-        JobInfo jobInfo = jobService.getChildJobByParentJobId(jobId);
+	@RequestMapping(value = "/handle-child-event", method = RequestMethod.POST)
+	public Resp<String> handleChildEvent(@RequestBody HandlerEvent event) {
+        JobInfo jobInfo = jobService.getChildJobByParentJobId(event.getJobId());
         if (jobInfo == null) {
             return new Resp<>(Resp.FAIL.getCode(), "have no child job");
         }
-        if (!RadishDynamicScheduler.addJobEvent(jobInfo)) {
+        if (!RadishDynamicScheduler.addJobEvent(jobInfo, event.getEventId())) {
             return new Resp<>(Resp.FAIL.getCode(), "add job event failed");
         }
         return Resp.SUCCESS;

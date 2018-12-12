@@ -3,6 +3,8 @@ package org.sam.shen.scheduing.entity;
 import java.io.Serializable;
 import java.util.Date;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.sam.shen.core.constants.Constant;
 import org.sam.shen.core.constants.EventStatus;
 import org.sam.shen.core.constants.HandlerType;
@@ -10,10 +12,14 @@ import org.sam.shen.core.constants.HandlerType;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
+@Getter
+@Setter
 public class JobEvent implements Serializable {
 	private static final long serialVersionUID = -3205360376193569666L;
 	
 	private String eventId;
+
+	private String parentEventId;
 	
 	private Long jobId;
 	
@@ -61,102 +67,6 @@ public class JobEvent implements Serializable {
 		this(jobId, executorHandlers, handlerType, stat, priority);
 		this.cmd = cmd;
 		this.params = params;
-	}
-	
-	public String getEventId() {
-		return eventId;
-	}
-
-	public void setEventId(String eventId) {
-		this.eventId = eventId;
-	}
-
-	public Long getJobId() {
-		return jobId;
-	}
-
-	public void setJobId(Long jobId) {
-		this.jobId = jobId;
-	}
-
-	public String getParentJobId() {
-		return parentJobId;
-	}
-
-	public void setParentJobId(String parentJobId) {
-		this.parentJobId = parentJobId;
-	}
-
-	public String getExecutorHandlers() {
-		return executorHandlers;
-	}
-
-	public void setExecutorHandlers(String executorHandlers) {
-		this.executorHandlers = executorHandlers;
-	}
-
-	public HandlerType getHandlerType() {
-		return handlerType;
-	}
-
-	public void setHandlerType(HandlerType handlerType) {
-		this.handlerType = handlerType;
-	}
-
-	public String getCmd() {
-		return cmd;
-	}
-
-	public void setCmd(String cmd) {
-		this.cmd = cmd;
-	}
-
-	public String getParams() {
-		return params;
-	}
-
-	public void setParams(String params) {
-		this.params = params;
-	}
-
-	public EventStatus getStat() {
-		return stat;
-	}
-
-	public void setStat(EventStatus stat) {
-		this.stat = stat;
-	}
-
-	public Long getHandlerAgentId() {
-		return handlerAgentId;
-	}
-
-	public void setHandlerAgentId(Long handlerAgentId) {
-		this.handlerAgentId = handlerAgentId;
-	}
-
-	public int getPriority() {
-		return priority;
-	}
-
-	public void setPriority(int priority) {
-		this.priority = priority;
-	}
-
-	public int getRetryCount() {
-		return retryCount;
-	}
-
-	public void setRetryCount(int retryCount) {
-		this.retryCount = retryCount;
-	}
-
-	public Date getCreateTime() {
-		return createTime;
-	}
-
-	public void setCreateTime(Date createTime) {
-		this.createTime = createTime;
 	}
 
 	@Override

@@ -5,6 +5,7 @@
 <mapper namespace="org.sam.shen.scheduing.mapper.JobEventMapper">
     <resultMap type="JobEvent" id="jobEventMap">
         <result column="event_id" property="eventId"/>
+        <result column="parent_event_id" property="parentEventId"/>
         <result column="job_id" property="jobId"/>
         <result column="parent_job_id" property="parentJobId"/>
         <result column="executor_handlers" property="executorHandlers"/>
@@ -20,9 +21,9 @@
 
     <insert id="saveJobEvent" parameterType="JobEvent">
      <![CDATA[
-        INSERT INTO job_event(event_id, job_id, parent_job_id, executor_handlers, handler_type, 
+        INSERT INTO job_event(event_id, parent_event_id, job_id, parent_job_id, executor_handlers, handler_type,
                     cmd, params, stat, handler_agent_id, priority, retry_count, create_time ) 
-        VALUES (#{eventId}, #{jobId}, #{parentJobId}, #{executorHandlers}, #{handlerType}, #{cmd}, #{params}, 
+        VALUES (#{eventId}, #{parentEventId}, #{jobId}, #{parentJobId}, #{executorHandlers}, #{handlerType}, #{cmd}, #{params},
             #{stat}, #{handlerAgentId}, #{priority}, #{retryCount}, #{createTime}) 
             ]]>
     </insert>
@@ -52,7 +53,7 @@
   
   <select id="findJobEventByEventId" parameterType="string" resultMap="jobEventMap">
     <![CDATA[
-        SELECT event_id, job_id, parent_job_id, executor_handlers, handler_type, cmd, params, 
+        SELECT event_id, parent_event_id, job_id, parent_job_id, executor_handlers, handler_type, cmd, params,
                stat, handler_agent_id, priority, retry_count, create_time 
           FROM job_event 
          WHERE event_id = #{eventId} 
@@ -61,7 +62,7 @@
   
   <select id="queryJobEventForPager" resultMap="jobEventMap" parameterType="string">
 	  <![CDATA[
-	      SELECT event_id, job_id, parent_job_id, executor_handlers, handler_type, cmd, params, 
+	      SELECT event_id, parent_event_id, job_id, parent_job_id, executor_handlers, handler_type, cmd, params,
 	             stat, handler_agent_id, priority, retry_count, create_time 
           FROM job_event 
 	     ]]>
@@ -82,7 +83,7 @@
  </select>
     <select id="queryJobEventByJobId" parameterType="long" resultMap="jobEventMap">
         <![CDATA[
-            SELECT a.event_id, a.job_id, a.parent_job_id, a.executor_handlers, a.handler_type, a.cmd, a.params,
+            SELECT a.event_id, parent_event_id, a.job_id, a.parent_job_id, a.executor_handlers, a.handler_type, a.cmd, a.params,
                a.stat, a.handler_agent_id, a.priority, a.retry_count, a.create_time
             FROM job_event a, job_info b
             WHERE a.job_id=b.id AND a.stat<>'SUCCESS' AND a.stat<>'FAIL' AND a.job_id=#{jobId}

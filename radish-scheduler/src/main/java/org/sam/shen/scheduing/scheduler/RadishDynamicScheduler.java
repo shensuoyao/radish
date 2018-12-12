@@ -277,6 +277,42 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 	}
 
     /**
+     * Basic method that add job event
+     * @author clock
+     * @date 2018/12/12 上午10:17
+     * @param jobInfo job information
+     * @param parentEventId parent event id
+     * @return execute result
+     */
+    private static boolean addJobEventBase(JobInfo jobInfo, String parentEventId) {
+        try {
+            List<String> agentHandlers = Splitter.onPattern(",|-").splitToList(jobInfo.getExecutorHandlers());
+            Map<String, Object> eventHash = Maps.newHashMap();
+            eventHash.put("priority", jobInfo.getPriority());    // 设置优先级
+            Stream.iterate(0, i -> i + 1).limit(agentHandlers.size()).forEach(i -> {
+                if (i % 2 == 0) {
+                    if (eventHash.containsKey(agentHandlers.get(i))) {
+                        String val = String.valueOf(eventHash.get(agentHandlers.get(i))).concat(",").concat(agentHandlers.get(i + 1));
+                        eventHash.put(agentHandlers.get(i), val);
+                    } else {
+                        eventHash.put(agentHandlers.get(i), agentHandlers.get(i + 1));
+                    }
+                }
+            });
+            JobEvent jobEvent = new JobEvent(jobInfo.getId(), jobInfo.getExecutorHandlers(), jobInfo.getHandlerType(),
+                    EventStatus.READY, jobInfo.getPriority(), jobInfo.getCmd(), jobInfo.getParams());
+            jobEvent.setParentJobId(jobInfo.getParentJobId());
+            jobEvent.setParentEventId(parentEventId);
+
+            jobEventMapper.saveJobEvent(jobEvent);
+            redisService.hmset(Constant.REDIS_EVENT_PREFIX.concat(jobEvent.getEventId()), eventHash);
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Add job event
      * @author clock
      * @date 2018/12/4 下午3:23
@@ -284,28 +320,20 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
      * @return add result
      */
 	public static boolean addJobEvent(JobInfo jobInfo) {
-        List<String> agentHandlers = Splitter.onPattern(",|-").splitToList(jobInfo.getExecutorHandlers());
-        Map<String, Object> eventHash = Maps.newHashMap();
-        eventHash.put("priority", jobInfo.getPriority());    // 设置优先级
-        Stream.iterate(0, i -> i + 1).limit(agentHandlers.size()).forEach(i -> {
-            if(i % 2 == 0) {
-                if(eventHash.containsKey(agentHandlers.get(i))) {
-                    String val = String.valueOf(eventHash.get(agentHandlers.get(i))).concat(",").concat(agentHandlers.get(i + 1));
-                    eventHash.put(agentHandlers.get(i), val);
-                } else {
-                    eventHash.put(agentHandlers.get(i), agentHandlers.get(i + 1));
-                }
-            }
-        });
-        JobEvent jobEvent = new JobEvent(jobInfo.getId(), jobInfo.getExecutorHandlers(), jobInfo.getHandlerType(),
-                EventStatus.READY, jobInfo.getPriority(), jobInfo.getCmd(), jobInfo.getParams());
-        jobEvent.setParentJobId(jobInfo.getParentJobId());
-        jobEventMapper.saveJobEvent(jobEvent);
-
-        redisService.hmset(Constant.REDIS_EVENT_PREFIX.concat(jobEvent.getEventId()),
-                eventHash);
-        return true;
+        return addJobEventBase(jobInfo, null);
     }
+
+	/**
+	 * Add job event with parent event id
+	 * @author clock
+	 * @date 2018/12/4 下午3:23
+	 * @param jobInfo job information
+	 * @param parentEventId parent event id
+	 * @return add result
+	 */
+	public static boolean addJobEvent(JobInfo jobInfo, String parentEventId) {
+        return addJobEventBase(jobInfo, parentEventId);
+	}
 
     /**
      * Add job event

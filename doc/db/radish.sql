@@ -125,6 +125,7 @@ CREATE TABLE `job_info` (
 DROP TABLE IF EXISTS `job_event`;
 CREATE TABLE `job_event` (
   `event_id` varchar(32) NOT NULL COMMENT '事件id',
+  `parent_event_id` varchar(32) COMMENT '父事件id',
   `job_id` int(11) NOT NULL  COMMENT 'job 任务id',
   `parent_job_id` varchar(125) DEFAULT NULL  COMMENT '父job 任务id',
   `executor_handlers` varchar(512) DEFAULT NULL COMMENT '执行处理器',

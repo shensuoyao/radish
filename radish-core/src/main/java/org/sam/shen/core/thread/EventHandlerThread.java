@@ -2,6 +2,7 @@ package org.sam.shen.core.thread;
 
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.sam.shen.core.agent.RadishAgent;
 import org.sam.shen.core.constants.Constant;
@@ -9,8 +10,6 @@ import org.sam.shen.core.event.HandlerEvent;
 import org.sam.shen.core.handler.IHandler;
 import org.sam.shen.core.model.Resp;
 import org.sam.shen.core.rpc.RestRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Splitter;
 
@@ -19,9 +18,9 @@ import com.google.common.base.Splitter;
  * @date 2018年8月2日 下午2:06:44
   *  执行任务线程
  */
+@Slf4j
 public class EventHandlerThread extends Thread {
-	Logger logger = LoggerFactory.getLogger(EventHandlerThread.class);
-	
+
 	private String rpcReportUrl;
 
     private String rpcSubeventUrl;
@@ -51,7 +50,7 @@ public class EventHandlerThread extends Thread {
 		try {
 			Resp<String> initRsp = handler.init();
 			if(null == initRsp) {
-				logger.error("Handler Init Method Return Null.");
+				log.error("Handler Init Method Return Null.");
 				RestRequest.post(rpcReportUrl, new Resp<>(1, "Handler Init Method Return Null."), eventId);
 				return;
 			}
@@ -63,12 +62,12 @@ public class EventHandlerThread extends Thread {
             Resp<String> resp = handler.start(event);
 			// 如果任务执行成功，查看是否存在子任务
 			if (resp.getCode() == Resp.SUCCESS.getCode()) {
-			    RestRequest.post(rpcSubeventUrl, null, event.getJobId());
+			    RestRequest.post(rpcSubeventUrl, event);
             }
             // 上报执行结果
             RestRequest.post(rpcReportUrl, resp, eventId);
 		} catch (Exception e) {
-			logger.error("Start Handler Error.", e);
+			log.error("Start Handler Error.", e);
 			// 上报出错信息
 			try {
 				RestRequest.post(rpcReportUrl, new Resp<>(1, "Start Handler Error.", e.getMessage()), eventId);
@@ -88,7 +87,7 @@ public class EventHandlerThread extends Thread {
 		}
 		List<String> registryHandlers = Splitter.on(Constant.SPLIT_CHARACTER2).splitToList(event.getRegistryHandler());
 		
-		IHandler registryHandler = null;
+		IHandler registryHandler;
 		for(String regHandler : registryHandlers) {
 			registryHandler = RadishAgent.loadJobHandler(regHandler);
 			if(null == registryHandler) {
