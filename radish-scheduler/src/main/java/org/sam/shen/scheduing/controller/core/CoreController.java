@@ -1,5 +1,6 @@
 package org.sam.shen.scheduing.controller.core;
 
+import java.util.List;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
@@ -115,11 +116,11 @@ public class CoreController {
      */
 	@RequestMapping(value = "/handle-child-event", method = RequestMethod.POST)
 	public Resp<String> handleChildEvent(@RequestBody HandlerEvent event) {
-        JobInfo jobInfo = jobService.getChildJobByParentJobId(event.getJobId());
-        if (jobInfo == null) {
+        List<JobInfo> jobInfo = jobService.getChildJobByParentJobId(event.getJobId());
+        if (jobInfo == null || jobInfo.size() == 0) {
             return new Resp<>(Resp.FAIL.getCode(), "have no child job");
         }
-        if (!RadishDynamicScheduler.addJobEvent(jobInfo, event.getEventId())) {
+        if (!RadishDynamicScheduler.addJobEvents(jobInfo, event.getEventId())) {
             return new Resp<>(Resp.FAIL.getCode(), "add job event failed");
         }
         return Resp.SUCCESS;

@@ -158,7 +158,7 @@ public class JobService {
 	 * @param jobId job id
 	 * @return job information
 	 */
-	public JobInfo getChildJobByParentJobId(String jobId) {
+	public List<JobInfo> getChildJobByParentJobId(String jobId) {
 		return jobInfoMapper.findJobInfoByParentId(jobId);
 	}
 	

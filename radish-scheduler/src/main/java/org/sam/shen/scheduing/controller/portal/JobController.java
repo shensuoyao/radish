@@ -1,11 +1,7 @@
 package org.sam.shen.scheduing.controller.portal;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
@@ -16,10 +12,7 @@ import org.sam.shen.core.constants.HandlerFailStrategy;
 import org.sam.shen.core.constants.HandlerType;
 import org.sam.shen.core.log.LogReader;
 import org.sam.shen.core.model.Resp;
-import org.sam.shen.scheduing.entity.Agent;
-import org.sam.shen.scheduing.entity.JobEvent;
-import org.sam.shen.scheduing.entity.JobInfo;
-import org.sam.shen.scheduing.entity.RespPager;
+import org.sam.shen.scheduing.entity.*;
 import org.sam.shen.scheduing.scheduler.RadishDynamicScheduler;
 import org.sam.shen.scheduing.service.AgentService;
 import org.sam.shen.scheduing.service.JobEventService;
@@ -329,6 +322,41 @@ public class JobController {
         } else {
             return new Resp<>(0, "add job event failed.");
         }
+    }
+
+    @RequestMapping(value = "job-event-view/{eventId}", method = RequestMethod.GET)
+    public ModelAndView jobEventView(ModelAndView modelAndView, @PathVariable String eventId) {
+	    modelAndView.addObject("eventId", eventId);
+	    modelAndView.setViewName("frame/job/job_event_view");
+	    return modelAndView;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "job-event-tree/{eventId}", method = RequestMethod.GET)
+    public JobEventTreeNode queryJobEventTree(@PathVariable String eventId) {
+        JobEvent root = jobEventService.queryRootJobEvent(eventId);
+        List<JobEvent> jobEvents = jobEventService.queryChildEvents(root.getEventId());
+        return buildTree(jobEvents);
+    }
+
+
+    private JobEventTreeNode buildTree(List<JobEvent> jobEvents) {
+	    List<JobEventTreeNode> treeNodes = jobEvents.stream().map(JobEventTreeNode::new).collect(Collectors.toList());
+	    JobEventTreeNode root = null;
+	    for (JobEventTreeNode treeNode : treeNodes) {
+	        if (StringUtils.isEmpty(treeNode.getJobEvent().getParentEventId())){
+	            root = treeNode;
+            }
+            for (JobEventTreeNode childNode : treeNodes) {
+	            if (treeNode.getJobEvent().getEventId().equals(childNode.getJobEvent().getParentEventId())) {
+	                if (treeNode.getChildren() == null) {
+	                    treeNode.setChildren(new ArrayList<>());
+                    }
+	                treeNode.getChildren().add(childNode);
+                }
+            }
+        }
+        return root;
     }
 	
 }

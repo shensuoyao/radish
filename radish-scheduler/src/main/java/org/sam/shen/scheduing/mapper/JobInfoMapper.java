@@ -29,6 +29,6 @@ public interface JobInfoMapper {
 	
 	Integer countJobInfoByEnable(int enable);
 
-	JobInfo findJobInfoByParentId(String id);
+	List<JobInfo> findJobInfoByParentId(String id);
 	
 }

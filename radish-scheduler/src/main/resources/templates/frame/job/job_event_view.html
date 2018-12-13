@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Job Event 详情</title>
+    <link rel="stylesheet" th:href="@{/static/layui/css/layui.css}">
+    <script type="text/javascript" th:src="@{/static/layui/layui.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/index.js}"></script>
+    <script type="text/javascript" th:src="@{/static/js/echarts/echarts.min.js}"></script>
+</head>
+<body>
+<div id="container" style="width: 100%; max-width: 100%; margin: 0 auto; height: 500px;"></div>
+<script type="text/javascript" th:inline="javascript">
+    layui.use(['layer'], function () {
+        var $ = layui.jquery;
+        // 屏蔽默认的右键点击事件
+        var tree = document.getElementById("container");
+        tree.oncontextmenu = function() { return false; };
+        // 绘制树形事件图
+        var chart = echarts.init(tree);
+        var option = {
+            tooltip: {
+                trigger: 'item',
+                triggerOn: 'mousemove',
+                formatter: function (params) {
+                    return renderTooltip(params.data.jobEvent);
+                }
+            },
+            series: [
+                {
+                    type: 'tree',
+
+                    top: '1%',
+                    left: '7%',
+                    bottom: '1%',
+                    right: '20%',
+
+                    symbol: 'emptyCircle',
+                    symbolSize: 12,
+
+                    itemStyle: {
+                        borderWidth: 3
+                    },
+
+                    label: {
+                        normal: {
+                            position: 'left',
+                            verticalAlign: 'middle',
+                            align: 'right',
+                            fontSize: 11
+                        }
+                    },
+
+                    leaves: {
+                        label: {
+                            normal: {
+                                position: 'right',
+                                verticalAlign: 'middle',
+                                align: 'left'
+                            }
+                        }
+                    },
+
+                    expandAndCollapse: true,
+                    animationDuration: 550,
+                    animationDurationUpdate: 750
+                }
+            ]
+        };
+        $.get([[@{/portal/job-event-tree/}]] + [[${eventId}]]).done(function (data) {
+            recursiveTree(data);
+            option.series[0].data = [data];
+            chart.setOption(option);
+        });
+        // 注册右击事件
+        // chart.on('contextmenu', function (params) {
+        //     alert(1);
+        //     if (params.contentType === 'markPoint') {
+        //         alert(1);
+        //     }
+        // });
+
+        // 递归查询树形事件，并设置树形图中的事件名称和事件执行状态
+        function recursiveTree(data) {
+            data.name = data.jobEvent.jobName;
+            if (data.jobEvent.stat === 'SUCCESS') {
+                data.itemStyle = { borderColor: 'green' };
+            } else if (data.jobEvent.stat === 'READY') {
+                data.itemStyle = { borderColor: 'gray' };
+            } else if (data.jobEvent.stat === 'FAIL') {
+                data.itemStyle = { borderColor: 'red' };
+            } else if (data.jobEvent.stat === 'HANDLE') {
+                data.itemStyle = { borderColor: 'blue' };
+            } else if (data.jobEvent.stat === 'RETRY') {
+                data.itemStyle = { borderColor: 'black' };
+            }
+            if (data.children != null) {
+                $.each(data.children, function (index, item) {
+                    recursiveTree(item);
+                });
+            }
+        }
+
+        function renderTooltip(jobEvent) {
+            var result = '';
+            result += '事件ID: ' + jobEvent.eventId;
+            result += '<br/>任务ID: ' + jobEvent.jobId;
+            result += '<br/>处理器: ' + jobEvent.executorHandlers;
+            result += '<br/>处理器类型: ' + jobEvent.handlerType;
+            result += '<br/>事件状态: ' + jobEvent.stat;
+            result += '<br/>执行Agent: ' + jobEvent.handlerAgentId;
+            result += '<br/>优先级: ' + jobEvent.priority;
+            result += '<br/>重试次数: ' + jobEvent.retryCount;
+            return result;
+        }
+    });
+</script>
+</body>
+</html>

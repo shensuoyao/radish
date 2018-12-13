@@ -335,6 +335,14 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
         return addJobEventBase(jobInfo, parentEventId);
 	}
 
+	public static boolean addJobEvents(List<JobInfo> jobInfos, String parentEventId) {
+	    boolean result = true;
+	    for (JobInfo jobInfo : jobInfos) {
+	        result = result && addJobEventBase(jobInfo, parentEventId);
+        }
+        return result;
+    }
+
     /**
      * Add job event
      * @author clock

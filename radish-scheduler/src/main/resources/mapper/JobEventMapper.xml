@@ -7,6 +7,7 @@
         <result column="event_id" property="eventId"/>
         <result column="parent_event_id" property="parentEventId"/>
         <result column="job_id" property="jobId"/>
+        <result column="job_name" property="jobName"/>
         <result column="parent_job_id" property="parentJobId"/>
         <result column="executor_handlers" property="executorHandlers"/>
         <result column="handler_type" property="handlerType"/>
@@ -51,12 +52,12 @@
     </where>
   </update>
   
-  <select id="findJobEventByEventId" parameterType="string" resultMap="jobEventMap">
-    <![CDATA[
-        SELECT event_id, parent_event_id, job_id, parent_job_id, executor_handlers, handler_type, cmd, params,
-               stat, handler_agent_id, priority, retry_count, create_time 
-          FROM job_event 
-         WHERE event_id = #{eventId} 
+    <select id="findJobEventByEventId" parameterType="string" resultMap="jobEventMap">
+        <![CDATA[
+            SELECT a.event_id, a.parent_event_id, a.job_id, b.job_name, a.parent_job_id, a.executor_handlers, a.handler_type,
+                   a.cmd, a.params, a.stat, a.handler_agent_id, a.priority, a.retry_count, a.create_time
+            FROM job_event a, job_info b
+            WHERE a.job_id=b.id AND event_id = #{eventId}
         ]]>
   </select>
   
@@ -87,6 +88,14 @@
                a.stat, a.handler_agent_id, a.priority, a.retry_count, a.create_time
             FROM job_event a, job_info b
             WHERE a.job_id=b.id AND a.stat<>'SUCCESS' AND a.stat<>'FAIL' AND a.job_id=#{jobId}
+        ]]>
+    </select>
+    <select id="queryChildJobEvent" parameterType="string" resultMap="jobEventMap">
+        <![CDATA[
+            SELECT a.event_id, a.parent_event_id, a.job_id, b.job_name, a.parent_job_id, a.executor_handlers, a.handler_type,
+                   a.cmd, a.params, a.stat, a.handler_agent_id, a.priority, a.retry_count, a.create_time
+            FROM job_event a, job_info b
+            WHERE a.job_id=b.id AND FIND_IN_SET(a.parent_event_id, #{events})
         ]]>
     </select>
   

@@ -1,9 +1,7 @@
 package org.sam.shen.scheduing.service;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
@@ -22,7 +20,6 @@ import org.sam.shen.scheduing.mapper.AgentMapper;
 import org.sam.shen.scheduing.mapper.JobEventMapper;
 import org.sam.shen.scheduing.mapper.JobInfoMapper;
 import org.sam.shen.scheduing.scheduler.EventLock;
-import org.sam.shen.scheduing.sendcloud.SendEmailClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -191,8 +188,57 @@ public class JobEventService {
 		return null;
 	}
 
+	/**
+	 * Get job event by job id
+	 * @author clock
+	 * @date 2018/12/12 下午4:14
+	 * @param jobId job id
+	 * @return job event
+	 */
 	public List<JobEvent> queryJobEventByJobId(Long jobId) {
 	    return jobEventMapper.queryJobEventByJobId(jobId);
+    }
+
+    /**
+     * Get root job event by event id
+     * @author clock
+     * @date 2018/12/12 下午4:20
+     * @param eventId event id
+     * @return root job event
+     */
+    public JobEvent queryRootJobEvent(String eventId) {
+        JobEvent jobEvent = jobEventMapper.findJobEventByEventId(eventId);
+        while (StringUtils.isNotEmpty(jobEvent.getParentEventId())) {
+            jobEvent = jobEventMapper.findJobEventByEventId(jobEvent.getParentEventId());
+        }
+        return jobEvent;
+    }
+
+    /**
+     * Get all child job events including itself
+     * @author clock
+     * @date 2018/12/12 下午5:39
+     * @param eventId event id
+     * @return job events
+     */
+    public List<JobEvent> queryChildEvents(String eventId) {
+        List<JobEvent> jobEvents = new ArrayList<>();
+        JobEvent jobEvent = jobEventMapper.findJobEventByEventId(eventId);
+        if (jobEvent != null) {
+            jobEvents.add(jobEvent);
+        }
+        // loop
+        String eventIds = eventId;
+        List<JobEvent> events;
+        do {
+            events = jobEventMapper.queryChildJobEvent(eventIds);
+            if (events != null && events.size() > 0) {
+                eventIds = events.stream().map(JobEvent::getEventId).collect(Collectors.joining(","));
+                jobEvents.addAll(events);
+            }
+
+        } while (events != null && events.size() > 0);
+        return jobEvents;
     }
 	
 }

@@ -18,7 +18,7 @@
             <legend>
                 <a th:text="${agent['agentName']}" th:id="${agent['agentId']}" name="agentOnline" href="javascript:;"></a>
                 <i th:class="'layui-icon ' + (${agent.agentStatus.value} eq 3 ? 'layui-icon-face-cry' : 'layui-icon-face-smile')"
-                   th:style="'font-size: 20px; color: ' + (${agent.agentStatus.value} eq 0 ? 'gray' : (${agent.agentStatus.value} eq 1 ? 'green' : (${agent.agentStatus.value} eq 2 ? 'orange' : 'red'))) + ';'"></i>
+                   th:style="'font-weight: bold; font-size: 22px; color: ' + (${agent.agentStatus.value} eq 0 ? 'gray' : (${agent.agentStatus.value} eq 1 ? 'green' : (${agent.agentStatus.value} eq 2 ? 'orange' : 'red'))) + ';'"></i>
             </legend>
             <div class="layui-field-box">
                 <table class="layui-table" lay-skin="nob">

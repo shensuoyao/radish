@@ -23,4 +23,6 @@ public interface JobEventMapper {
 	Integer countJobEventByStat(String stat);
 
 	List<JobEvent> queryJobEventByJobId(Long jobId);
+
+	List<JobEvent> queryChildJobEvent(String events);
 }

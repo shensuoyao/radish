@@ -27,8 +27,11 @@
 <div id="eventTable" lay-filter="eventTable"></div>
 
 <!-- 表格操作按钮集 -->
-<script type="text/html" id="barOption">
+<script type="text/html" id="barOption-log">
     <a class="layui-btn layui-btn-sm" lay-event="log"><i class="layui-icon">&#xe655;</i></a>
+</script>
+<script type="text/html" id="barOption-detail">
+    <a class="layui-btn layui-btn-sm" lay-event="detail"><i class="layui-icon">&#xe655;</i></a>
 </script>
 <script type="text/javascript" th:src="@{/static/layui/layui.js}"></script>
 <script type="text/javascript" th:src="@{/static/js/index.js}"></script>
@@ -49,15 +52,16 @@
        , height: 'full-200'    //容器高度
        , cols: [[   // 标题栏目
            {field: 'eventId', title: 'Event ID'}
-           , {field: 'jobId', title: 'Job ID',}
-           , {field: 'executorHandlers', title: 'Executor Handlers',}
+           , {field: 'jobId', title: 'Job ID'}
+           , {field: 'executorHandlers', title: 'Executor Handlers'}
            , {field: 'handlerType', title: '处理器类型'}
            , {field: 'stat', title: '事件状态'}
            , {field: 'handlerAgentId', title: '执行Agent'}
            , {field: 'priority', title: '优先级',  width: 80}
            , {field: 'retryCount', title: '重试次数' }
            , {field: 'createTime', title: '创建时间'}
-           , {fixed: 'right', title: '日志', align: 'center', toolbar: '#barOption', width: 80} ]]
+           , {fixed: 'right', title: '日志', align: 'center', toolbar: '#barOption-log', width: 80}
+           , {fixed: 'right', title: '详情', align: 'center', toolbar: '#barOption-detail', width: 80}]]
        , id: 'eventTable'
        , url: [[@{/portal/job-event/json-pager}]]
        , method: 'get'
@@ -81,27 +85,23 @@
         });
         
    // 获取选中行
-   table.on('tool(eventTable)', function (obj) {
-       if(obj.event == 'log') {
-    	    layer.open({
-    	    	  title: '输出日志 [ ' + obj.data.eventId + ' ]' 
-    	    	  , type: 2
-    	    	  , shade: 0
-    	    	  , area: ['600px', '500px']
-    	    	  , maxmin: true
-    	    	  , content: [[@{/portal/job-event-log}]] + '?eventId=' + obj.data.eventId + '&agentId=' + obj.data.handlerAgentId
-    	    		, moveEnd: function(layero) {
-    	    			    layer.setTop(layero);
-    	    		             }
-    	    	      }); 
-    	    /* $.get([[@{/portal/job-event-log}]], {'eventId': obj.data.eventId, 'agentId': obj.data.agentId}, function(str){
-    	    	  layer.open({
-    	    	    type: 1,
-    	    	    content: str //注意，如果str是object，那么需要字符拼接。
-    	    	             });
-    	    	      }); */
+    table.on('tool(eventTable)', function (obj) {
+        if(obj.event == 'log') {
+            layer.open({
+                title: '输出日志 [ ' + obj.data.eventId + ' ]'
+                , type: 2
+                , shade: 0
+                , area: ['600px', '500px']
+                , maxmin: true
+                , content: [[@{/portal/job-event-log}]] + '?eventId=' + obj.data.eventId + '&agentId=' + obj.data.handlerAgentId
+                , moveEnd: function(layero) {
+                    layer.setTop(layero);
                 }
-       });
+            });
+        } else if (obj.event == 'detail') {
+            window.location.href = [[@{/portal/job-event-view/}]] + obj.data.eventId;
+        }
+    });
 
         // 刷新
     $('.btn-search').on('click', function () {
