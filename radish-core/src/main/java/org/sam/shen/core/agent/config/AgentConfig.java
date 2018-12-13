@@ -1,4 +1,4 @@
-package org.sam.shen.agent.config;
+package org.sam.shen.core.agent.config;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sam.shen.core.agent.RadishAgent;
@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -19,7 +18,7 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @ConfigurationProperties(prefix = "scheduing")
-@ComponentScan(basePackages = {"org.sam.shen.agent.service.handler", "org.sam.shen.core.handler"})
+//@ComponentScan(basePackages = {"org.sam.shen.agent.service.handler", "org.sam.shen.core.handler"})
 public class AgentConfig {
 	private Logger logger = LoggerFactory.getLogger(AgentConfig.class);
 	
