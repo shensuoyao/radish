@@ -2,9 +2,11 @@ package org.sam.shen.scheduing.service;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.Resource;
 
+import com.google.common.base.Splitter;
 import org.apache.commons.lang3.StringUtils;
 import org.sam.shen.core.constants.Constant;
 import org.sam.shen.core.constants.EventStatus;
@@ -240,5 +242,35 @@ public class JobEventService {
         } while (events != null && events.size() > 0);
         return jobEvents;
     }
+
+
+    /**
+     * rehandle failed job event
+     * @author clock
+     * @date 2018/12/14 下午3:04
+     * @param jobEvent job event
+     * @return whether execute success
+     */
+    @Transactional
+    public void rehandleFailedEvent(JobEvent jobEvent) {
+        int result = jobEventMapper.rehandleFailedEvent(jobEvent.getEventId());
+        if (result == 0) {
+            return;
+        }
+        List<String> agentHandlers = Splitter.onPattern(",|-").splitToList(jobEvent.getExecutorHandlers());
+        Map<String, Object> eventHash = Maps.newHashMap();
+        eventHash.put("priority", jobEvent.getPriority());    // 设置优先级
+        Stream.iterate(0, i -> i + 1).limit(agentHandlers.size()).forEach(i -> {
+            if (i % 2 == 0) {
+                if (eventHash.containsKey(agentHandlers.get(i))) {
+                    String val = String.valueOf(eventHash.get(agentHandlers.get(i))).concat(",").concat(agentHandlers.get(i + 1));
+                    eventHash.put(agentHandlers.get(i), val);
+                } else {
+                    eventHash.put(agentHandlers.get(i), agentHandlers.get(i + 1));
+                }
+            }
+        });
+        redisService.hmset(Constant.REDIS_EVENT_PREFIX.concat(jobEvent.getEventId()), eventHash);
+	}
 	
 }

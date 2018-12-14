@@ -10,12 +10,53 @@
     <script type="text/javascript" th:src="@{/static/layui/layui.js}"></script>
     <script type="text/javascript" th:src="@{/static/js/index.js}"></script>
     <script type="text/javascript" th:src="@{/static/js/echarts/echarts.min.js}"></script>
+    <style type="text/css">
+        .contextMenu {
+            position: absolute;
+            z-index: 10000;
+            display: none;
+            float: left;
+            min-width: 100px;
+            padding: 5px 0;
+            margin: 2px 0 0;
+            font-size: 14px;
+            text-align: left;
+            list-style: none;
+            background-color: #fff;
+            -webkit-background-clip: padding-box;
+            background-clip: padding-box;
+            border: 1px solid rgba(0,0,0,.15);
+            border-radius: 4px;
+            -webkit-box-shadow: 0 6px 12px rgba(0,0,0,.175);
+            box-shadow: 0 6px 12px rgba(0,0,0,.175);
+        }
+        .contextMenu>li>a {
+            display: block;
+            padding: 3px 20px;
+            clear: both;
+            font-weight: 400;
+            line-height: 1.42857143;
+            color: #333;
+            white-space: nowrap;
+        }
+        .contextMenu>li>a:hover {
+            background-color: #eee;
+        }
+        .contextMenu>li>a:active {
+            background-color: #adadad;
+        }
+    </style>
 </head>
 <body>
 <div id="container" style="width: 100%; max-width: 100%; margin: 0 auto; height: 500px;"></div>
+<ul id="contextMenu" class="contextMenu">
+    <li><a>重试</a></li>
+</ul>
 <script type="text/javascript" th:inline="javascript">
     layui.use(['layer'], function () {
-        var $ = layui.jquery;
+        var layer = layui.layer,
+            $ = layui.jquery;
+        var postJobEvent;
         // 屏蔽默认的右键点击事件
         var tree = document.getElementById("container");
         tree.oncontextmenu = function() { return false; };
@@ -75,13 +116,41 @@
             option.series[0].data = [data];
             chart.setOption(option);
         });
+
         // 注册右击事件
-        // chart.on('contextmenu', function (params) {
-        //     alert(1);
-        //     if (params.contentType === 'markPoint') {
-        //         alert(1);
-        //     }
-        // });
+        chart.on('contextmenu', function (params) {
+            var jobEvent = params.data.jobEvent;
+            if (jobEvent.stat !== 'FAIL') {
+                return;
+            }
+            postJobEvent = jobEvent;
+            var event = params.event;
+            $('#contextMenu').css('left', event.offsetX).css('top', event.offsetY);
+            $('#contextMenu').show();
+        });
+
+        // 右键菜单点击事件
+        $('#contextMenu>li>a').on('click', function () {
+            $.ajax({
+                type: 'post',
+                url: [[@{/portal/retry-handle-event}]],
+                dataType: 'json',
+                headers: {
+                    'Content-Type' : 'application/json;charset=utf-8'
+                },
+                data: JSON.stringify(postJobEvent)
+            }).done(function (data) {
+                if (data.code === 1) {
+                    layer.msg(data.msg);
+                } else {
+                    layer.msg('重新添加事件成功，稍后刷新页面查看结果')
+                }
+            });
+        });
+
+        $(document).on('click', function () {
+            $('#contextMenu').hide();
+        });
 
         // 递归查询树形事件，并设置树形图中的事件名称和事件执行状态
         function recursiveTree(data) {

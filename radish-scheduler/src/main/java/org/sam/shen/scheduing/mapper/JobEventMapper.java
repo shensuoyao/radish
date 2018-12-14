@@ -25,4 +25,6 @@ public interface JobEventMapper {
 	List<JobEvent> queryJobEventByJobId(Long jobId);
 
 	List<JobEvent> queryChildJobEvent(String events);
+
+	int rehandleFailedEvent(String eventId);
 }

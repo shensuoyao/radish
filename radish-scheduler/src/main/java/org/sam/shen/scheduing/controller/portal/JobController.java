@@ -22,12 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.github.pagehelper.Page;
@@ -357,6 +352,20 @@ public class JobController {
             }
         }
         return root;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "retry-handle-event", method = RequestMethod.POST)
+    public Resp<String> retryHandleEvent(@RequestBody JobEvent jobEvent) {
+	    if (jobEvent == null || StringUtils.isEmpty(jobEvent.getEventId())) {
+	        return new Resp<>(Resp.FAIL.getCode(), "事件ID不能为空！");
+        }
+	    try {
+            jobEventService.rehandleFailedEvent(jobEvent);
+        } catch (Exception e) {
+            return new Resp<>(Resp.FAIL.getCode(), "重新添加事件失败！");
+        }
+        return Resp.SUCCESS;
     }
 	
 }

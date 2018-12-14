@@ -98,5 +98,10 @@
             WHERE a.job_id=b.id AND FIND_IN_SET(a.parent_event_id, #{events})
         ]]>
     </select>
+    <update id="rehandleFailedEvent" parameterType="string">
+        <![CDATA[
+            UPDATE job_event SET stat = 'READY', retry_count = retry_count + 1 WHERE event_id = #{eventId} AND stat = 'FAIL'
+        ]]>
+    </update>
   
 </mapper>
