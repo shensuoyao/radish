@@ -30,5 +30,11 @@ public interface JobInfoMapper {
 	Integer countJobInfoByEnable(int enable);
 
 	List<JobInfo> findJobInfoByParentId(String id);
+
+    /**
+     * 用于查询启动时待加载的job
+     * @return 待加载的job
+     */
+	List<JobInfo> queryLoadedJobs();
 	
 }

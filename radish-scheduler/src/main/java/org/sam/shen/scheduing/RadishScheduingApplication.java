@@ -39,7 +39,7 @@ public class RadishScheduingApplication implements ApplicationRunner {
 	public void run(ApplicationArguments args) throws Exception {
 		if (args.containsOption("loadjob")) {
 			// 从数据库加载jobinfo生成任务集合
-			List<JobInfo> enableJobInfo = jobInfoMappper.queryJobInfoByEnable(1);
+			List<JobInfo> enableJobInfo = jobInfoMappper.queryLoadedJobs();
 			if (null != enableJobInfo && enableJobInfo.size() > 0) {
 				enableJobInfo.forEach(jobInfo -> {
 					try {
