@@ -17,6 +17,7 @@ import org.sam.shen.core.model.Resp;
 import org.sam.shen.core.rpc.RestRequest;
 import org.sam.shen.scheduing.entity.Agent;
 import org.sam.shen.scheduing.entity.JobEvent;
+import org.sam.shen.scheduing.entity.JobEventTreeNode;
 import org.sam.shen.scheduing.entity.JobInfo;
 import org.sam.shen.scheduing.mapper.AgentMapper;
 import org.sam.shen.scheduing.mapper.JobEventMapper;
@@ -223,24 +224,24 @@ public class JobEventService {
      * @param eventId event id
      * @return job events
      */
-    public List<JobEvent> queryChildEvents(String eventId) {
-        List<JobEvent> jobEvents = new ArrayList<>();
-        JobEvent jobEvent = jobEventMapper.findJobEventByEventId(eventId);
+    public List<JobEventTreeNode> queryChildEvents(String eventId) {
+        List<JobEventTreeNode> treeNodes = new ArrayList<>();
+        JobEventTreeNode jobEvent = jobEventMapper.findJobEventTreeNodeById(eventId);
         if (jobEvent != null) {
-            jobEvents.add(jobEvent);
+			treeNodes.add(jobEvent);
         }
         // loop
         String eventIds = eventId;
-        List<JobEvent> events;
+        List<JobEventTreeNode> events;
         do {
-            events = jobEventMapper.queryChildJobEvent(eventIds);
+            events = jobEventMapper.queryChildJobEventTreeNode(eventIds);
             if (events != null && events.size() > 0) {
-                eventIds = events.stream().map(JobEvent::getEventId).collect(Collectors.joining(","));
-                jobEvents.addAll(events);
+                eventIds = events.stream().map(jobEventTreeNode -> jobEventTreeNode.getJobEvent().getEventId()).collect(Collectors.joining(","));
+				treeNodes.addAll(events);
             }
 
         } while (events != null && events.size() > 0);
-        return jobEvents;
+        return treeNodes;
     }
 
 

@@ -1,7 +1,6 @@
 package org.sam.shen.scheduing.controller.portal;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
@@ -330,13 +329,12 @@ public class JobController {
     @RequestMapping(value = "job-event-tree/{eventId}", method = RequestMethod.GET)
     public JobEventTreeNode queryJobEventTree(@PathVariable String eventId) {
         JobEvent root = jobEventService.queryRootJobEvent(eventId);
-        List<JobEvent> jobEvents = jobEventService.queryChildEvents(root.getEventId());
-        return buildTree(jobEvents);
+        List<JobEventTreeNode> treeNodes = jobEventService.queryChildEvents(root.getEventId());
+        return buildTree(treeNodes);
     }
 
 
-    private JobEventTreeNode buildTree(List<JobEvent> jobEvents) {
-	    List<JobEventTreeNode> treeNodes = jobEvents.stream().map(JobEventTreeNode::new).collect(Collectors.toList());
+    private JobEventTreeNode buildTree(List<JobEventTreeNode> treeNodes) {
 	    JobEventTreeNode root = null;
 	    for (JobEventTreeNode treeNode : treeNodes) {
 	        if (StringUtils.isEmpty(treeNode.getJobEvent().getParentEventId())){

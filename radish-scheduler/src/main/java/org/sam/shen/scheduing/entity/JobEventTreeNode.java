@@ -15,12 +15,8 @@ public class JobEventTreeNode {
 
     private JobEvent jobEvent;
 
+    private JobInfo jobInfo;
+
     private List<JobEventTreeNode> children;
-
-    public JobEventTreeNode() {}
-
-    public JobEventTreeNode(JobEvent jobEvent) {
-        this.jobEvent = jobEvent;
-    }
 
 }

@@ -22,8 +22,6 @@ public class JobEvent implements Serializable {
 	private String parentEventId;
 	
 	private Long jobId;
-
-	private String jobName;
 	
 	private String parentJobId;
 	

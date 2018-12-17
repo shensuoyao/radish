@@ -51,7 +51,7 @@
 <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
     <legend>
         <span th:text="'事件ID: '  + ${eventId}"></span>
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="javascript:history.back(-1);"> <<--- 返回</a>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a th:href="@{/portal/job-event}"> <<--- 返回</a>
     </legend>
 </fieldset>
 <div id="container" style="width: 100%; max-width: 100%; margin: 0 auto; height: 500px;"></div>
@@ -73,7 +73,7 @@
                 trigger: 'item',
                 triggerOn: 'mousemove',
                 formatter: function (params) {
-                    return renderTooltip(params.data.jobEvent);
+                    return renderTooltip(params.data);
                 }
             },
             series: [
@@ -160,7 +160,7 @@
 
         // 递归查询树形事件，并设置树形图中的事件名称和事件执行状态
         function recursiveTree(data) {
-            data.name = data.jobEvent.jobName;
+            data.name = data.jobInfo.jobName;
             if (data.jobEvent.stat === 'SUCCESS') {
                 data.itemStyle = { borderColor: 'green' };
             } else if (data.jobEvent.stat === 'READY') {
@@ -179,16 +179,28 @@
             }
         }
 
-        function renderTooltip(jobEvent) {
+        function renderTooltip(data) {
+            var jobEvent = data.jobEvent;
+            var jobInfo = data.jobInfo;
             var result = '';
             result += '事件ID: ' + jobEvent.eventId;
             result += '<br/>任务ID: ' + jobEvent.jobId;
-            result += '<br/>处理器: ' + jobEvent.executorHandlers;
+            result += '<br/>定时规则: ' + jobInfo.crontab;
+            result += '<br/>失败策略: ' + jobInfo.handlerFailStrategy;
             result += '<br/>处理器类型: ' + jobEvent.handlerType;
+            result += '<br/>处理器: ' + jobEvent.executorHandlers;
             result += '<br/>事件状态: ' + jobEvent.stat;
-            result += '<br/>执行Agent: ' + jobEvent.handlerAgentId;
+            result += '<br/>执行脚本: ' + jobEvent.cmd;
+            result += '<br/>执行参数: ' + jobEvent.params;
+            result += '<br/>执行Agent: ' + (jobEvent.handlerAgentId == null ? '' : jobEvent.handlerAgentId);
             result += '<br/>优先级: ' + jobEvent.priority;
             result += '<br/>重试次数: ' + jobEvent.retryCount;
+
+            result += '<hr/>';
+
+            result += '任务责任人: ' + jobInfo.admin;
+            result += '<br/>责任人手机: ' + jobInfo.adminPhone;
+            result += '<br/>责任人又想: ' + jobInfo.adminEmail;
             return result;
         }
     });

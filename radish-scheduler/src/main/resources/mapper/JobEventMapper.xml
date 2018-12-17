@@ -7,7 +7,6 @@
         <result column="event_id" property="eventId"/>
         <result column="parent_event_id" property="parentEventId"/>
         <result column="job_id" property="jobId"/>
-        <result column="job_name" property="jobName"/>
         <result column="parent_job_id" property="parentJobId"/>
         <result column="executor_handlers" property="executorHandlers"/>
         <result column="handler_type" property="handlerType"/>
@@ -20,68 +19,74 @@
         <result column="create_time" property="createTime"/>
     </resultMap>
 
+    <resultMap id="JobEventTreeNodeMap" type="org.sam.shen.scheduing.entity.JobEventTreeNode">
+        <association property="jobEvent" resultMap="jobEventMap"/>
+        <association property="jobInfo" resultMap="org.sam.shen.scheduing.mapper.JobInfoMapper.jobInfoMap"/>
+    </resultMap>
+
     <insert id="saveJobEvent" parameterType="JobEvent">
-     <![CDATA[
-        INSERT INTO job_event(event_id, parent_event_id, job_id, parent_job_id, executor_handlers, handler_type,
-                    cmd, params, stat, handler_agent_id, priority, retry_count, create_time ) 
-        VALUES (#{eventId}, #{parentEventId}, #{jobId}, #{parentJobId}, #{executorHandlers}, #{handlerType}, #{cmd}, #{params},
-            #{stat}, #{handlerAgentId}, #{priority}, #{retryCount}, #{createTime}) 
-            ]]>
+        <![CDATA[
+            INSERT INTO job_event(event_id, parent_event_id, job_id, parent_job_id, executor_handlers, handler_type,
+                        cmd, params, stat, handler_agent_id, priority, retry_count, create_time )
+            VALUES (#{eventId}, #{parentEventId}, #{jobId}, #{parentJobId}, #{executorHandlers}, #{handlerType}, #{cmd}, #{params},
+                #{stat}, #{handlerAgentId}, #{priority}, #{retryCount}, #{createTime})
+        ]]>
     </insert>
-  
-  <select id="countJobEventInJobIds" parameterType="list" resultType="int">
-    <![CDATA[
-        SELECT count(*) 
-          FROM job_event 
-         WHERE job_id IN
+
+    <select id="countJobEventInJobIds" parameterType="list" resultType="int">
+        <![CDATA[
+            SELECT count(*)
+            FROM job_event
+            WHERE job_id IN
         ]]>
-    <foreach collection="list" item="item" index="index" separator="," open="(" close=")">
-        #{item}
-    </foreach>
-  </select>
-  
-  <update id="upgradeJobEvent" parameterType="JobEvent">
-    <![CDATA[
-        UPDATE job_event SET stat = #{stat}, retry_count = #{retryCount} 
+        <foreach collection="list" item="item" index="index" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <update id="upgradeJobEvent" parameterType="JobEvent">
+        <![CDATA[
+            UPDATE job_event SET stat = #{stat}, retry_count = #{retryCount}
         ]]>
-    <if test="handlerAgentId != null">
-        <![CDATA[ , handler_agent_id = #{handlerAgentId} ]]> 
-    </if>
-    <where>
-	    <![CDATA[ event_id = #{eventId} ]]>
-    </where>
-  </update>
-  
+        <if test="handlerAgentId != null">
+            <![CDATA[ , handler_agent_id = #{handlerAgentId} ]]>
+        </if>
+        <where>
+            <![CDATA[ event_id = #{eventId} ]]>
+        </where>
+    </update>
+
     <select id="findJobEventByEventId" parameterType="string" resultMap="jobEventMap">
         <![CDATA[
-            SELECT a.event_id, a.parent_event_id, a.job_id, b.job_name, a.parent_job_id, a.executor_handlers, a.handler_type,
-                   a.cmd, a.params, a.stat, a.handler_agent_id, a.priority, a.retry_count, a.create_time
-            FROM job_event a, job_info b
-            WHERE a.job_id=b.id AND event_id = #{eventId}
+            SELECT event_id, parent_event_id, job_id, parent_job_id, executor_handlers, handler_type, cmd, params,
+                   stat, handler_agent_id, priority, retry_count, create_time
+            FROM job_event
+            WHERE event_id = #{eventId}
         ]]>
-  </select>
-  
-  <select id="queryJobEventForPager" resultMap="jobEventMap" parameterType="string">
-	  <![CDATA[
-	      SELECT event_id, parent_event_id, job_id, parent_job_id, executor_handlers, handler_type, cmd, params,
-	             stat, handler_agent_id, priority, retry_count, create_time 
-          FROM job_event 
-	     ]]>
-	  <if test="stat != null">
-	    <where>
-	        stat = #{stat} 
-	    </where>
-	  </if>
-	  <![CDATA[  ORDER BY create_time DESC ]]>
- </select>
- 
- <select id="countJobEventByStat" parameterType="string" resultType="int">
-    <![CDATA[
-        SELECT count(*) 
-          FROM job_event 
-         WHERE stat = #{stat}
+    </select>
+
+    <select id="queryJobEventForPager" resultMap="jobEventMap" parameterType="string">
+        <![CDATA[
+            SELECT event_id, parent_event_id, job_id, parent_job_id, executor_handlers, handler_type, cmd, params,
+                 stat, handler_agent_id, priority, retry_count, create_time
+            FROM job_event
         ]]>
- </select>
+        <if test="stat != null">
+            <where>
+                stat = #{stat}
+            </where>
+        </if>
+        <![CDATA[  ORDER BY create_time DESC ]]>
+    </select>
+
+    <select id="countJobEventByStat" parameterType="string" resultType="int">
+        <![CDATA[
+            SELECT count(*)
+            FROM job_event
+            WHERE stat = #{stat}
+        ]]>
+    </select>
+
     <select id="queryJobEventByJobId" parameterType="long" resultMap="jobEventMap">
         <![CDATA[
             SELECT a.event_id, parent_event_id, a.job_id, a.parent_job_id, a.executor_handlers, a.handler_type, a.cmd, a.params,
@@ -90,18 +95,30 @@
             WHERE a.job_id=b.id AND a.stat<>'SUCCESS' AND a.stat<>'FAIL' AND a.job_id=#{jobId}
         ]]>
     </select>
-    <select id="queryChildJobEvent" parameterType="string" resultMap="jobEventMap">
+
+    <select id="findJobEventTreeNodeById" parameterType="string" resultMap="JobEventTreeNodeMap">
         <![CDATA[
-            SELECT a.event_id, a.parent_event_id, a.job_id, b.job_name, a.parent_job_id, a.executor_handlers, a.handler_type,
-                   a.cmd, a.params, a.stat, a.handler_agent_id, a.priority, a.retry_count, a.create_time
+            SELECT a.event_id, a.parent_event_id, a.job_id, a.parent_job_id, a.executor_handlers, a.handler_type,
+                   a.cmd, a.params, a.stat, a.handler_agent_id, a.priority, a.retry_count, a.create_time, b.job_name,
+                   b.admin, b.admin_phone, b.admin_email, b.handler_fail_strategy, b.crontab
+            FROM job_event a, job_info b
+            WHERE a.job_id=b.id AND event_id = #{eventId}
+        ]]>
+    </select>
+
+    <select id="queryChildJobEventTreeNode" parameterType="string" resultMap="JobEventTreeNodeMap">
+        <![CDATA[
+            SELECT a.event_id, a.parent_event_id, a.job_id, a.parent_job_id, a.executor_handlers, a.handler_type,
+                   a.cmd, a.params, a.stat, a.handler_agent_id, a.priority, a.retry_count, a.create_time, b.job_name,
+                   b.admin, b.admin_phone, b.admin_email, b.handler_fail_strategy, b.crontab
             FROM job_event a, job_info b
             WHERE a.job_id=b.id AND FIND_IN_SET(a.parent_event_id, #{events})
         ]]>
     </select>
+
     <update id="rehandleFailedEvent" parameterType="string">
         <![CDATA[
             UPDATE job_event SET stat = 'READY', retry_count = retry_count + 1 WHERE event_id = #{eventId} AND stat = 'FAIL'
         ]]>
     </update>
-  
 </mapper>

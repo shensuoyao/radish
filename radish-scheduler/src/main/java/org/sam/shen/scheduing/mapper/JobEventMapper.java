@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Param;
 import org.sam.shen.scheduing.entity.JobEvent;
 
 import com.github.pagehelper.Page;
+import org.sam.shen.scheduing.entity.JobEventTreeNode;
 
 import java.util.List;
 
@@ -24,7 +25,9 @@ public interface JobEventMapper {
 
 	List<JobEvent> queryJobEventByJobId(Long jobId);
 
-	List<JobEvent> queryChildJobEvent(String events);
+	List<JobEventTreeNode> queryChildJobEventTreeNode(String events);
+
+	JobEventTreeNode findJobEventTreeNodeById(String eventId);
 
 	int rehandleFailedEvent(String eventId);
 }
