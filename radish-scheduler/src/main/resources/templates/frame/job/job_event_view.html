@@ -48,6 +48,12 @@
     </style>
 </head>
 <body>
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+    <legend>
+        <span th:text="'事件ID: '  + ${eventId}"></span>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="javascript:history.back(-1);"> <<--- 返回</a>
+    </legend>
+</fieldset>
 <div id="container" style="width: 100%; max-width: 100%; margin: 0 auto; height: 500px;"></div>
 <ul id="contextMenu" class="contextMenu">
     <li><a>重试</a></li>
@@ -125,7 +131,7 @@
             }
             postJobEvent = jobEvent;
             var event = params.event;
-            $('#contextMenu').css('left', event.offsetX).css('top', event.offsetY);
+            $('#contextMenu').css('left', event.offsetX).css('top', event.offsetY + 68);
             $('#contextMenu').show();
         });
 
