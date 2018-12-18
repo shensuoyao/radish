@@ -30,4 +30,6 @@ public interface JobEventMapper {
 	JobEventTreeNode findJobEventTreeNodeById(String eventId);
 
 	int rehandleFailedEvent(String eventId);
+
+	int updateEventPriority(JobEvent jobEvent);
 }

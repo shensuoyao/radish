@@ -30,19 +30,30 @@
             -webkit-box-shadow: 0 6px 12px rgba(0,0,0,.175);
             box-shadow: 0 6px 12px rgba(0,0,0,.175);
         }
-        .contextMenu>li>a {
+        .contextMenu>li>a.cm_common {
             display: block;
             padding: 3px 20px;
             clear: both;
             font-weight: 400;
-            line-height: 1.42857143;
+            line-height: 1.4;
             color: #333;
             white-space: nowrap;
+            cursor: default;
         }
-        .contextMenu>li>a:hover {
+        .contextMenu>li>a.cm_disabled {
+            display: block;
+            padding: 3px 20px;
+            clear: both;
+            font-weight: 400;
+            line-height: 1.4;
+            white-space: nowrap;
+            color: #d2d2d2;
+            cursor: not-allowed;
+        }
+        .contextMenu>li>a.cm_common:hover {
             background-color: #eee;
         }
-        .contextMenu>li>a:active {
+        .contextMenu>li>a.cm_common:active {
             background-color: #adadad;
         }
     </style>
@@ -54,9 +65,10 @@
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a th:href="@{/portal/job-event}"> <<--- 返回</a>
     </legend>
 </fieldset>
-<div id="container" style="width: 100%; max-width: 100%; margin: 0 auto; height: 500px;"></div>
+<div id="container" style="width: 100%; max-width: 100%; margin: 85px auto 0 auto; height: 500px;"></div>
 <ul id="contextMenu" class="contextMenu">
-    <li><a>重试</a></li>
+    <li><a id="retry" class="cm_common">重试</a></li>
+    <li><a id="priority" class="cm_common">修改优先级</a></li>
 </ul>
 <script type="text/javascript" th:inline="javascript">
     layui.use(['layer'], function () {
@@ -126,17 +138,25 @@
         // 注册右击事件
         chart.on('contextmenu', function (params) {
             var jobEvent = params.data.jobEvent;
-            if (jobEvent.stat !== 'FAIL') {
+            if (jobEvent.stat === 'FAIL') {
+                $('#contextMenu>li>a').prop('class', 'cm_common');
+            } else if (jobEvent.stat === 'READY') {
+                $('#retry').prop('class', 'cm_disabled');
+                $('#priority').prop('class', 'cm_common');
+            } else {
                 return;
             }
             postJobEvent = jobEvent;
             var event = params.event;
-            $('#contextMenu').css('left', event.offsetX).css('top', event.offsetY + 68);
+            $('#contextMenu').css('left', event.offsetX).css('top', event.offsetY + 128);
             $('#contextMenu').show();
         });
 
         // 右键菜单点击事件
-        $('#contextMenu>li>a').on('click', function () {
+        $('#retry').on('click', function () {
+            if ($(this).prop('class') === 'cm_disabled') {
+                return false;
+            }
             $.ajax({
                 type: 'post',
                 url: [[@{/portal/retry-handle-event}]],
@@ -152,6 +172,38 @@
                     layer.msg('重新添加事件成功，稍后刷新页面查看结果')
                 }
             });
+        });
+        $('#priority').on('click', function () {
+            if ($(this).prop('class') === 'cm_disabled') {
+                return false;
+            }
+            layer.open({
+                type: 1,
+                title: '修改事件优先级',
+                content: '<input id="priority_input" class="layui-input" placeholder="优先级" style="width: 250px;margin: 35px auto 0 auto"/>',
+                area: ['300px', '200px'],
+                btn: ['确认修改'],
+                btn1: function (index) {
+                    postJobEvent.priority = $('#priority_input').val();
+                    $.ajax({
+                        type: 'post',
+                        url: [[@{/portal/update-event-priority}]],
+                        dataType: 'json',
+                            headers: {
+                            'Content-Type' : 'application/json;charset=utf-8'
+                        },
+                        data: JSON.stringify(postJobEvent)
+                    }).done(function (data) {
+                        if (data.code === 1) {
+                            layer.msg(data.msg);
+                        } else {
+                            layer.msg('修改事件优先级成功！');
+                            layer.close(index);
+                        }
+                    });
+                }
+            });
+
         });
 
         $(document).on('click', function () {

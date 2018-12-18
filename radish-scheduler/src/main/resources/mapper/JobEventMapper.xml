@@ -121,4 +121,10 @@
             UPDATE job_event SET stat = 'READY', retry_count = retry_count + 1 WHERE event_id = #{eventId} AND stat = 'FAIL'
         ]]>
     </update>
+
+    <update id="updateEventPriority" parameterType="org.sam.shen.scheduing.entity.JobEvent">
+        <![CDATA[
+            UPDATE job_event SET priority = #{priority} WHERE event_id = #{eventId} AND (stat = 'FAIL' OR stat = 'READY')
+        ]]>
+    </update>
 </mapper>

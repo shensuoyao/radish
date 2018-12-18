@@ -250,7 +250,6 @@ public class JobEventService {
      * @author clock
      * @date 2018/12/14 下午3:04
      * @param jobEvent job event
-     * @return whether execute success
      */
     @Transactional
     public void rehandleFailedEvent(JobEvent jobEvent) {
@@ -273,5 +272,33 @@ public class JobEventService {
         });
         redisService.hmset(Constant.REDIS_EVENT_PREFIX.concat(jobEvent.getEventId()), eventHash);
 	}
+
+    /**
+     * update job event priority
+     * @author clock
+     * @date 2018/12/18 下午1:35
+     * @param jobEvent job event
+     */
+	@Transactional
+	public void updateEventPriority(JobEvent jobEvent) throws Exception {
+	    String eventKey = Constant.REDIS_EVENT_PREFIX.concat(jobEvent.getEventId());
+	    EventLock lock = new EventLock(redisTemplate, eventKey, Thread.currentThread().getName());
+	    try {
+            if (lock.lock()) {
+                int result = jobEventMapper.updateEventPriority(jobEvent);
+                if (result <= 0) {
+                    throw new Exception("更新失败！");
+                }
+                // 如果缓存中存在该event，需要更新缓存
+                if (redisService.hkeyExists(eventKey, "priority")) {
+                    redisService.hset(eventKey, "priority", jobEvent.getPriority());
+                }
+            }
+        } catch (Exception e) {
+	        throw new Exception(e.getMessage());
+        } finally {
+	        lock.unlock();
+        }
+    }
 	
 }

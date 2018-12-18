@@ -365,5 +365,27 @@ public class JobController {
         }
         return Resp.SUCCESS;
     }
+
+
+    /**
+     * 修改事件的优先级
+     * @author clock
+     * @date 2018/12/18 下午1:21
+     * @param jobEvent 事件
+     * @return 修改结果
+     */
+	@ResponseBody
+	@RequestMapping(value = "update-event-priority", method = RequestMethod.POST)
+	public Resp<String> updateEventPriority(@RequestBody JobEvent jobEvent) {
+		if (jobEvent == null || StringUtils.isEmpty(jobEvent.getEventId())) {
+			return new Resp<>(Resp.FAIL.getCode(), "事件ID不能为空！");
+		}
+		try {
+			jobEventService.updateEventPriority(jobEvent);
+		} catch (Exception e) {
+			return new Resp<>(Resp.FAIL.getCode(), "修改事件优先级失败！");
+		}
+		return Resp.SUCCESS;
+	}
 	
 }
