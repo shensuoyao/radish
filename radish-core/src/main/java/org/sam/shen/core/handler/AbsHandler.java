@@ -2,15 +2,14 @@ package org.sam.shen.core.handler;
 
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.sam.shen.core.event.HandlerEvent;
 import org.sam.shen.core.log.RadishLogFileAppender;
 import org.sam.shen.core.model.Resp;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+@Slf4j
 public abstract class AbsHandler implements IHandler {
-	Logger logger = LoggerFactory.getLogger(AbsHandler.class);
-	
+
 	/**
 	 *  任务调用ID
 	 */
@@ -41,13 +40,13 @@ public abstract class AbsHandler implements IHandler {
 
 	@Override
 	public Resp<String> init() {
-		logger.info("RADISH ------------> 初始化任务...");
+		log.info("RADISH ------------> 初始化任务...");
 		return Resp.SUCCESS;
 	}
 
 	@Override
-	public Resp<String> destory() {
-		logger.info("RADISH ------------> 清理任务:  {}",  eventId);
+	public Resp<String> destroy() {
+		log.info("RADISH ------------> 清理任务:  {}",  eventId);
 		setEventId(null);
 		setLogFileName(null);
 		return Resp.SUCCESS;

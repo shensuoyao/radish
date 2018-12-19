@@ -32,7 +32,7 @@ public class Constant {
 
     public static final String DEFAULT_SHELL_SCRIPT_FILE_PATH = "/tmp/log/radish";
 
-    public static final String SHELL_SCRIPT_PATH = "shell";
+    public static final String SHELL_SCRIPT_PATH = "/shell";
 
 	public static final String SHELL_SCRIPT_NAME = "monitor.sh";
 

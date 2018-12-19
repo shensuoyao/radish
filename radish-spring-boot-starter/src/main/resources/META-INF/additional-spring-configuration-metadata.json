@@ -1,0 +1,37 @@
+{
+  "properties": [
+    {
+      "name": "radish.agent.name",
+      "type": "java.lang.String",
+      "description": "Radish agent name."
+    },
+    {
+      "name": "radish.agent.ip",
+      "type": "java.lang.String",
+      "description": "Radish agent ip."
+    },
+    {
+      "name": "radish.agent.port",
+      "type": "java.lang.Integer",
+      "description": "Radish agent port.",
+      "defaultValue": 8083
+    },
+    {
+      "name": "radish.agent.logpath",
+      "type": "java.lang.String",
+      "description": "Log store path in radish agent.",
+      "defaultValue": "/tmp/log/radish"
+    },
+    {
+      "name": "radish.agent.shpath",
+      "type": "java.lang.String",
+      "description": "Shell script store path in radish agent.",
+      "defaultValue": "/tmp/log/radish"
+    },
+    {
+      "name": "radish.scheduler.server",
+      "type": "java.lang.String",
+      "description": "Url connect to scheduler center."
+    }
+  ]
+}

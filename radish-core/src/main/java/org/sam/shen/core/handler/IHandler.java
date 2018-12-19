@@ -21,6 +21,6 @@ public interface IHandler {
 	 * @return
 	 * Job destruction method
 	 */
-	Resp<String> destory();
+	Resp<String> destroy();
     
 }

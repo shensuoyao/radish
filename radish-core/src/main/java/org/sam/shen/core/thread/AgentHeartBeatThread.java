@@ -2,6 +2,7 @@ package org.sam.shen.core.thread;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +16,6 @@ import org.sam.shen.core.rpc.RestRequest;
 import org.sam.shen.core.util.ScriptUtil;
 
 import com.alibaba.fastjson.JSON;
-import org.springframework.core.io.ClassPathResource;
 
 /**
  * @author suoyao
@@ -109,9 +109,9 @@ public class AgentHeartBeatThread extends Thread {
     private boolean checkMonitorEnv() {
         String checkFileName = RadishAgent.getShPath().concat(File.separator).concat(Constant.CHECK_SHELL_SCRIPT_NAME);
         File file = new File(checkFileName);
-        ClassPathResource cpr = new ClassPathResource(Constant.SHELL_SCRIPT_PATH.concat(File.separator).concat(Constant.CHECK_SHELL_SCRIPT_NAME));
+        URL fileUrl = this.getClass().getResource(Constant.SHELL_SCRIPT_PATH.concat(File.separator).concat(Constant.CHECK_SHELL_SCRIPT_NAME));
         try {
-            ScriptUtil.createAndAuthShellScript(file, cpr.getInputStream());
+            ScriptUtil.createAndAuthShellScript(file, fileUrl.openStream());
 
             // execute script file
             String result = ScriptUtil.execShellWithResult(checkFileName);

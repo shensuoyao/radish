@@ -75,7 +75,7 @@ public class EventHandlerThread extends Thread {
 				e1.printStackTrace();
 			}
 		} finally {
-			handler.destory();
+			handler.destroy();
 			close();
 		}
 	}

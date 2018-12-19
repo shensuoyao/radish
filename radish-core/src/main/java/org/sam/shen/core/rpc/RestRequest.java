@@ -81,6 +81,7 @@ public class RestRequest {
 		// clientHttpRequestFactory.setBufferRequestBody(false);
 
 		restTemplate = new RestTemplate(clientHttpRequestFactory);
+//		restTemplate.getMessageConverters().add();
 		restTemplate.setErrorHandler(new DefaultResponseErrorHandler());
 
 		if(logger.isInfoEnabled()) {
