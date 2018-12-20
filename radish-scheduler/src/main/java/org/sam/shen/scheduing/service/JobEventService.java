@@ -179,8 +179,10 @@ public class JobEventService {
 		Agent agent = agentMapper.findAgentById(agentId);
 		String logUrl = Constant.HTTP_PREFIX.concat(agent.getAgentIp()).concat(":")
 		        .concat(String.valueOf(agent.getAgentPort())).concat(Constant.AGENT_CONTEXT_PATH);
+		Map<String, Object> parameter = new HashMap<>();
+		parameter.put("eventId", eventId);
 		try {
-			Resp<LogReader> resp = RestRequest.getUriVariables(logUrl, LogReader.class, eventId);
+			Resp<LogReader> resp = RestRequest.get(logUrl, parameter, LogReader.class);
 			if(resp.getCode() == Resp.SUCCESS.getCode()) {
 				return resp.getData();
 			}

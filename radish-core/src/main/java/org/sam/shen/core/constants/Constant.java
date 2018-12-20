@@ -18,7 +18,7 @@ public class Constant {
 	
 	public static final String HTTP_PREFIX = "http://";
 	
-	public static final String AGENT_CONTEXT_PATH = "/radish-agent/handler-log/{eventId}";
+	public static final String AGENT_CONTEXT_PATH = "/radish-agent/handler-log";
 	
 	public static final int YES = 1;
 	

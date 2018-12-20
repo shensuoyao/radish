@@ -17,6 +17,15 @@ public class RadishProperties {
 
     private Scheduler scheduler;
 
+    /**
+     * 读取客户端日志的访问模式
+     */
+    private String logViewMode;
+
+    private LogViewServlet logViewServlet;
+
+    private LogViewNetty logViewNetty;
+
     @Getter
     @Setter
     public static class Agent {
@@ -53,5 +62,15 @@ public class RadishProperties {
          * 调度中心的连接地址
          */
         private String server;
+    }
+
+    @Getter
+    @Setter
+    public static class LogViewServlet {}
+
+    @Getter
+    @Setter
+    public static class LogViewNetty {
+        private Integer port;
     }
 }

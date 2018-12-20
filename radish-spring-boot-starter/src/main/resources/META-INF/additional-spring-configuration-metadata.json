@@ -32,6 +32,18 @@
       "name": "radish.scheduler.server",
       "type": "java.lang.String",
       "description": "Url connect to scheduler center."
-    }
+    },
+    {
+      "name": "radish.agent.log-view-mode",
+      "type": "java.lang.String",
+      "description": "The mode that view agent handler log.",
+      "defaultValue": "servlet"
+    },
+    {
+      "name": "radish.agent.log-view-netty.port",
+      "type": "java.lang.Integer",
+      "description": ".",
+      "defaultValue": "8083"
+    },
   ]
 }
