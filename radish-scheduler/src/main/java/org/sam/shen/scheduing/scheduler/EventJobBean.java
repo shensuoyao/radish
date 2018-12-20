@@ -42,9 +42,9 @@ public class EventJobBean extends QuartzJobBean {
 			}
 		} else {
 			// 3. 发送Event事件到抢占任务事件队列
-			RadishDynamicScheduler.addJobEvent(jobInfo);
+			RadishDynamicScheduler.addJobEventWithChildren(jobInfo);
 		}
-		destory();
+		destroy();
 	}
 	
 	public void init(JobExecutionContext context) {
@@ -54,9 +54,9 @@ public class EventJobBean extends QuartzJobBean {
 		}
 	}
 
-	public void destory() {
+	public void destroy() {
 		if(logger.isInfoEnabled()) {
-			logger.info("destory job ==== {} =====", jobId);
+			logger.info("destroy job ==== {} =====", jobId);
 		}
 	}
 

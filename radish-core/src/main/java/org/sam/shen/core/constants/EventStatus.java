@@ -7,6 +7,7 @@ package org.sam.shen.core.constants;
  */
 public enum EventStatus {
 
+	WAIT(0),
 	READY(1),	
 	HANDLE(2),
 	FAIL(3),
@@ -15,7 +16,7 @@ public enum EventStatus {
 	
 	private int stat;
 	
-	private EventStatus(int stat) {
+	EventStatus(int stat) {
         this.stat = stat;
     }
 	

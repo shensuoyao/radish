@@ -140,7 +140,7 @@
             var jobEvent = params.data.jobEvent;
             if (jobEvent.stat === 'FAIL') {
                 $('#contextMenu>li>a').prop('class', 'cm_common');
-            } else if (jobEvent.stat === 'READY') {
+            } else if (jobEvent.stat === 'READY' || jobEvent.stat === 'WAIT') {
                 $('#retry').prop('class', 'cm_disabled');
                 $('#priority').prop('class', 'cm_common');
             } else {
@@ -215,8 +215,10 @@
             data.name = data.jobInfo.jobName;
             if (data.jobEvent.stat === 'SUCCESS') {
                 data.itemStyle = { borderColor: 'green' };
-            } else if (data.jobEvent.stat === 'READY') {
+            } else if (data.jobEvent.stat === 'WAIT') {
                 data.itemStyle = { borderColor: 'gray' };
+            } else if (data.jobEvent.stat === 'READY') {
+                data.itemStyle = { borderColor: '#ccff66' };
             } else if (data.jobEvent.stat === 'FAIL') {
                 data.itemStyle = { borderColor: 'red' };
             } else if (data.jobEvent.stat === 'HANDLE') {

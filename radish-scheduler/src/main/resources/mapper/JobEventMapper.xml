@@ -33,6 +33,19 @@
         ]]>
     </insert>
 
+    <insert id="batchInsert" parameterType="List">
+        <![CDATA[
+            INSERT INTO job_event(event_id, parent_event_id, job_id, parent_job_id, executor_handlers, handler_type,
+                        cmd, params, stat, handler_agent_id, priority, retry_count, create_time )
+            VALUES
+        ]]>
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.eventId}, #{item.parentEventId}, #{item.jobId}, #{item.parentJobId}, #{item.executorHandlers},
+            #{item.handlerType}, #{item.cmd}, #{item.params}, #{item.stat}, #{item.handlerAgentId}, #{item.priority},
+            #{item.retryCount}, #{item.createTime})
+        </foreach>
+    </insert>
+
     <select id="countJobEventInJobIds" parameterType="list" resultType="int">
         <![CDATA[
             SELECT count(*)
@@ -124,7 +137,21 @@
 
     <update id="updateEventPriority" parameterType="org.sam.shen.scheduing.entity.JobEvent">
         <![CDATA[
-            UPDATE job_event SET priority = #{priority} WHERE event_id = #{eventId} AND (stat = 'FAIL' OR stat = 'READY')
+            UPDATE job_event SET priority = #{priority} WHERE event_id = #{eventId} AND (stat = 'FAIL' OR stat = 'READY' OR stat = 'WAIT')
         ]]>
     </update>
+
+    <update id="updateChildEventStatus">
+        <![CDATA[
+            UPDATE job_event SET stat = #{stat} WHERE parent_event_id = #{pid}
+        ]]>
+    </update>
+    
+    <select id="findSubeventsByPid" parameterType="string" resultMap="jobEventMap">
+        <![CDATA[
+            SELECT event_id, parent_event_id, job_id, parent_job_id, executor_handlers, handler_type, cmd, params,
+                   stat, handler_agent_id, priority, retry_count, create_time
+            FROM job_event WHERE parent_event_id = #{pid}
+        ]]>
+    </select>
 </mapper>

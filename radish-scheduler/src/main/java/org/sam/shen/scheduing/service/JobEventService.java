@@ -300,5 +300,35 @@ public class JobEventService {
 	        lock.unlock();
         }
     }
-	
+
+    /**
+     * Update stat of child job events and add these to redis
+     * @author clock
+     * @date 2018/12/20 上午10:32
+     * @param pid
+     * @return
+     */
+    public void addChildJobEvent(String pid) {
+	    // 将子事件的状态从WAIT更新为READY
+        jobEventMapper.updateChildEventStatus("READY", pid);
+        // 将READY状态的子事件添加到Redis缓存中
+        List<JobEvent> subevents = jobEventMapper.findSubeventsByPid(pid);
+        for (JobEvent jobEvent : subevents) {
+            List<String> agentHandlers = Splitter.onPattern(",|-").splitToList(jobEvent.getExecutorHandlers());
+            Map<String, Object> eventHash = new HashMap<>();
+            eventHash.put("priority", jobEvent.getPriority());    // 设置优先级
+            Stream.iterate(0, i -> i + 1).limit(agentHandlers.size()).forEach(i -> {
+                if (i % 2 == 0) {
+                    if (eventHash.containsKey(agentHandlers.get(i))) {
+                        String val = String.valueOf(eventHash.get(agentHandlers.get(i))).concat(",").concat(agentHandlers.get(i + 1));
+                        eventHash.put(agentHandlers.get(i), val);
+                    } else {
+                        eventHash.put(agentHandlers.get(i), agentHandlers.get(i + 1));
+                    }
+                }
+            });
+            redisService.hmset(Constant.REDIS_EVENT_PREFIX.concat(jobEvent.getEventId()), eventHash);
+        }
+    }
+
 }

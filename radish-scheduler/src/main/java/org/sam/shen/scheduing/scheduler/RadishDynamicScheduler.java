@@ -284,32 +284,28 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
      * @param parentEventId parent event id
      * @return execute result
      */
-    private static boolean addJobEventBase(JobInfo jobInfo, String parentEventId) {
-        try {
-            List<String> agentHandlers = Splitter.onPattern(",|-").splitToList(jobInfo.getExecutorHandlers());
-            Map<String, Object> eventHash = Maps.newHashMap();
-            eventHash.put("priority", jobInfo.getPriority());    // 设置优先级
-            Stream.iterate(0, i -> i + 1).limit(agentHandlers.size()).forEach(i -> {
-                if (i % 2 == 0) {
-                    if (eventHash.containsKey(agentHandlers.get(i))) {
-                        String val = String.valueOf(eventHash.get(agentHandlers.get(i))).concat(",").concat(agentHandlers.get(i + 1));
-                        eventHash.put(agentHandlers.get(i), val);
-                    } else {
-                        eventHash.put(agentHandlers.get(i), agentHandlers.get(i + 1));
-                    }
+    private static JobEvent addJobEventBase(JobInfo jobInfo, String parentEventId) {
+        List<String> agentHandlers = Splitter.onPattern(",|-").splitToList(jobInfo.getExecutorHandlers());
+        Map<String, Object> eventHash = Maps.newHashMap();
+        eventHash.put("priority", jobInfo.getPriority());    // 设置优先级
+        Stream.iterate(0, i -> i + 1).limit(agentHandlers.size()).forEach(i -> {
+            if (i % 2 == 0) {
+                if (eventHash.containsKey(agentHandlers.get(i))) {
+                    String val = String.valueOf(eventHash.get(agentHandlers.get(i))).concat(",").concat(agentHandlers.get(i + 1));
+                    eventHash.put(agentHandlers.get(i), val);
+                } else {
+                    eventHash.put(agentHandlers.get(i), agentHandlers.get(i + 1));
                 }
-            });
-            JobEvent jobEvent = new JobEvent(jobInfo.getId(), jobInfo.getExecutorHandlers(), jobInfo.getHandlerType(),
-                    EventStatus.READY, jobInfo.getPriority(), jobInfo.getCmd(), jobInfo.getParams());
-            jobEvent.setParentJobId(jobInfo.getParentJobId());
-            jobEvent.setParentEventId(parentEventId);
+            }
+        });
+        JobEvent jobEvent = new JobEvent(jobInfo.getId(), jobInfo.getExecutorHandlers(), jobInfo.getHandlerType(),
+                EventStatus.READY, jobInfo.getPriority(), jobInfo.getCmd(), jobInfo.getParams());
+        jobEvent.setParentJobId(jobInfo.getParentJobId());
+        jobEvent.setParentEventId(parentEventId);
 
-            jobEventMapper.saveJobEvent(jobEvent);
-            redisService.hmset(Constant.REDIS_EVENT_PREFIX.concat(jobEvent.getEventId()), eventHash);
-        } catch (Exception e) {
-            return false;
-        }
-        return true;
+        jobEventMapper.saveJobEvent(jobEvent);
+        redisService.hmset(Constant.REDIS_EVENT_PREFIX.concat(jobEvent.getEventId()), eventHash);
+        return jobEvent;
     }
 
     /**
@@ -320,7 +316,12 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
      * @return add result
      */
 	public static boolean addJobEvent(JobInfo jobInfo) {
-        return addJobEventBase(jobInfo, null);
+	    try {
+            addJobEventBase(jobInfo, null);
+        } catch (Exception e) {
+	        return false;
+        }
+        return true;
     }
 
 	/**
@@ -332,16 +333,55 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 	 * @return add result
 	 */
 	public static boolean addJobEvent(JobInfo jobInfo, String parentEventId) {
-        return addJobEventBase(jobInfo, parentEventId);
+        try {
+            addJobEventBase(jobInfo, parentEventId);
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
 	}
 
 	public static boolean addJobEvents(List<JobInfo> jobInfos, String parentEventId) {
-	    boolean result = true;
-	    for (JobInfo jobInfo : jobInfos) {
-	        result = result && addJobEventBase(jobInfo, parentEventId);
+	    try {
+            for (JobInfo jobInfo : jobInfos) {
+                addJobEventBase(jobInfo, parentEventId);
+            }
+        } catch (Exception e) {
+	        return false;
         }
-        return result;
+        return true;
     }
+
+    /**
+     * Add job event to execute queue, and add all subevents
+     * @author clock
+     * @date 2018/12/19 下午5:24
+     * @param jobInfo job information
+     */
+    public static void addJobEventWithChildren(JobInfo jobInfo) {
+        JobEvent root = addJobEventBase(jobInfo, null);
+        List<JobEvent> jobEvents = new ArrayList<>();
+        List<JobEvent> parentEvents = new ArrayList<>();
+        parentEvents.add(root);
+
+        while (parentEvents.size() > 0) {
+            List<JobEvent> tempEvents = new ArrayList<>();
+            for (JobEvent parent : parentEvents) {
+                List<JobInfo> children = jobInfoMapper.findJobInfoByParentId(String.valueOf(parent.getJobId()));
+                if (children != null && children.size() > 0) {
+                    for (JobInfo job : children) {
+                        JobEvent jobEvent = new JobEvent(job.getId(), job.getExecutorHandlers(), job.getHandlerType(),
+                                EventStatus.WAIT, job.getPriority(), job.getCmd(), job.getParams());
+                        jobEvent.setParentEventId(parent.getEventId());
+                        jobEvents.add(jobEvent);
+                        tempEvents.add(jobEvent);
+                    }
+                }
+            }
+            parentEvents = tempEvents;
+        }
+        jobEventMapper.batchInsert(jobEvents);
+	}
 
     /**
      * Add job event

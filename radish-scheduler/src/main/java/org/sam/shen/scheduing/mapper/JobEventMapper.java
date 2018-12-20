@@ -32,4 +32,10 @@ public interface JobEventMapper {
 	int rehandleFailedEvent(String eventId);
 
 	int updateEventPriority(JobEvent jobEvent);
+
+	int batchInsert(List<JobEvent> list);
+
+	int updateChildEventStatus(@Param("stat") String stat, @Param("pid") String pid);
+
+	List<JobEvent> findSubeventsByPid(String pid);
 }

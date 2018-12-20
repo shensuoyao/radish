@@ -120,9 +120,7 @@ public class CoreController {
         if (jobInfo == null || jobInfo.size() == 0) {
             return new Resp<>(Resp.FAIL.getCode(), "have no child job");
         }
-        if (!RadishDynamicScheduler.addJobEvents(jobInfo, event.getEventId())) {
-            return new Resp<>(Resp.FAIL.getCode(), "add job event failed");
-        }
+        jobEventService.addChildJobEvent(event.getEventId());
         return Resp.SUCCESS;
     }
 
