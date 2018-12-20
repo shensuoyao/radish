@@ -43,7 +43,7 @@
       "name": "radish.agent.log-view-netty.port",
       "type": "java.lang.Integer",
       "description": ".",
-      "defaultValue": "8083"
-    },
+      "defaultValue": "8084"
+    }
   ]
 }
