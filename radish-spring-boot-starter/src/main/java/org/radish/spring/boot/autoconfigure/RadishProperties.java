@@ -22,7 +22,7 @@ public class RadishProperties {
      */
     private String logViewMode;
 
-    private LogViewServlet logViewServlet;
+//    private LogViewServlet logViewServlet;
 
     private LogViewNetty logViewNetty;
 
@@ -64,9 +64,9 @@ public class RadishProperties {
         private String server;
     }
 
-    @Getter
-    @Setter
-    public static class LogViewServlet {}
+//    @Getter
+//    @Setter
+//    public static class LogViewServlet {}
 
     @Getter
     @Setter
