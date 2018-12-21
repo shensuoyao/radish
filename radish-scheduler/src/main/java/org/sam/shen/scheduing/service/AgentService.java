@@ -58,6 +58,8 @@ public class AgentService {
 		if(null == agent) {
 			// null的时候为新注册客户端
 			agent = new Agent(agentInfo.getAgentName(), agentInfo.getAgentIp(), agentInfo.getAgentPort());
+			agent.setNetwork(agentInfo.getNetwork());
+			agent.setNettyPort(agentInfo.getNettyPort());
 			agentMapper.saveAgent(agent);
 			List<AgentHandler> agentHandlerList = Lists.newArrayList();
 			for (String handler : agentInfo.getRegistryHandlerMap().keySet()) {
@@ -68,6 +70,8 @@ public class AgentService {
 		} else if(agent.getAgentName().equals(agentInfo.getAgentName()) && agent.getAgentIp().equals(agentInfo.getAgentIp()) ) {
 			// Agent不为空, 并且客户端的IP相同, 则判断为同一Agent 更新
 			agent.setAgentPort(agentInfo.getAgentPort());
+            agent.setNetwork(agentInfo.getNetwork());
+            agent.setNettyPort(agentInfo.getNettyPort());
 			agentMapper.upgradeAgent(agent);
 			// 删除所有的 Agent Handler
 			agentHandlerMapper.deleteAgentHandler(agent.getId());

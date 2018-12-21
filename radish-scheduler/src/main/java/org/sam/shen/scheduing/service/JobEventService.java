@@ -14,6 +14,7 @@ import org.sam.shen.core.constants.HandlerFailStrategy;
 import org.sam.shen.core.event.HandlerEvent;
 import org.sam.shen.core.log.LogReader;
 import org.sam.shen.core.model.Resp;
+import org.sam.shen.core.netty.HandlerLogNettyClient;
 import org.sam.shen.core.rpc.RestRequest;
 import org.sam.shen.scheduing.entity.Agent;
 import org.sam.shen.scheduing.entity.JobEvent;
@@ -182,8 +183,13 @@ public class JobEventService {
 		Map<String, Object> parameter = new HashMap<>();
 		parameter.put("eventId", eventId);
 		try {
-			Resp<LogReader> resp = RestRequest.get(logUrl, parameter, LogReader.class);
-			if(resp.getCode() == Resp.SUCCESS.getCode()) {
+            Resp<LogReader> resp = null;
+            if ("servlet".equals(agent.getNetwork())) {
+                resp = RestRequest.get(logUrl, parameter, LogReader.class);
+            } else if ("netty".equals(agent.getNetwork())) {
+                resp = new HandlerLogNettyClient(agent.getAgentIp(), agent.getNettyPort()).sendMessage(eventId, null);
+            }
+			if(resp != null && resp.getCode() == Resp.SUCCESS.getCode()) {
 				return resp.getData();
 			}
 		} catch (Exception e) {
@@ -307,8 +313,7 @@ public class JobEventService {
      * Update stat of child job events and add these to redis
      * @author clock
      * @date 2018/12/20 上午10:32
-     * @param pid
-     * @return
+     * @param pid parent event id
      */
     public void addChildJobEvent(String pid) {
 	    // 将子事件的状态从WAIT更新为READY

@@ -64,6 +64,8 @@ public class RadishAutoConfiguration {
         String server = this.properties.getScheduler().getServer();
         String agentName = this.properties.getAgent().getName();
         Integer agentPort = this.properties.getAgent().getPort();
+        String network = this.properties.getLogViewMode();
+        RadishProperties.LogViewNetty nettyProperties = this.properties.getLogViewNetty();
         if (StringUtils.isEmpty(server)) {
             log.error("Scheduler server can't be null.");
             throw new RuntimeException("Scheduler server can't be null.");
@@ -78,6 +80,10 @@ public class RadishAutoConfiguration {
         }
         agentInfo.setAgentName(agentName);
         agentInfo.setAgentPort(agentPort);
+        agentInfo.setNetwork(network);
+        if (nettyProperties != null) {
+            agentInfo.setNettyPort(nettyProperties.getPort());
+        }
         radishAgent.setAgentInfo(agentInfo);
 
         return radishAgent;

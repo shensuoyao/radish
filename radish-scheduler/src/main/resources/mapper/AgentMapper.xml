@@ -13,11 +13,13 @@
         <result column="admin_phone" property="adminPhone"/>
         <result column="reg_time" property="regTime"/>
         <result column="stat" property="stat"/>
+        <result column="network" property="network"/>
+        <result column="netty_port" property="nettyPort"/>
     </resultMap>
 
   <select id="findAgentById" parameterType="Long" resultMap="agentMap">
       <![CDATA[
-          SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat 
+          SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat, network, netty_port
             FROM agent
       ]]>
     <where>
@@ -29,7 +31,7 @@
 
 	<select id="findAgentByName" parameterType="String" resultMap="agentMap">
 		<![CDATA[
-			SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat 
+			SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat, network, netty_port
 			  FROM agent
 		]]>
 	  <where>
@@ -41,7 +43,7 @@
 	
 	<select id="queryAgentForPager" resultMap="agentMap" parameterType="string">
   <![CDATA[
-	  SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat 
+	  SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat, network, netty_port
 	    FROM agent 
      ]]>
   <if test="agentName != null">
@@ -52,7 +54,7 @@
  </select>
  <select id="queryAgentForList" resultMap="agentMap" parameterType="string">
   <![CDATA[
-      SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat 
+      SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat, network, netty_port
         FROM agent 
      ]]>
   <if test="agentName != null">
@@ -64,9 +66,9 @@
  
 	<insert id="saveAgent" parameterType="Agent" useGeneratedKeys="true" keyProperty="id">
 	   <![CDATA[
-        INSERT INTO agent(agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat) 
+        INSERT INTO agent(agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat, network, netty_port)
         VALUES (#{agentName}, #{agentIp}, #{agentPort}, #{admin}, 
-                #{adminEmail}, #{adminPhone}, #{regTime}, #{stat}) 
+                #{adminEmail}, #{adminPhone}, #{regTime}, #{stat}, #{network}, #{nettyPort})
         ]]>
   </insert>
   
@@ -81,7 +83,7 @@
   <update id="upgradeAgent" parameterType="Agent">
        <![CDATA[
         UPDATE agent 
-           SET agent_port = #{agentPort}, admin = #{admin}, admin_email = #{adminEmail}, admin_phone = #{adminPhone} 
+           SET agent_port = #{agentPort}, admin = #{admin}, admin_email = #{adminEmail}, admin_phone = #{adminPhone}, network = #{network}, netty_port = #{nettyPort}
          WHERE id = #{id} 
         ]]>
   </update>
@@ -94,7 +96,7 @@
   
   <select id="queryAgentByAgentGroup" resultMap="agentMap" parameterType="long">
   <![CDATA[
-      SELECT a.id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat 
+      SELECT a.id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat, network, netty_port
         FROM agent a 
        INNER JOIN agent_group_ref agr 
           ON a.id = agr.agent_id 
@@ -104,7 +106,7 @@
  
  <select id="queryAgentInIds" parameterType="list" resultMap="agentMap">
      <![CDATA[
-      SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat 
+      SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat, network, netty_port
         FROM agent 
        WHERE id IN 
          ]]>

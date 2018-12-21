@@ -4,6 +4,8 @@ import java.util.Map;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  *  Agent客户端信息
@@ -11,6 +13,8 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
  * @date 2018年8月7日 上午9:16:07
   *  
  */
+@Getter
+@Setter
 public class AgentInfo {
 
 	// Agent注册之后获得, 全局唯一
@@ -24,49 +28,15 @@ public class AgentInfo {
 	
 	// Rest RPC 端口
 	private int agentPort;
+
+	// 与Agent的通信模式
+	private String network;
+
+	// netty监听端口
+	private Integer nettyPort;
 	
 	// Agent中注册的Handler处理器集合
 	private Map<String, String> registryHandlerMap;
-
-	public Long getAgentId() {
-		return agentId;
-	}
-
-	public void setAgentId(Long agentId) {
-		this.agentId = agentId;
-	}
-
-	public String getAgentName() {
-		return agentName;
-	}
-
-	public void setAgentName(String agentName) {
-		this.agentName = agentName;
-	}
-
-	public String getAgentIp() {
-		return agentIp;
-	}
-
-	public void setAgentIp(String agentIp) {
-		this.agentIp = agentIp;
-	}
-
-	public int getAgentPort() {
-		return agentPort;
-	}
-
-	public void setAgentPort(int agentPort) {
-		this.agentPort = agentPort;
-	}
-
-	public Map<String, String> getRegistryHandlerMap() {
-		return registryHandlerMap;
-	}
-
-	public void setRegistryHandlerMap(Map<String, String> registryHandlerMap) {
-		this.registryHandlerMap = registryHandlerMap;
-	}
 
 	@Override
 	public String toString() {
