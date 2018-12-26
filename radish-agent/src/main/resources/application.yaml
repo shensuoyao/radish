@@ -16,6 +16,6 @@ radish:
     shpath: /tmp/log/radish
   scheduler:
     server: http://127.0.0.1:8888/radish-scheduing
-  log-view-mode: netty
+  log-view-mode: servlet
   log-view-netty:
     port: 8084

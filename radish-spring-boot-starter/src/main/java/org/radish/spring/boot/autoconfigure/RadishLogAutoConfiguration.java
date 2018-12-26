@@ -3,6 +3,7 @@ package org.radish.spring.boot.autoconfigure;
 import org.sam.shen.core.http.HandlerLogServlet;
 import org.sam.shen.core.netty.HandlerLogNettyServer;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
@@ -15,11 +16,11 @@ import org.springframework.context.annotation.Configuration;
  * @date 2018/12/20 下午3:08
  */
 @Configuration
+@ConditionalOnClass({HandlerLogServlet.class, HandlerLogNettyServer.class})
 @AutoConfigureAfter(RadishAutoConfiguration.class)
 public class RadishLogAutoConfiguration {
 
     @Bean
-    @ConditionalOnMissingBean
     @ConditionalOnWebApplication
     @ConditionalOnProperty(name = "radish.log-view-mode", havingValue = "servlet", matchIfMissing = true)
     public ServletRegistrationBean logServletRegistrationBean() {
