@@ -50,9 +50,12 @@ public class HandlerLogNettyServer extends Thread {
 
             // 绑定监听端口
             ChannelFuture cf = serverBootstrap.bind(port).sync();
+            log.info("<<<<<<<<<<< netty server已经初始化完毕，可以接受读取agent日志的请求");
+
+            // 阻塞线程，同步等待netty server关闭
             cf.channel().closeFuture().sync();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            log.info("<<<<<<<<<<< netty server启动异常：{}", e.getMessage());
         } finally {
             // 优雅关闭
             bossGroup.shutdownGracefully();

@@ -11,8 +11,6 @@ import org.sam.shen.core.model.Resp;
 import org.sam.shen.core.netty.channel.ClientChannelInitializer;
 
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author clock
@@ -27,19 +25,15 @@ public class HandlerLogNettyClient {
 
     private Bootstrap bootstrap;
 
-    /**
-     * NIO是异步消息，通过CountDownLatch用于同步返回数据
-     */
-    private CountDownLatch countDownLatch;
+    private EventLoopGroup eventLoopGroup;
 
     private ClientChannelInitializer initializer;
 
     public HandlerLogNettyClient(String host, Integer port) {
         this.host = host;
         this.port = port;
-        EventLoopGroup eventLoopGroup = new NioEventLoopGroup();
-        countDownLatch = new CountDownLatch(1);
-        initializer = new ClientChannelInitializer(countDownLatch);
+        eventLoopGroup = new NioEventLoopGroup();
+        initializer = new ClientChannelInitializer();
         bootstrap = new Bootstrap();
         bootstrap.group(eventLoopGroup).channel(NioSocketChannel.class).handler(initializer);
     }
@@ -48,11 +42,13 @@ public class HandlerLogNettyClient {
         try {
             Channel channel = bootstrap.connect(host, port).sync().channel();
             channel.writeAndFlush(JSON.toJSONString(message));
-            // 等待agent接受消息并返回，需要设置超时时间，防止一直阻塞线程
-            countDownLatch.await(10L, TimeUnit.SECONDS);
+            // 等待agent接受消息并返回
+            channel.closeFuture().sync();
             return initializer.getMessage();
         } catch (InterruptedException e) {
             e.printStackTrace();
+        } finally {
+            eventLoopGroup.shutdownGracefully();
         }
         return null;
     }

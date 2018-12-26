@@ -8,8 +8,6 @@ import lombok.Getter;
 import org.sam.shen.core.log.LogReader;
 import org.sam.shen.core.model.Resp;
 
-import java.util.concurrent.CountDownLatch;
-
 /**
  * @author clock
  * @date 2018/12/21 上午9:14
@@ -18,12 +16,6 @@ public class LogClientHandler extends SimpleChannelInboundHandler {
 
     @Getter
     private Resp<LogReader> resp;
-
-    private CountDownLatch countDownLatch;
-
-    public LogClientHandler(CountDownLatch countDownLatch) {
-        this.countDownLatch = countDownLatch;
-    }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -34,8 +26,8 @@ public class LogClientHandler extends SimpleChannelInboundHandler {
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-        // 读取消息完毕，释放锁
-        countDownLatch.countDown();
+        // 读取消息完毕，关闭连接
+        ctx.close();
     }
 
     @Override
