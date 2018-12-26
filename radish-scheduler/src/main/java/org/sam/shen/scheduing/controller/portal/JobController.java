@@ -285,7 +285,6 @@ public class JobController {
 			model.addObject("logs", Lists.newArrayList("Event ID 为空或 Agent ID 为空."));
 			return model;
 		}
-		
 		LogReader logReader = jobEventService.readEventLogFromAgent(eventId, agentId);
 		if(null == logReader) {
 			model.addObject("logs", Lists.newArrayList("日志为空"));

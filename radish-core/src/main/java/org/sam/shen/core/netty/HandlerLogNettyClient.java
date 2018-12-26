@@ -10,7 +10,6 @@ import org.sam.shen.core.log.LogReader;
 import org.sam.shen.core.model.Resp;
 import org.sam.shen.core.netty.channel.ClientChannelInitializer;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -45,13 +44,9 @@ public class HandlerLogNettyClient {
         bootstrap.group(eventLoopGroup).channel(NioSocketChannel.class).handler(initializer);
     }
 
-    public Resp<LogReader> sendMessage(String eventId, Integer beginLineNum) {
+    public Resp<LogReader> sendMessage(Map<String, Object> message) {
         try {
             Channel channel = bootstrap.connect(host, port).sync().channel();
-            Map<String, Object> message = new HashMap<>();
-            message.put("method", "handler-log");
-            message.put("eventId", eventId);
-            message.put("beginLineNum", beginLineNum);
             channel.writeAndFlush(JSON.toJSONString(message));
             // 等待agent接受消息并返回，需要设置超时时间，防止一直阻塞线程
             countDownLatch.await(10L, TimeUnit.SECONDS);

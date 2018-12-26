@@ -5,7 +5,6 @@ import com.alibaba.fastjson.TypeReference;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.sam.shen.core.log.LogReader;
 import org.sam.shen.core.log.RadishLogFileAppender;
 import org.sam.shen.core.model.Resp;
@@ -28,10 +27,18 @@ public class LogServerHandler extends SimpleChannelInboundHandler {
         // 如果
         if ("handler-log".equals(method)) {
             String eventId = data.get("eventId") == null ? null : data.get("eventId").toString();
-            String beginLineNum = data.get("beginLineNum") == null ? null : data.get("beginLineNum").toString();
-            Integer bln = StringUtils.isEmpty(beginLineNum) ? null : Integer.parseInt(beginLineNum);
-            String logFileName = RadishLogFileAppender.makeLogFile(eventId);
-            Resp<LogReader> logReaderResp = new Resp<>(RadishLogFileAppender.readLog(logFileName, bln));
+            Integer beginLineNum = null;
+            if (data.get("beginLineNum") != null && !"".equals(data.get("beginLineNum").toString())) {
+                beginLineNum = Integer.parseInt(data.get("beginLineNum").toString());
+            }
+
+            String logFileName;
+            if (data.get("logPath") != null && "".equals(data.get("logPath").toString())) {
+                logFileName = data.get("logPath").toString();
+            } else {
+                logFileName = RadishLogFileAppender.makeLogFile(eventId);
+            }
+            Resp<LogReader> logReaderResp = new Resp<>(RadishLogFileAppender.readLog(logFileName, beginLineNum));
 
             channelHandlerContext.writeAndFlush(JSON.toJSONString(logReaderResp));
         }

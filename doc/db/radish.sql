@@ -32,6 +32,8 @@ CREATE TABLE `agent` (
   `admin_phone` varchar(125) DEFAULT '' COMMENT '客户端管理员手机号',
   `reg_time` datetime DEFAULT NULL COMMENT '客户端注册时间',
   `stat` tinyint(2) DEFAULT '0' COMMENT 'Agent状态',
+  `network` varchar(32) COMMENT '日志访问模式',
+  `netty_port` int(11) COMMENT '启动netty监听的端口',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -134,6 +136,7 @@ CREATE TABLE `job_event` (
   `params` varchar(512) DEFAULT NULL COMMENT '附加参数',
   `stat` varchar(32) DEFAULT NULL COMMENT '状态',
   `handler_agent_id` int(11) DEFAULT NULL COMMENT '执行处理的Agent ID',
+  `handler_log_path` varchar(128) COMMENT 'agent执行事件的日志路径',
   `priority` tinyint(2) DEFAULT '0' COMMENT '任务优先级 0 - 9',
   `retry_count` smallint(3) DEFAULT '0' COMMENT '重试次数',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',

@@ -119,17 +119,18 @@ public class JobEventService {
 	 * 处理 Event执行结果
 	 * @author suoyao
 	 * @date 下午5:00:19
-	 * @param eventId
-	 * @param resp
+	 * @param event handler event
 	 */
 	@Transactional
-	public void handlerJobEventReport(String eventId, Resp<String> resp) {
-		
-		JobEvent jobEvent = jobEventMapper.findJobEventByEventId(eventId);
+	public void handlerJobEventReport(HandlerEvent event) {
+		JobEvent jobEvent = jobEventMapper.findJobEventByEventId(event.getEventId());
+		Resp<String> resp = event.getHandlerResult();
 		if(null == jobEvent) {
 			return;
 		}
-		
+		// 设置事件执行日志路径
+        jobEvent.setHandlerLogPath(event.getHandlerLogPath());
+
 		if(resp.getCode() == Resp.SUCCESS.getCode()) {
 			// 执行成功, event 事件的状态改为成功
 			jobEvent.setStat(EventStatus.SUCCESS);
@@ -178,16 +179,19 @@ public class JobEventService {
 	 */
 	public LogReader readEventLogFromAgent(String eventId, Long agentId) {
 		Agent agent = agentMapper.findAgentById(agentId);
+		JobEvent event = jobEventMapper.findJobEventByEventId(eventId);
 		String logUrl = Constant.HTTP_PREFIX.concat(agent.getAgentIp()).concat(":")
 		        .concat(String.valueOf(agent.getAgentPort())).concat(Constant.AGENT_CONTEXT_PATH);
 		Map<String, Object> parameter = new HashMap<>();
 		parameter.put("eventId", eventId);
+		parameter.put("logPath", event.getHandlerLogPath());
 		try {
             Resp<LogReader> resp = null;
             if ("servlet".equals(agent.getNetwork())) {
                 resp = RestRequest.get(logUrl, parameter, LogReader.class);
             } else if ("netty".equals(agent.getNetwork())) {
-                resp = new HandlerLogNettyClient(agent.getAgentIp(), agent.getNettyPort()).sendMessage(eventId, null);
+                parameter.put("method", "handler-log");
+                resp = new HandlerLogNettyClient(agent.getAgentIp(), agent.getNettyPort()).sendMessage(parameter);
             }
 			if(resp != null && resp.getCode() == Resp.SUCCESS.getCode()) {
 				return resp.getData();

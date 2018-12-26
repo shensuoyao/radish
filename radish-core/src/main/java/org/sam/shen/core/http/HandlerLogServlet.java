@@ -25,10 +25,16 @@ public class HandlerLogServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String eventId = req.getParameter("eventId");
         Integer beginLineNum = null;
+        String logFileName;
         if (StringUtils.isNotEmpty(req.getParameter("beginLineNum"))) {
             beginLineNum = Integer.parseInt(req.getParameter("beginLineNum"));
         }
-        String logFileName = RadishLogFileAppender.makeLogFile(eventId);
+        // 如果存在logPath，则直接读取该日志文件
+        if (StringUtils.isNotEmpty(req.getParameter("logPath"))) {
+            logFileName = req.getParameter("logPath");
+        } else {
+            logFileName = RadishLogFileAppender.makeLogFile(eventId);
+        }
         Resp<LogReader> logReaderResp = new Resp<>(RadishLogFileAppender.readLog(logFileName, beginLineNum));
 
         resp.setContentType("application/json;charset=utf-8");
