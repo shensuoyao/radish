@@ -1,19 +1,21 @@
 server:
-    port: 8083
-    servlet: 
-        context-path: /${spring.application.name}
+  port: 8083
+  servlet:
+    context-path: /${spring.application.name}
 
 spring:
-    application: 
-        name: radish-agent
+  application:
+    name: radish-agent
 
-scheduing:
-    server: http://192.168.140.215:8888/radish-scheduing
-
-agent:
+radish:
+  agent:
     ip: 127.0.0.1
     port: 8083
     name: test
     logpath: /tmp/log/radish
     shpath: /tmp/log/radish
-    
+  scheduler:
+    server: http://127.0.0.1:8888/radish-scheduing
+  log-view-mode: netty
+  log-view-netty:
+    port: 8084
