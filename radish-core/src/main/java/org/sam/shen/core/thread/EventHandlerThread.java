@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.sam.shen.core.agent.RadishAgent;
 import org.sam.shen.core.constants.Constant;
 import org.sam.shen.core.event.HandlerEvent;
+import org.sam.shen.core.handler.AbsHandler;
 import org.sam.shen.core.handler.IHandler;
 import org.sam.shen.core.model.Resp;
 import org.sam.shen.core.rpc.RestRequest;
@@ -51,26 +52,34 @@ public class EventHandlerThread extends Thread {
 			Resp<String> initRsp = handler.init();
 			if(null == initRsp) {
 				log.error("Handler Init Method Return Null.");
-				RestRequest.post(rpcReportUrl, new Resp<>(1, "Handler Init Method Return Null."), eventId);
-				return;
+				event.setHandlerResult(new Resp<>(1, "Handler Init Method Return Null."));
+                RestRequest.post(rpcReportUrl, event);
+                return;
 			}
 			if (initRsp.getCode() != Resp.SUCCESS.getCode()) {
 				// 失败上报终止继续执行
-				RestRequest.post(rpcReportUrl, initRsp, eventId);
+                event.setHandlerResult(initRsp);
+				RestRequest.post(rpcReportUrl, event);
 				return;
 			}
             Resp<String> resp = handler.start(event);
+			// 如果handler继承AbsHandler，设置handler执行日志路径，用于保存到数据库
+			if (handler instanceof AbsHandler) {
+                event.setHandlerLogPath(((AbsHandler) handler).getLogFileName());
+            }
+            // 上报执行结果
+            event.setHandlerResult(resp);
+            RestRequest.post(rpcReportUrl, event);
 			// 如果任务执行成功，查看是否存在子任务
 			if (resp.getCode() == Resp.SUCCESS.getCode()) {
 			    RestRequest.post(rpcSubeventUrl, event);
             }
-            // 上报执行结果
-            RestRequest.post(rpcReportUrl, resp, eventId);
 		} catch (Exception e) {
 			log.error("Start Handler Error.", e);
 			// 上报出错信息
 			try {
-				RestRequest.post(rpcReportUrl, new Resp<>(1, "Start Handler Error.", e.getMessage()), eventId);
+			    event.setHandlerResult(new Resp<>(1, "Start Handler Error.", e.getMessage()));
+				RestRequest.post(rpcReportUrl, event);
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}

@@ -46,6 +46,8 @@ public class JobEvent implements Serializable {
 	private int retryCount;
 	
 	private Date createTime;
+
+	private String handlerLogPath;
 	
 	public JobEvent() {
 		super();

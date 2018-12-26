@@ -10,7 +10,6 @@ import org.sam.shen.core.model.AgentInfo;
 import org.sam.shen.core.model.AgentMonitorInfo;
 import org.sam.shen.core.model.Resp;
 import org.sam.shen.scheduing.entity.JobInfo;
-import org.sam.shen.scheduing.scheduler.RadishDynamicScheduler;
 import org.sam.shen.scheduing.service.AgentService;
 import org.sam.shen.scheduing.service.JobEventService;
 import org.sam.shen.scheduing.service.JobService;
@@ -96,14 +95,12 @@ public class CoreController {
 	 * Handle report that agent execute event
 	 * @author suoyao
 	 * @date 下午4:57:50
-	 * @param eventId event id
-	 * @param resp report agent execute event
+	 * @param event job event
 	 * @return handle result
 	 */
-	@RequestMapping(value = "/handler-event-report/{eventId}", method = RequestMethod.POST)
-	public Resp<String> handlerEventReport(@PathVariable(value = "eventId", required = false) String eventId,
-	        Resp<String> resp) {
-		jobEventService.handlerJobEventReport(eventId, resp);
+	@RequestMapping(value = "/handler-event-report", method = RequestMethod.POST)
+	public Resp<String> handlerEventReport(@RequestBody HandlerEvent event) {
+		jobEventService.handlerJobEventReport(event);
 		return Resp.SUCCESS;
 	}
 

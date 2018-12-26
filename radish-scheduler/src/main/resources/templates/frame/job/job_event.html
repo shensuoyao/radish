@@ -94,7 +94,7 @@
                 , shade: 0
                 , area: ['600px', '500px']
                 , maxmin: true
-                , content: [[@{/portal/job-event-log}]] + '?eventId=' + obj.data.eventId + '&agentId=' + obj.data.handlerAgentId
+                , content: [[@{/portal/job-event-log}]] + '?eventId=' + obj.data.eventId + '&agentId=' + ((agentId = obj.data.handlerAgentId) == null ? '' : agentId)
                 , moveEnd: function(layero) {
                     layer.setTop(layero);
                 }

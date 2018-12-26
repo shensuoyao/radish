@@ -23,7 +23,7 @@ public class RadishLogAutoConfiguration {
     @ConditionalOnWebApplication
     @ConditionalOnProperty(name = "radish.log-view-mode", havingValue = "servlet", matchIfMissing = true)
     public ServletRegistrationBean logServletRegistrationBean() {
-        ServletRegistrationBean servletRegistrationBean = new ServletRegistrationBean();
+        ServletRegistrationBean<HandlerLogServlet> servletRegistrationBean = new ServletRegistrationBean<>();
         servletRegistrationBean.setServlet(new HandlerLogServlet());
         servletRegistrationBean.addUrlMappings("/handler-log");
         return servletRegistrationBean;

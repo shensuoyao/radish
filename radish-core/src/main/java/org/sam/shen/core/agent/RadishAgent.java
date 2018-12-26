@@ -137,7 +137,7 @@ public class RadishAgent {
     private void initTriggerCallback() {
 		TriggerEventThread.getInstance().start(scheduingServer.concat("/core/trigger-event/{agentId}"),
 		        scheduingServer.concat("/core/handle-child-event"),
-		        scheduingServer.concat("/core/handler-event-report/{eventId}"), agentInfo.getAgentId());
+		        scheduingServer.concat("/core/handler-event-report"), agentInfo.getAgentId());
 	}
 
     /**
