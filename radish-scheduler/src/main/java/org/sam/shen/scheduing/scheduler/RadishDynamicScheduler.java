@@ -380,7 +380,9 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
             }
             parentEvents = tempEvents;
         }
-        jobEventMapper.batchInsert(jobEvents);
+        if (jobEvents.size() > 0) {
+			jobEventMapper.batchInsert(jobEvents);
+		}
 	}
 
     /**
