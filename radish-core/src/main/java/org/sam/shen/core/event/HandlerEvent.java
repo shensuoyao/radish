@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.sam.shen.core.constants.DistributionType;
 import org.sam.shen.core.constants.HandlerType;
 
 import com.alibaba.fastjson.JSON;
@@ -35,6 +36,10 @@ public class HandlerEvent implements Serializable {
 	private String handlerLogPath;
 
 	private Resp<String> handlerResult;
+
+	private DistributionType distType;
+
+	private String eventRule;
 	
 	public HandlerEvent() {
 		super();

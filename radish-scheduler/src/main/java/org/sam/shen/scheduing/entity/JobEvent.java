@@ -6,6 +6,7 @@ import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
 import org.sam.shen.core.constants.Constant;
+import org.sam.shen.core.constants.DistributionType;
 import org.sam.shen.core.constants.EventStatus;
 import org.sam.shen.core.constants.HandlerType;
 
@@ -24,6 +25,10 @@ public class JobEvent implements Serializable {
 	private Long jobId;
 	
 	private String parentJobId;
+
+	private String groupId;
+
+	private String parentGroupId;
 	
 	/**
 	 * 执行任务的Handler处理器
@@ -48,6 +53,10 @@ public class JobEvent implements Serializable {
 	private Date createTime;
 
 	private String handlerLogPath;
+
+	private DistributionType distType;
+
+	private String eventRule;
 	
 	public JobEvent() {
 		super();
@@ -70,6 +79,16 @@ public class JobEvent implements Serializable {
 		this.cmd = cmd;
 		this.params = params;
 	}
+
+	public JobEvent(Long jobId, Long time, int serial, String groupId, String executorHandlers, HandlerType handlerType,
+                    EventStatus stat, int priority, String cmd, String params, DistributionType distType, String eventRule) {
+	    this(jobId, executorHandlers, handlerType, stat, priority, cmd, params);
+	    // 重新设置eventId
+        this.eventId = jobId + Constant.SPLIT_CHARACTER + time + Constant.SPLIT_CHARACTER + serial;
+        this.groupId = groupId;
+        this.distType = distType;
+        this.eventRule = eventRule;
+    }
 
 	@Override
 	public String toString() {
