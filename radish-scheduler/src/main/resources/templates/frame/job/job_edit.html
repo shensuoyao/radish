@@ -99,6 +99,21 @@
                 </select>
             </div>
         </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">分片策略</label>
+            <div class="layui-input-block">
+                <select name="distType" class="layui-input" lay-filter="distType">
+                    <option value=""></option>
+                    <option th:each="enum : ${distributionType}" th:value="${enum}" th:selected="${jobInfo.distType} eq ${enum} ? true : false" th:text="${enum.name}" />
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">分片规则</label>
+            <div class="layui-input-block">
+                <input type="input" name="distRule" placeholder="分片规则" th:value="${jobInfo.distRule}" class="layui-input">
+            </div>
+        </div>
 	    <div class="layui-form-item">
             <div class="layui-inline">
             <label class="layui-form-label">优先级</label>

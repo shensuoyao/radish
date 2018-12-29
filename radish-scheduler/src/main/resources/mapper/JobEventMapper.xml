@@ -162,6 +162,12 @@
             UPDATE job_event SET stat = #{stat} WHERE parent_event_id = #{pid}
         ]]>
     </update>
+
+    <update id="activateChildEventByGroupId">
+        <![CDATA[
+            UPDATE job_event SET stat = 'READY' WHERE parent_group_id = #{groupId} AND stat = 'WAIT'
+        ]]>
+    </update>
     
     <select id="findSubeventsByPid" parameterType="string" resultMap="jobEventMap">
         <![CDATA[
@@ -169,6 +175,21 @@
                    handler_type, cmd, params, stat, handler_agent_id, priority, retry_count, create_time, handler_log_path,
                    dist_type, event_rule
             FROM job_event WHERE parent_event_id = #{pid}
+        ]]>
+    </select>
+
+    <select id="findSubeventsByParentGroupId" parameterType="string" resultMap="jobEventMap">
+        <![CDATA[
+            SELECT event_id, parent_event_id, job_id, parent_job_id, group_id, parent_group_id, executor_handlers,
+                handler_type, cmd, params, stat, handler_agent_id, priority, retry_count, create_time, handler_log_path,
+                dist_type, event_rule
+            FROM job_event WHERE parent_group_id = #{pid}
+        ]]>
+    </select>
+    
+    <select id="checkGroupComplete" parameterType="string" resultType="java.lang.Integer">
+        <![CDATA[
+            SELECT count(event_id) FROM job_event WHERE group_id = #{groupId} AND stat <> 'SUCCESS'
         ]]>
     </select>
 </mapper>

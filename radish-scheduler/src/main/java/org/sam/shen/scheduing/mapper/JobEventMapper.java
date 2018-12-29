@@ -37,5 +37,18 @@ public interface JobEventMapper {
 
 	int updateChildEventStatus(@Param("stat") String stat, @Param("pid") String pid);
 
+    int activateChildEventByGroupId(String groupId);
+
 	List<JobEvent> findSubeventsByPid(String pid);
+
+    List<JobEvent> findSubeventsByParentGroupId(String pid);
+	
+	/**
+	 * 判断该事件组的所有事件是否完成
+	 * @author clock
+	 * @date 2018/12/29 上午9:51
+	 * @param groupId 事件组ID
+	 * @return 事件组的
+	 */
+	int checkGroupComplete(String groupId);
 }

@@ -21,6 +21,9 @@ public class HandlerEvent implements Serializable {
 	
 	// 执行调用ID
 	private String eventId;
+
+	// 执行的事件组ID
+	private String groupId;
 	
 	// 配置的Job任务ID
 	private String jobId;

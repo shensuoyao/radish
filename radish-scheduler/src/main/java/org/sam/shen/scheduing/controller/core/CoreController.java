@@ -117,7 +117,7 @@ public class CoreController {
         if (jobInfo == null || jobInfo.size() == 0) {
             return new Resp<>(Resp.FAIL.getCode(), "have no child job");
         }
-        jobEventService.addChildJobEvent(event.getEventId());
+        jobEventService.addChildJobEvent(event);
         return Resp.SUCCESS;
     }
 

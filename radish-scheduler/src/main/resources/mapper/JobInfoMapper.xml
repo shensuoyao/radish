@@ -112,7 +112,7 @@
         SELECT id, job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone,
                executor_handlers, cmd, params, parent_job_id, dist_type, dist_rule, create_time, update_time, priority, enable
         FROM job_info
-        WHERE parent_job_id = #{jobId}
+        WHERE parent_job_id = #{jobId} AND enable = 1
         ]]>
     </select>
 

@@ -287,20 +287,6 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
      * @return execute result
      */
     private static List<JobEvent> addJobEventBase(JobInfo jobInfo, String parentEventId, String parentGroupId) {
-        List<String> agentHandlers = Splitter.onPattern(",|-").splitToList(jobInfo.getExecutorHandlers());
-        Map<String, Object> eventHash = Maps.newHashMap();
-        eventHash.put("priority", jobInfo.getPriority());    // 设置优先级
-        Stream.iterate(0, i -> i + 1).limit(agentHandlers.size()).forEach(i -> {
-            if (i % 2 == 0) {
-                if (eventHash.containsKey(agentHandlers.get(i))) {
-                    String val = String.valueOf(eventHash.get(agentHandlers.get(i))).concat(",").concat(agentHandlers.get(i + 1));
-                    eventHash.put(agentHandlers.get(i), val);
-                } else {
-                    eventHash.put(agentHandlers.get(i), agentHandlers.get(i + 1));
-                }
-            }
-        });
-
         List<JobEvent> jobEvents = new ArrayList<>();
         // 如果存在分片规则，需要根据规则将job拆分为多个event
         if (jobInfo.getDistType() != null && StringUtils.isNotEmpty(jobInfo.getDistRule())) {
@@ -314,10 +300,25 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
             jobEvent.setParentGroupId(parentGroupId);
             jobEvents.add(jobEvent);
         }
-        jobEventMapper.batchInsert(jobEvents);
-        // 循环保存到redis缓存中
-        for (JobEvent jobEvent : jobEvents) {
-            redisService.hmset(Constant.REDIS_EVENT_PREFIX.concat(jobEvent.getEventId()), eventHash);
+        if (jobEvents.size() > 0) {
+            jobEventMapper.batchInsert(jobEvents);
+            List<String> agentHandlers = Splitter.onPattern(",|-").splitToList(jobInfo.getExecutorHandlers());
+            Map<String, Object> eventHash = Maps.newHashMap();
+            eventHash.put("priority", jobInfo.getPriority());    // 设置优先级
+            Stream.iterate(0, i -> i + 1).limit(agentHandlers.size()).forEach(i -> {
+                if (i % 2 == 0) {
+                    if (eventHash.containsKey(agentHandlers.get(i))) {
+                        String val = String.valueOf(eventHash.get(agentHandlers.get(i))).concat(",").concat(agentHandlers.get(i + 1));
+                        eventHash.put(agentHandlers.get(i), val);
+                    } else {
+                        eventHash.put(agentHandlers.get(i), agentHandlers.get(i + 1));
+                    }
+                }
+            });
+            // 循环保存到redis缓存中
+            for (JobEvent jobEvent : jobEvents) {
+                redisService.hmset(Constant.REDIS_EVENT_PREFIX.concat(jobEvent.getEventId()), eventHash);
+            }
         }
         return jobEvents;
     }

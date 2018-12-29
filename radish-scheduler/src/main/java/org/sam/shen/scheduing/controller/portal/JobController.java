@@ -5,10 +5,7 @@ import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.SchedulerException;
-import org.sam.shen.core.constants.Constant;
-import org.sam.shen.core.constants.EventStatus;
-import org.sam.shen.core.constants.HandlerFailStrategy;
-import org.sam.shen.core.constants.HandlerType;
+import org.sam.shen.core.constants.*;
 import org.sam.shen.core.log.LogReader;
 import org.sam.shen.core.model.Resp;
 import org.sam.shen.scheduing.entity.*;
@@ -71,6 +68,7 @@ public class JobController {
 	public ModelAndView jobAdd(ModelAndView model) {
 		model.addObject("handlerType", Arrays.asList(HandlerType.values()));
 		model.addObject("handlerFailStrategy", Arrays.asList(HandlerFailStrategy.values()));
+		model.addObject("distributionType", Arrays.asList(DistributionType.values()));
 		model.setViewName("frame/job/job_add");
 		return model;
 	}
@@ -220,6 +218,7 @@ public class JobController {
 		}
 		model.addObject("handlerType", Arrays.asList(HandlerType.values()));
 		model.addObject("handlerFailStrategy", Arrays.asList(HandlerFailStrategy.values()));
+        model.addObject("distributionType", Arrays.asList(DistributionType.values()));
 		model.setViewName("frame/job/job_edit");
 		return model;
 	}

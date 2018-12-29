@@ -6,18 +6,18 @@ package org.sam.shen.core.constants;
  */
 public enum DistributionType {
 
-    ENUM("enum"),
-    PAGE("page"),
-    MOD("mod"),
-    DATE("date");
+    ENUM("枚举"),
+    PAGE("分页"),
+    MOD("取模"),
+    DATE("时间");
 
-    private String value;
+    private String name;
 
-    DistributionType(String value) {
-        this.value = value;
+    DistributionType(String name) {
+        this.name = name;
     }
 
-    public String getValue() {
-        return this.value;
+    public String getName() {
+        return this.name;
     }
 }

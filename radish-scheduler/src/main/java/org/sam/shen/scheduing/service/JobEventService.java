@@ -100,6 +100,11 @@ public class JobEventService {
 						redisService.delete(mapping.getKey());
 						HandlerEvent handlerEvent = new HandlerEvent(event.getEventId(),
 						        String.valueOf(event.getJobId()), handlers, event.getCmd(), event.getHandlerType());
+						// 添加分片规则
+                        handlerEvent.setDistType(event.getDistType());
+                        handlerEvent.setEventRule(event.getEventRule());
+                        // 添加事件组ID
+                        handlerEvent.setGroupId(event.getGroupId());
 						if(StringUtils.isNotEmpty(event.getParams())) {
 							handlerEvent.setParams(event.getParams().split(System.lineSeparator()));
 						}
@@ -317,13 +322,30 @@ public class JobEventService {
      * Update stat of child job events and add these to redis
      * @author clock
      * @date 2018/12/20 上午10:32
-     * @param pid parent event id
+     * @param event parent event
      */
-    public void addChildJobEvent(String pid) {
-	    // 将子事件的状态从WAIT更新为READY
-        jobEventMapper.updateChildEventStatus("READY", pid);
+    public void addChildJobEvent(HandlerEvent event) {
+        List<JobEvent> subevents = new ArrayList<>();
+        if (StringUtils.isNotEmpty(event.getGroupId())) {
+            // 检查改组事件是否全部执行完毕（这里的逻辑是改组事件全部执行成功，有失败的也不算执行完毕）
+            int failed = jobEventMapper.checkGroupComplete(event.getGroupId());
+            if (failed > 0) {
+                logger.info("Group[{}] is not complete, waiting......", event.getGroupId());
+                return;
+            }
+            // 将子事件的状态从WAIT更新为READY
+            int count = jobEventMapper.activateChildEventByGroupId(event.getGroupId());
+            // 这里采用乐观锁，count为0的情况说明有其他组内的事件已经更新，所以没必要重复执行插入redis缓存的操作
+            if (count > 0) {
+                // 将READY状态的子事件添加到Redis缓存中
+                subevents = jobEventMapper.findSubeventsByParentGroupId(event.getGroupId());
+            }
+        } else { // 父事件不是一组事件的情况
+            // 将子事件的状态从WAIT更新为READY
+            jobEventMapper.updateChildEventStatus("READY", event.getEventId());
+            subevents = jobEventMapper.findSubeventsByPid(event.getEventId());
+        }
         // 将READY状态的子事件添加到Redis缓存中
-        List<JobEvent> subevents = jobEventMapper.findSubeventsByPid(pid);
         for (JobEvent jobEvent : subevents) {
             List<String> agentHandlers = Splitter.onPattern(",|-").splitToList(jobEvent.getExecutorHandlers());
             Map<String, Object> eventHash = new HashMap<>();
