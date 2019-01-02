@@ -41,6 +41,8 @@ public class JobEvent implements Serializable {
 	private String cmd;    // 执行命令
 	
 	private String params;    // 附加参数
+
+    private String paramFilePath; // 附加参数附件路径
 	
 	private EventStatus stat;
 	

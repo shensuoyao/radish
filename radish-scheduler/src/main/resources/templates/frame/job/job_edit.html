@@ -41,7 +41,7 @@
                 <div class="layui-input-inline">
                     <select name="handlerType" class="layui-input" lay-filter="handlerType">
                         <option value=""></option>
-                        <option th:each="enum : ${handlerType}" th:value="${enum}" th:text="${enum.desc}" th:selected="${jobInfo.handlerType} eq ${enum} ? true : false" />
+                        <option th:each="enum : ${handlerType}" th:value="${enum}" th:text="${enum.desc}" th:selected="${jobInfo.handlerType} eq ${enum} ? true : false"></option>
                     </select>
                 </div>
             </div>
@@ -77,7 +77,7 @@
             <div class="layui-input-block">
                 <select name="parentJob" xm-select="parent-select" xm-select-search="" xm-select-search-type="dl" xm-select-radio>
                     <option value=""></option>
-                    <option th:each="pjob : ${parentJob}" th:value="${pjob.id}" th:selected="true" th:text="${pjob.jobName}" />
+                    <option th:each="pjob : ${parentJob}" th:value="${pjob.id}" th:selected="true" th:text="${pjob.jobName}"></option>
                 </select>
             </div>
         </div>
@@ -86,7 +86,7 @@
             <div class="layui-input-block">
                 <select name="agentHandlers" xm-select="agent-select" xm-select-search="" xm-select-search-type="dl">
                     <option value=""></option>
-                    <option th:each="handler : ${handlers}" th:value="${handler}" th:selected="true" th:text="${#strings.arraySplit(handler,'-')[1]}" />
+                    <option th:each="handler : ${handlers}" th:value="${handler}" th:selected="true" th:text="${#strings.arraySplit(handler,'-')[1]}"></option>
                 </select>
             </div>
         </div>
@@ -95,7 +95,7 @@
             <div class="layui-input-block">
                 <select name="handlerFailStrategy" class="layui-input" lay-filter="handlerFailStrategy">
                     <option value=""></option>
-                    <option th:each="enum : ${handlerFailStrategy}" th:value="${enum}" th:selected="${jobInfo.handlerFailStrategy} eq ${enum} ? true : false" th:text="${enum.desc}" />
+                    <option th:each="enum : ${handlerFailStrategy}" th:value="${enum}" th:selected="${jobInfo.handlerFailStrategy} eq ${enum} ? true : false" th:text="${enum.desc}"></option>
                 </select>
             </div>
         </div>
@@ -104,7 +104,7 @@
             <div class="layui-input-block">
                 <select name="distType" class="layui-input" lay-filter="distType">
                     <option value=""></option>
-                    <option th:each="enum : ${distributionType}" th:value="${enum}" th:selected="${jobInfo.distType} eq ${enum} ? true : false" th:text="${enum.name}" />
+                    <option th:each="enum : ${distributionType}" th:value="${enum}" th:selected="${jobInfo.distType} eq ${enum} ? true : false" th:text="${enum.name}"></option>
                 </select>
             </div>
         </div>
@@ -136,13 +136,26 @@
                 <!-- end code-->
 	        </div>
 	    </div>
-	    <div class="layui-form-item">
+        <div class="layui-form-item">
             <label class="layui-form-label" id="param-tips"><i class="layui-icon">&#xe60b;</i> 附加参数</label>
             <div class="layui-input-block layui-collapse">
-                <textarea class="layui-textarea" id="params" name="params" th:text="${jobInfo.params}"></textarea>
+                <textarea class="layui-textarea" lay-verify="upload" id="params" name="params" th:text="${jobInfo.params}"></textarea>
             </div>
+            <br/>
+            <div class="layui-upload layui-input-block">
+                <button type="button" class="layui-btn" id="param_file">
+                    <i class="layui-icon">&#xe67c;</i>上传附加参数文件
+                </button>
+                <div class="layui-upload-list">
+                    <a id="upload_file" th:href="@{'/portal/download-param-file' + '?fileName=' + ${jobInfo.paramFilePath}}" target="_blank"
+                       style="color: blue;cursor: pointer;" th:text="${jobInfo.paramFilePath}"></a>
+                    &nbsp;&nbsp;<button type="button" class="layui-btn layui-btn-xs layui-btn-danger file-delete"
+                                        th:if="${jobInfo.paramFilePath} != null and not ${#strings.isEmpty(jobInfo.paramFilePath)}">删除</button>
+                </div>
+            </div>
+            <input type="hidden" id="paramFilePath" name="paramFilePath" th:value="${jobInfo.paramFilePath}"/>
         </div>
-	
+
 	    <div class="layui-form-item">
 	        <div class="layui-input-block">
 	            <button class="layui-btn" lay-submit="" lay-filter="jobSave">立即提交</button>
@@ -164,9 +177,10 @@
 <script th:src="@{/static/js/codemirror/mode/javascript/javascript.js}"></script>
 <script th:src="@{/static/js/codemirror/mode/clike/clike.js}"></script>
 <script th:inline="javascript">
-    layui.use(['form', 'layedit', 'laydate', 'formSelects'], function(){
+    layui.use(['form', 'layedit', 'laydate', 'formSelects', 'upload'], function(){
         var form = layui.form
                 ,layer = layui.layer
+                ,upload = layui.upload
                 ,layedit = layui.layedit
                 ,element = layui.element
                 ,formSelects = layui.formSelects
@@ -272,12 +286,37 @@
             console.log(data);
         });
 
+        upload.render({
+            elem: '#param_file'
+            ,accept: 'file'
+            ,url: [[@{/portal/upload-param-file}]]
+            ,done: function(res){
+                $('#paramFilePath').val(res.msg);
+                var file_url = [[@{/portal/download-param-file}]] + '?fileName=' + res.msg;
+                var file_list = '<a id="upload_file" href="' + file_url + '" target="_blank" style="color: blue;cursor: pointer;">' + res.msg + '</a>';
+                file_list += '&nbsp;&nbsp;<button type="button" class="layui-btn layui-btn-xs layui-btn-danger file-delete">删除</button>';
+                $('.layui-upload-list').append(file_list);
+                layer.msg('上传成功！');
+            }
+        });
+
+        // 添加删除附件事件
+        $('.layui-upload-list').on('click', '.file-delete', function() {
+            $('#paramFilePath').val('');
+            $('.layui-upload-list').empty();
+        });
+
         // 表单校验
         form.verify({
             pJob: function () {
                 var selectVals = formSelects.value('parent-select', 'val');
                 if (selectVals != null && selectVals.length > 0 && $('#crontab').val() !== '') {
                     return '子任务不能设置调度规则！'
+                }
+            },
+            upload: function () {
+                if ($('#paramFilePath').val() != '' && paramsEditor.getValue() != '') {
+                    return '附件参数文本和附件只能选择其中一种方式上传！';
                 }
             }
         });

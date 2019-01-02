@@ -68,6 +68,7 @@ public class DateDistributionStrategy extends AbsDistributionStrategy {
                 jobEvent.setParentJobId(jobInfo.getParentJobId());
                 jobEvent.setParentEventId(parentEventId);
                 jobEvent.setParentGroupId(parentGroupId);
+                jobEvent.setParamFilePath(jobInfo.getParamFilePath());
                 jobEvents.add(jobEvent);
             }
             return jobEvents;
@@ -77,6 +78,13 @@ public class DateDistributionStrategy extends AbsDistributionStrategy {
         return Collections.emptyList();
     }
 
+    /**
+     * 校验时间段字符串是否符合规范
+     * @author clock
+     * @date 2019/1/2 下午2:38
+     * @param period 时间段规则
+     * @return 是否符合规范
+     */
     private boolean isCorrectPeriod(String period) {
         Pattern pattern = Pattern.compile("[0-9]*[ymdh]");
         Matcher matcher = pattern.matcher(period);

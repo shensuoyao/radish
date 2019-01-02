@@ -36,6 +36,8 @@ public class HandlerEvent implements Serializable {
 
 	private String[] params;
 
+	private String paramFilePath; // 附加参数附件路径
+
 	private String handlerLogPath;
 
 	private Resp<String> handlerResult;

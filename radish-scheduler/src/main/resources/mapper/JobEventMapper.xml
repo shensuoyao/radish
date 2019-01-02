@@ -14,6 +14,7 @@
         <result column="handler_type" property="handlerType"/>
         <result column="cmd" property="cmd"/>
         <result column="params" property="params"/>
+        <result column="param_file_path" property="paramFilePath"/>
         <result column="stat" property="stat"/>
         <result column="handler_agent_id" property="handlerAgentId"/>
         <result column="priority" property="priority"/>
@@ -32,25 +33,25 @@
     <insert id="saveJobEvent" parameterType="JobEvent">
         <![CDATA[
             INSERT INTO job_event(event_id, parent_event_id, job_id, parent_job_id, group_id, parent_group_id,
-                                  executor_handlers, handler_type, cmd, params, stat, handler_agent_id, priority,
+                                  executor_handlers, handler_type, cmd, params, param_file_path, stat, handler_agent_id, priority,
                                   retry_count, create_time, dist_type, event_rule)
             VALUES (#{eventId}, #{parentEventId}, #{jobId}, #{parentJobId}, #{groupId}, #{parentGroupId}, #{executorHandlers},
-                    #{handlerType}, #{cmd}, #{params}, #{stat}, #{handlerAgentId}, #{priority}, #{retryCount}, #{createTime},
-                    #{distType}, #{eventRule})
+                    #{handlerType}, #{cmd}, #{params}, #{paramFilePath}, #{stat}, #{handlerAgentId}, #{priority}, #{retryCount},
+                    #{createTime}, #{distType}, #{eventRule})
         ]]>
     </insert>
 
     <insert id="batchInsert" parameterType="List">
         <![CDATA[
             INSERT INTO job_event(event_id, parent_event_id, job_id, parent_job_id, group_id, parent_group_id,
-                        executor_handlers, handler_type, cmd, params, stat, handler_agent_id, priority, retry_count,
+                        executor_handlers, handler_type, cmd, params, param_file_path, stat, handler_agent_id, priority, retry_count,
                         create_time,  dist_type, event_rule)
             VALUES
         ]]>
         <foreach collection="list" item="item" index="index" separator=",">
             (#{item.eventId}, #{item.parentEventId}, #{item.jobId}, #{item.parentJobId}, #{item.groupId}, #{item.parentGroupId},
-            #{item.executorHandlers}, #{item.handlerType}, #{item.cmd}, #{item.params}, #{item.stat}, #{item.handlerAgentId},
-            #{item.priority}, #{item.retryCount}, #{item.createTime}, #{item.distType}, #{item.eventRule})
+            #{item.executorHandlers}, #{item.handlerType}, #{item.cmd}, #{item.params}, #{item.paramFilePath}, #{item.stat},
+            #{item.handlerAgentId}, #{item.priority}, #{item.retryCount}, #{item.createTime}, #{item.distType}, #{item.eventRule})
         </foreach>
     </insert>
 
@@ -83,7 +84,7 @@
     <select id="findJobEventByEventId" parameterType="string" resultMap="jobEventMap">
         <![CDATA[
             SELECT event_id, parent_event_id, job_id, parent_job_id, group_id, parent_group_id, executor_handlers,
-                   handler_type, cmd, params, stat, handler_agent_id, priority, retry_count, create_time, handler_log_path,
+                   handler_type, cmd, params, param_file_path, stat, handler_agent_id, priority, retry_count, create_time, handler_log_path,
                    dist_type, event_rule
             FROM job_event
             WHERE event_id = #{eventId}
@@ -93,7 +94,7 @@
     <select id="queryJobEventForPager" resultMap="jobEventMap" parameterType="string">
         <![CDATA[
             SELECT event_id, parent_event_id, job_id, parent_job_id, group_id, parent_group_id, executor_handlers,
-                   handler_type, cmd, params, stat, handler_agent_id, priority, retry_count, create_time, handler_log_path,
+                   handler_type, cmd, params, param_file_path, stat, handler_agent_id, priority, retry_count, create_time, handler_log_path,
                    dist_type, event_rule
             FROM job_event
         ]]>
@@ -116,7 +117,7 @@
     <select id="queryJobEventByJobId" parameterType="long" resultMap="jobEventMap">
         <![CDATA[
             SELECT a.event_id, a.parent_event_id, a.job_id, a.parent_job_id, a.executor_handlers, a.group_id, a.parent_group_id,
-                   a.handler_type, a.cmd, a.params, a.stat, a.handler_agent_id, a.priority, a.retry_count, a.create_time,
+                   a.handler_type, a.cmd, a.params, a.param_file_path, a.stat, a.handler_agent_id, a.priority, a.retry_count, a.create_time,
                    a.handler_log_path, a.dist_type, a.event_rule
             FROM job_event a, job_info b
             WHERE a.job_id=b.id AND a.stat<>'SUCCESS' AND a.stat<>'FAIL' AND a.job_id=#{jobId}
@@ -126,7 +127,7 @@
     <select id="findJobEventTreeNodeById" parameterType="string" resultMap="JobEventTreeNodeMap">
         <![CDATA[
             SELECT a.event_id, a.parent_event_id, a.job_id, a.parent_job_id, a.group_id, a.parent_group_id, a.executor_handlers,
-                   a.handler_type, a.cmd, a.params, a.stat, a.handler_agent_id, a.priority, a.retry_count, a.create_time,
+                   a.handler_type, a.cmd, a.params, a.param_file_path, a.stat, a.handler_agent_id, a.priority, a.retry_count, a.create_time,
                    a.handler_log_path, a.dist_type, a.event_rule, b.job_name, b.admin, b.admin_phone, b.admin_email,
                    b.handler_fail_strategy, b.crontab
             FROM job_event a, job_info b
@@ -137,7 +138,7 @@
     <select id="queryChildJobEventTreeNode" parameterType="string" resultMap="JobEventTreeNodeMap">
         <![CDATA[
             SELECT a.event_id, a.parent_event_id, a.job_id, a.parent_job_id, a.group_id, a.parent_group_id, a.executor_handlers,
-                   a.handler_type, a.cmd, a.params, a.stat, a.handler_agent_id, a.priority, a.retry_count, a.create_time,
+                   a.handler_type, a.cmd, a.params, a.param_file_path, a.stat, a.handler_agent_id, a.priority, a.retry_count, a.create_time,
                    a.handler_log_path, a.dist_type, a.event_rule, b.job_name, b.admin, b.admin_phone, b.admin_email,
                    b.handler_fail_strategy, b.crontab
             FROM job_event a, job_info b
@@ -172,7 +173,7 @@
     <select id="findSubeventsByPid" parameterType="string" resultMap="jobEventMap">
         <![CDATA[
             SELECT event_id, parent_event_id, job_id, parent_job_id, group_id, parent_group_id, executor_handlers,
-                   handler_type, cmd, params, stat, handler_agent_id, priority, retry_count, create_time, handler_log_path,
+                   handler_type, cmd, params, param_file_path, stat, handler_agent_id, priority, retry_count, create_time, handler_log_path,
                    dist_type, event_rule
             FROM job_event WHERE parent_event_id = #{pid}
         ]]>
@@ -181,7 +182,7 @@
     <select id="findSubeventsByParentGroupId" parameterType="string" resultMap="jobEventMap">
         <![CDATA[
             SELECT event_id, parent_event_id, job_id, parent_job_id, group_id, parent_group_id, executor_handlers,
-                handler_type, cmd, params, stat, handler_agent_id, priority, retry_count, create_time, handler_log_path,
+                handler_type, cmd, params, param_file_path, stat, handler_agent_id, priority, retry_count, create_time, handler_log_path,
                 dist_type, event_rule
             FROM job_event WHERE parent_group_id = #{pid}
         ]]>

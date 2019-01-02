@@ -27,6 +27,7 @@ public class EnumDistributionStrategy extends AbsDistributionStrategy {
             jobEvent.setParentJobId(jobInfo.getParentJobId());
             jobEvent.setParentEventId(parentEventId);
             jobEvent.setParentGroupId(parentGroupId);
+            jobEvent.setParamFilePath(jobInfo.getParamFilePath());
             jobEvents.add(jobEvent);
         }
         return jobEvents;

@@ -37,6 +37,7 @@ public class PageDistributionStrategy extends AbsDistributionStrategy {
                 jobEvent.setParentJobId(jobInfo.getParentJobId());
                 jobEvent.setParentEventId(parentEventId);
                 jobEvent.setParentGroupId(parentGroupId);
+                jobEvent.setParamFilePath(jobInfo.getParamFilePath());
                 return Collections.singletonList(jobEvent);
             }
 
@@ -56,6 +57,7 @@ public class PageDistributionStrategy extends AbsDistributionStrategy {
                 jobEvent.setParentJobId(jobInfo.getParentJobId());
                 jobEvent.setParentEventId(parentEventId);
                 jobEvent.setParentGroupId(parentGroupId);
+                jobEvent.setParamFilePath(jobInfo.getParamFilePath());
                 jobEvents.add(jobEvent);
             }
             return jobEvents;

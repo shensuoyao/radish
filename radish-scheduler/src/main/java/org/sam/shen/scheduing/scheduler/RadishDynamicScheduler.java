@@ -298,6 +298,7 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
             jobEvent.setParentJobId(jobInfo.getParentJobId());
             jobEvent.setParentEventId(parentEventId);
             jobEvent.setParentGroupId(parentGroupId);
+            jobEvent.setParamFilePath(jobInfo.getParamFilePath());
             jobEvents.add(jobEvent);
         }
         if (jobEvents.size() > 0) {
@@ -406,6 +407,7 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
                             jobEvent.setParentEventId(parent.getEventId());
                             jobEvent.setParentJobId(job.getParentJobId());
                             jobEvent.setParentGroupId(parentGroupId);
+                            jobEvent.setParamFilePath(jobInfo.getParamFilePath());
                             events.add(jobEvent);
                         }
                         jobEvents.addAll(events);

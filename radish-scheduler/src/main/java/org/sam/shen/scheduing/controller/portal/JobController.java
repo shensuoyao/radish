@@ -1,13 +1,17 @@
 package org.sam.shen.scheduing.controller.portal;
 
+import java.io.*;
 import java.util.*;
 import java.util.stream.Stream;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.SchedulerException;
 import org.sam.shen.core.constants.*;
 import org.sam.shen.core.log.LogReader;
 import org.sam.shen.core.model.Resp;
+import org.sam.shen.scheduing.constants.SchedConstant;
 import org.sam.shen.scheduing.entity.*;
 import org.sam.shen.scheduing.scheduler.RadishDynamicScheduler;
 import org.sam.shen.scheduing.service.AgentService;
@@ -19,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.github.pagehelper.Page;
@@ -27,6 +32,7 @@ import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 /**
  * 任务
@@ -364,7 +370,6 @@ public class JobController {
         return Resp.SUCCESS;
     }
 
-
     /**
      * 修改事件的优先级
      * @author clock
@@ -385,5 +390,46 @@ public class JobController {
 		}
 		return Resp.SUCCESS;
 	}
+
+    /**
+     * 上传参数附件
+     * @author clock
+     * @date 2019/1/2 上午11:22
+     * @param multipartFile 参数附件
+     * @return 上传参数结果
+     */
+	@ResponseBody
+    @RequestMapping(value = "upload-param-file", method = RequestMethod.POST)
+    public Resp<String> uploadParamFile(@RequestParam("file") MultipartFile multipartFile) {
+	    if (multipartFile == null || multipartFile.getOriginalFilename() == null) {
+	        return new Resp<>(Resp.FAIL.getCode(), "上传文件不能为空!");
+        }
+        String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+	    String prefix = multipartFile.getOriginalFilename().substring(multipartFile.getOriginalFilename().indexOf(".") + 1);
+	    String fileName = uuid.concat(".").concat(prefix);
+	    File file = new File(SchedConstant.PARAMS_FILE_PATH.concat(File.separator).concat(fileName));
+	    try {
+            FileUtils.copyInputStreamToFile(multipartFile.getInputStream(), file);
+        } catch (IOException e) {
+            return new Resp<>(Resp.FAIL.getCode(), "上传文件失败!");
+        }
+        return new Resp<>(Resp.SUCCESS.getCode(), fileName);
+    }
+
+    /**
+     * 下载参数附件
+     * @author clock
+     * @date 2019/1/2 下午1:17
+     * @param fileName 参数附件名称
+     * @return 文件输出流
+     */
+    @GetMapping(value = "download-param-file")
+    public StreamingResponseBody downloadParamFile(@RequestParam String fileName) {
+        File file = new File(SchedConstant.PARAMS_FILE_PATH.concat(File.separator).concat(fileName));
+	    return outputStream -> {
+            FileInputStream fis = new FileInputStream(file);
+            IOUtils.copy(fis, outputStream);
+        };
+    }
 	
 }
