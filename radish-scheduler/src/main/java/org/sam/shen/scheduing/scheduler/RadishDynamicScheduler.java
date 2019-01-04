@@ -404,7 +404,7 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
                         } else {
                             JobEvent jobEvent = new JobEvent(job.getId(), job.getExecutorHandlers(), job.getHandlerType(),
                                     EventStatus.WAIT, job.getPriority(), job.getCmd(), job.getParams());
-                            jobEvent.setParentEventId(parent.getEventId());
+                            jobEvent.setParentEventId(parentEventId);
                             jobEvent.setParentJobId(job.getParentJobId());
                             jobEvent.setParentGroupId(parentGroupId);
                             jobEvent.setParamFilePath(jobInfo.getParamFilePath());

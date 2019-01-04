@@ -1,7 +1,6 @@
 package org.sam.shen.scheduing.service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.annotation.Resource;
@@ -18,12 +17,13 @@ import org.sam.shen.core.netty.HandlerLogNettyClient;
 import org.sam.shen.core.rpc.RestRequest;
 import org.sam.shen.scheduing.entity.Agent;
 import org.sam.shen.scheduing.entity.JobEvent;
-import org.sam.shen.scheduing.entity.JobEventTreeNode;
+import org.sam.shen.scheduing.vo.JobEventTreeNode;
 import org.sam.shen.scheduing.entity.JobInfo;
 import org.sam.shen.scheduing.mapper.AgentMapper;
 import org.sam.shen.scheduing.mapper.JobEventMapper;
 import org.sam.shen.scheduing.mapper.JobInfoMapper;
 import org.sam.shen.scheduing.scheduler.EventLock;
+import org.sam.shen.scheduing.vo.JobEventVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -228,8 +228,12 @@ public class JobEventService {
      */
     public JobEvent queryRootJobEvent(String eventId) {
         JobEvent jobEvent = jobEventMapper.findJobEventByEventId(eventId);
-        while (StringUtils.isNotEmpty(jobEvent.getParentEventId())) {
-            jobEvent = jobEventMapper.findJobEventByEventId(jobEvent.getParentEventId());
+        while (StringUtils.isNotEmpty(jobEvent.getParentEventId()) || StringUtils.isNotEmpty(jobEvent.getParentGroupId())) {
+            if (StringUtils.isNotEmpty(jobEvent.getParentEventId())) {
+                jobEvent = jobEventMapper.findJobEventByEventId(jobEvent.getParentEventId());
+            } else {
+                jobEvent = jobEventMapper.findJobEventByGroupId(jobEvent.getParentGroupId()).get(0);
+            }
         }
         return jobEvent;
     }
@@ -238,25 +242,45 @@ public class JobEventService {
      * Get all child job events including itself
      * @author clock
      * @date 2018/12/12 下午5:39
-     * @param eventId event id
+     * @param jobEvent job event
      * @return job events
      */
-    public List<JobEventTreeNode> queryChildEvents(String eventId) {
+    public List<JobEventTreeNode> queryChildEvents(JobEvent jobEvent) {
         List<JobEventTreeNode> treeNodes = new ArrayList<>();
-        JobEventTreeNode jobEvent = jobEventMapper.findJobEventTreeNodeById(eventId);
-        if (jobEvent != null) {
-			treeNodes.add(jobEvent);
+        List<JobEventVo> vos = jobEventMapper.findJobEventVoById(jobEvent.getEventId(), jobEvent.getGroupId());
+        if (vos != null && vos.size() > 0) {
+			treeNodes.add(new JobEventTreeNode(vos));
         }
         // loop
-        String eventIds = eventId;
-        List<JobEventTreeNode> events;
+        Set<String> parentIdSet = new HashSet<>();
+        Set<String> parentGroupIdSet = new HashSet<>();
+        if (StringUtils.isNotEmpty(jobEvent.getGroupId())) {
+            parentGroupIdSet.add(jobEvent.getGroupId());
+        } else {
+            parentIdSet.add(jobEvent.getEventId());
+        }
+        List<JobEventVo> events;
         do {
-            events = jobEventMapper.queryChildJobEventTreeNode(eventIds);
+            events = jobEventMapper.queryChildJobEventVo(String.join(",", parentIdSet), String.join(",", parentGroupIdSet));
+            parentIdSet.clear();
+            parentGroupIdSet.clear();
             if (events != null && events.size() > 0) {
-                eventIds = events.stream().map(jobEventTreeNode -> jobEventTreeNode.getJobEvent().getEventId()).collect(Collectors.joining(","));
-				treeNodes.addAll(events);
+                Map<String, List<JobEventVo>> eventMap = new HashMap<>();
+                for (JobEventVo vo : events) {
+                    String groupId = vo.getJobEvent().getGroupId();
+                    if (StringUtils.isNotEmpty(groupId)) {
+                        parentGroupIdSet.add(groupId);
+                        eventMap.computeIfAbsent(groupId, k -> new ArrayList<>());
+                        eventMap.get(groupId).add(vo);
+                    } else {
+                        parentIdSet.add(vo.getJobEvent().getEventId());
+                        treeNodes.add(new JobEventTreeNode(Collections.singletonList(vo)));
+                    }
+                }
+                for (List<JobEventVo> list : eventMap.values()) {
+                    treeNodes.add(new JobEventTreeNode(list));
+                }
             }
-
         } while (events != null && events.size() > 0);
         return treeNodes;
     }

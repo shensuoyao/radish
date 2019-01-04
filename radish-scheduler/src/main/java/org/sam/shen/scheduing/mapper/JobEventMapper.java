@@ -5,7 +5,7 @@ import org.apache.ibatis.annotations.Param;
 import org.sam.shen.scheduing.entity.JobEvent;
 
 import com.github.pagehelper.Page;
-import org.sam.shen.scheduing.entity.JobEventTreeNode;
+import org.sam.shen.scheduing.vo.JobEventVo;
 
 import java.util.List;
 
@@ -25,9 +25,9 @@ public interface JobEventMapper {
 
 	List<JobEvent> queryJobEventByJobId(Long jobId);
 
-	List<JobEventTreeNode> queryChildJobEventTreeNode(String events);
+	List<JobEventVo> queryChildJobEventVo(@Param("events") String events, @Param("groups") String groups);
 
-	JobEventTreeNode findJobEventTreeNodeById(String eventId);
+    List<JobEventVo> findJobEventVoById(@Param("eventId") String eventId, @Param("groupId") String groupId);
 
 	int rehandleFailedEvent(String eventId);
 
@@ -51,4 +51,6 @@ public interface JobEventMapper {
 	 * @return 事件组的
 	 */
 	int checkGroupComplete(String groupId);
+
+	List<JobEvent> findJobEventByGroupId(String groupId);
 }

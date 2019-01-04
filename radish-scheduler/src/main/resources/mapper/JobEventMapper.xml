@@ -3,7 +3,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <!-- namespace必须指向Mapper接口 -->
 <mapper namespace="org.sam.shen.scheduing.mapper.JobEventMapper">
-    <resultMap type="JobEvent" id="jobEventMap">
+    <resultMap type="org.sam.shen.scheduing.entity.JobEvent" id="jobEventMap">
         <result column="event_id" property="eventId"/>
         <result column="parent_event_id" property="parentEventId"/>
         <result column="group_id" property="groupId"/>
@@ -25,7 +25,7 @@
         <result column="event_rule" property="eventRule"/>
     </resultMap>
 
-    <resultMap id="JobEventTreeNodeMap" type="org.sam.shen.scheduing.entity.JobEventTreeNode">
+    <resultMap id="JobEventVoMap" type="org.sam.shen.scheduing.vo.JobEventVo">
         <association property="jobEvent" resultMap="jobEventMap"/>
         <association property="jobInfo" resultMap="org.sam.shen.scheduing.mapper.JobInfoMapper.jobInfoMap"/>
     </resultMap>
@@ -124,25 +124,25 @@
         ]]>
     </select>
 
-    <select id="findJobEventTreeNodeById" parameterType="string" resultMap="JobEventTreeNodeMap">
+    <select id="findJobEventVoById" parameterType="string" resultMap="JobEventVoMap">
         <![CDATA[
             SELECT a.event_id, a.parent_event_id, a.job_id, a.parent_job_id, a.group_id, a.parent_group_id, a.executor_handlers,
                    a.handler_type, a.cmd, a.params, a.param_file_path, a.stat, a.handler_agent_id, a.priority, a.retry_count, a.create_time,
                    a.handler_log_path, a.dist_type, a.event_rule, b.job_name, b.admin, b.admin_phone, b.admin_email,
                    b.handler_fail_strategy, b.crontab
             FROM job_event a, job_info b
-            WHERE a.job_id=b.id AND event_id = #{eventId}
+            WHERE a.job_id=b.id AND (event_id = #{eventId} OR group_id = #{groupId})
         ]]>
     </select>
 
-    <select id="queryChildJobEventTreeNode" parameterType="string" resultMap="JobEventTreeNodeMap">
+    <select id="queryChildJobEventVo" parameterType="string" resultMap="JobEventVoMap">
         <![CDATA[
             SELECT a.event_id, a.parent_event_id, a.job_id, a.parent_job_id, a.group_id, a.parent_group_id, a.executor_handlers,
                    a.handler_type, a.cmd, a.params, a.param_file_path, a.stat, a.handler_agent_id, a.priority, a.retry_count, a.create_time,
                    a.handler_log_path, a.dist_type, a.event_rule, b.job_name, b.admin, b.admin_phone, b.admin_email,
                    b.handler_fail_strategy, b.crontab
             FROM job_event a, job_info b
-            WHERE a.job_id=b.id AND FIND_IN_SET(a.parent_event_id, #{events})
+            WHERE a.job_id=b.id AND (FIND_IN_SET(a.parent_event_id, #{events}) OR FIND_IN_SET(a.parent_group_id, #{groups}))
         ]]>
     </select>
 
@@ -191,6 +191,15 @@
     <select id="checkGroupComplete" parameterType="string" resultType="java.lang.Integer">
         <![CDATA[
             SELECT count(event_id) FROM job_event WHERE group_id = #{groupId} AND stat <> 'SUCCESS'
+        ]]>
+    </select>
+
+    <select id="findJobEventByGroupId" parameterType="string" resultMap="jobEventMap">
+        <![CDATA[
+            SELECT event_id, parent_event_id, job_id, parent_job_id, group_id, parent_group_id, executor_handlers,
+                handler_type, cmd, params, param_file_path, stat, handler_agent_id, priority, retry_count, create_time, handler_log_path,
+                dist_type, event_rule
+            FROM job_event WHERE group_id = #{groupId}
         ]]>
     </select>
 </mapper>

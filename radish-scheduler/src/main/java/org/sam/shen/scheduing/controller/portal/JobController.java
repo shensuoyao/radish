@@ -17,6 +17,7 @@ import org.sam.shen.scheduing.scheduler.RadishDynamicScheduler;
 import org.sam.shen.scheduing.service.AgentService;
 import org.sam.shen.scheduing.service.JobEventService;
 import org.sam.shen.scheduing.service.JobService;
+import org.sam.shen.scheduing.vo.JobEventTreeNode;
 import org.sam.shen.scheduing.vo.SchedulerJobVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -333,7 +334,7 @@ public class JobController {
     @RequestMapping(value = "job-event-tree/{eventId}", method = RequestMethod.GET)
     public JobEventTreeNode queryJobEventTree(@PathVariable String eventId) {
         JobEvent root = jobEventService.queryRootJobEvent(eventId);
-        List<JobEventTreeNode> treeNodes = jobEventService.queryChildEvents(root.getEventId());
+        List<JobEventTreeNode> treeNodes = jobEventService.queryChildEvents(root);
         return buildTree(treeNodes);
     }
 
@@ -341,11 +342,11 @@ public class JobController {
     private JobEventTreeNode buildTree(List<JobEventTreeNode> treeNodes) {
 	    JobEventTreeNode root = null;
 	    for (JobEventTreeNode treeNode : treeNodes) {
-	        if (StringUtils.isEmpty(treeNode.getJobEvent().getParentEventId())){
+	        if (StringUtils.isEmpty(treeNode.getPid())){
 	            root = treeNode;
             }
             for (JobEventTreeNode childNode : treeNodes) {
-	            if (treeNode.getJobEvent().getEventId().equals(childNode.getJobEvent().getParentEventId())) {
+	            if (treeNode.getId().equals(childNode.getPid())) {
 	                if (treeNode.getChildren() == null) {
 	                    treeNode.setChildren(new ArrayList<>());
                     }

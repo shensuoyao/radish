@@ -65,7 +65,7 @@
         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a th:href="@{/portal/job-event}"> <<--- 返回</a>
     </legend>
 </fieldset>
-<div id="container" style="width: 100%; max-width: 100%; margin: 85px auto 0 auto; height: 500px;"></div>
+<div id="container" style="width: 100%; max-width: 100%; margin: 0 auto; height: 500px;"></div>
 <ul id="contextMenu" class="contextMenu">
     <li><a id="retry" class="cm_common">重试</a></li>
     <li><a id="priority" class="cm_common">修改优先级</a></li>
@@ -80,64 +80,86 @@
         tree.oncontextmenu = function() { return false; };
         // 绘制树形事件图
         var chart = echarts.init(tree);
+        var seriesData = [], links = [], levelMap = {};
         var option = {
             tooltip: {
                 trigger: 'item',
                 triggerOn: 'mousemove',
+                confine: true,
                 formatter: function (params) {
-                    return renderTooltip(params.data);
+                    return renderTooltip(params.data.jobEvent);
                 }
+            },
+            itemStyle: {
+                color: '#fff',
+                borderWidth: 5
             },
             series: [
                 {
-                    type: 'tree',
-
-                    top: '1%',
-                    left: '7%',
-                    bottom: '1%',
-                    right: '20%',
-
-                    symbol: 'emptyCircle',
-                    symbolSize: 12,
-
-                    itemStyle: {
-                        borderWidth: 3
-                    },
-
+                    type: 'graph',
+                    layout: 'none',
+                    symbolSize: 20,
+                    roam: false,
                     label: {
                         normal: {
-                            position: 'left',
-                            verticalAlign: 'middle',
-                            align: 'right',
-                            fontSize: 11
+                            show: false
                         }
                     },
-
-                    leaves: {
-                        label: {
-                            normal: {
-                                position: 'right',
-                                verticalAlign: 'middle',
-                                align: 'left'
+                    edgeSymbol: ['circle', 'arrow'],
+                    edgeSymbolSize: [4, 10],
+                    edgeLabel: {
+                        normal: {
+                            textStyle: {
+                                fontSize: 20
                             }
                         }
                     },
-
-                    expandAndCollapse: true,
-                    animationDuration: 550,
-                    animationDurationUpdate: 750
+                    lineStyle: {
+                        normal: {
+                            opacity: 0.9,
+                            width: 1,
+                            curveness: 0
+                        }
+                    }
                 }
             ]
         };
         $.get([[@{/portal/job-event-tree/}]] + [[${eventId}]]).done(function (data) {
-            recursiveTree(data);
-            option.series[0].data = [data];
+            // 清空数据
+            seriesData = [];
+            links = [];
+            levelMap = {};
+            // 构建关系图
+            recursiveTree(data, 1);
+            // 根据每层的节点数设置每个节点的间隔距离
+            var height = 1500;
+            var width = 2000;
+            var levelLength = 0;
+            var levelHeight = {};
+            for (var key in levelMap) {
+                levelLength++;
+                var nodeSize = levelMap[key];
+                levelHeight[key] = height / (nodeSize + 1);
+            }
+            var x = (levelLength - 1 === 0 ? 0 : width / (levelLength - 1));
+            var y = {};
+            $.each(seriesData, function (index, item) {
+                if (y[item.level] == null) {
+                    y[item.level] = levelHeight[item.level];
+                } else {
+                    y[item.level] += levelHeight[item.level];
+                }
+                item.x = (item.level - 1) * x;
+                item.y = y[item.level];
+            });
+            option.series[0].data = seriesData;
+            option.series[0].links = links;
             chart.setOption(option);
         });
 
         // 注册右击事件
         chart.on('contextmenu', function (params) {
-            var jobEvent = params.data.jobEvent;
+            var jobEvent = params.data.jobEvent.jobEvent;
             if (jobEvent.stat === 'FAIL') {
                 $('#contextMenu>li>a').prop('class', 'cm_common');
             } else if (jobEvent.stat === 'READY' || jobEvent.stat === 'WAIT') {
@@ -148,7 +170,7 @@
             }
             postJobEvent = jobEvent;
             var event = params.event;
-            $('#contextMenu').css('left', event.offsetX).css('top', event.offsetY + 128);
+            $('#contextMenu').css('left', event.offsetX).css('top', event.offsetY + 68);
             $('#contextMenu').show();
         });
 
@@ -211,24 +233,55 @@
         });
 
         // 递归查询树形事件，并设置树形图中的事件名称和事件执行状态
-        function recursiveTree(data) {
-            data.name = data.jobInfo.jobName;
-            if (data.jobEvent.stat === 'SUCCESS') {
-                data.itemStyle = { borderColor: 'green' };
-            } else if (data.jobEvent.stat === 'WAIT') {
-                data.itemStyle = { borderColor: 'gray' };
-            } else if (data.jobEvent.stat === 'READY') {
-                data.itemStyle = { borderColor: '#ccff66' };
-            } else if (data.jobEvent.stat === 'FAIL') {
-                data.itemStyle = { borderColor: 'red' };
-            } else if (data.jobEvent.stat === 'HANDLE') {
-                data.itemStyle = { borderColor: 'blue' };
-            } else if (data.jobEvent.stat === 'RETRY') {
-                data.itemStyle = { borderColor: 'black' };
-            }
+        function recursiveTree(data, level) {
+            // 节点显示
+            $.each(data.events, function (index, item) {
+                var itemStyle;
+                if (item.jobEvent.stat === 'SUCCESS') {
+                    itemStyle = { borderColor: 'green' };
+                } else if (item.jobEvent.stat === 'WAIT') {
+                    itemStyle = { borderColor: 'gray' };
+                } else if (item.jobEvent.stat === 'READY') {
+                    itemStyle = { borderColor: '#009688' };
+                } else if (item.jobEvent.stat === 'FAIL') {
+                    itemStyle = { borderColor: '#FFB800' };
+                } else if (item.jobEvent.stat === 'HANDLE') {
+                    itemStyle = { borderColor: '#1E9FFF' };
+                } else if (item.jobEvent.stat === 'RETRY') {
+                    itemStyle = { borderColor: '#2F4056' };
+                }
+                var name = item.jobInfo.jobName + index;
+                seriesData.push({
+                    name: name,
+                    itemStyle: itemStyle,
+                    label: {
+                        show: false
+                    },
+                    jobEvent: item,
+                    level: level
+                });
+                // 节点关系
+                if (data.children != null) {
+                    $.each(data.children, function (i, child) {
+                        $.each(child.events, function (j, event) {
+                            links.push({
+                                source: name,
+                                target: event.jobInfo.jobName + j
+                            });
+                        });
+                    });
+                }
+                // 每层的节点递增
+                if (levelMap[level] == null) {
+                    levelMap[level] = 1;
+                } else {
+                    levelMap[level]++;
+                }
+
+            });
             if (data.children != null) {
-                $.each(data.children, function (index, item) {
-                    recursiveTree(item);
+                $.each(data.children, function (i, child) {
+                    recursiveTree(child, level + 1);
                 });
             }
         }
