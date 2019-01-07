@@ -131,8 +131,16 @@
                    a.handler_log_path, a.dist_type, a.event_rule, b.job_name, b.admin, b.admin_phone, b.admin_email,
                    b.handler_fail_strategy, b.crontab
             FROM job_event a, job_info b
-            WHERE a.job_id=b.id AND (event_id = #{eventId} OR group_id = #{groupId})
+            WHERE a.job_id=b.id
         ]]>
+        <choose>
+            <when test="groupId != null and groupId != ''">
+                AND group_id = #{groupId}
+            </when>
+            <otherwise>
+                AND event_id = #{eventId}
+            </otherwise>
+        </choose>
     </select>
 
     <select id="queryChildJobEventVo" parameterType="string" resultMap="JobEventVoMap">
@@ -142,8 +150,19 @@
                    a.handler_log_path, a.dist_type, a.event_rule, b.job_name, b.admin, b.admin_phone, b.admin_email,
                    b.handler_fail_strategy, b.crontab
             FROM job_event a, job_info b
-            WHERE a.job_id=b.id AND (FIND_IN_SET(a.parent_event_id, #{events}) OR FIND_IN_SET(a.parent_group_id, #{groups}))
+            WHERE a.job_id=b.id
         ]]>
+        <choose>
+            <when test="events != null and events != '' and groups != null and groups != ''">
+                AND (FIND_IN_SET(a.parent_event_id, #{events}) OR FIND_IN_SET(a.parent_group_id, #{groups}))
+            </when>
+            <when test="events != null and events != ''">
+                AND FIND_IN_SET(a.parent_event_id, #{events})
+            </when>
+            <otherwise>
+                AND FIND_IN_SET(a.parent_group_id, #{groups})
+            </otherwise>
+        </choose>
     </select>
 
     <update id="rehandleFailedEvent" parameterType="string">
