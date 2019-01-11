@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.sam.shen.scheduing.mapper.JobAppRefMapper">
+    <resultMap id="JobAppRefMap" type="org.sam.shen.scheduing.entity.JobAppRef">
+        <result column="id" property="id"/>
+        <result column="app_id" property="appId"/>
+        <result column="job_id" property="jobId"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, app_id, job_id
+    </sql>
+
+    <select id="selectJobAppRefById" parameterType="java.lang.String" resultMap="JobAppRefMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM job_app_ref
+        WHERE id = #{id}
+    </select>
+    
+    <insert id="insertJobAppRef" parameterType="org.sam.shen.scheduing.entity.JobAppRef">
+        INSERT INTO job_app_ref(id, job_id, app_id) VALUES (#{id}, #{jobId}, #{appId})
+    </insert>
+
+    <update id="updateJobAppRef" parameterType="org.sam.shen.scheduing.entity.JobAppRef">
+        UPDATE job_app_ref SET id = #{id}, job_id = #{jobId}, app_id = #{appId}
+    </update>
+
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO job_app_ref(id, job_id, app_id) VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.id}, #{item.jobId}, #{item.appId})
+        </foreach>
+    </insert>
+
+    <delete id="deleteJobAppRefById" parameterType="java.lang.String">
+        DELETE FROM job_app_ref WHERE id = #{id}
+    </delete>
+
+    <delete id="deleteJobAppRefByJobId" parameterType="java.lang.String">
+        DELETE FROM job_app_ref WHERE job_id = #{jobId}
+    </delete>
+</mapper>

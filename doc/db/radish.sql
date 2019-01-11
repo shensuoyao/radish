@@ -150,3 +150,26 @@ CREATE TABLE `job_event` (
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   PRIMARY KEY (`event_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+--  Table structure for `app_info`
+-- ----------------------------
+DROP TABLE IF EXISTS `app_info`;
+CREATE TABLE `app_info` (
+  `app_id` varchar(32) NOT NULL COMMENT '应用id',
+  `app_name` varchar(128) DEFAULT NULL COMMENT '应用名称',
+  `domain` varchar(128) DEFAULT NULL COMMENT '域名',
+  PRIMARY KEY (`app_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+-- ----------------------------
+--  Table structure for `job_app_ref`
+-- ----------------------------
+DROP TABLE IF EXISTS `job_app_ref`;
+CREATE TABLE `job_app_ref` (
+  `id` varchar(32) NOT NULL,
+  `job_id` varchar(32) DEFAULT NULL,
+  `app_id` varchar(32) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

@@ -26,104 +26,152 @@
     </resultMap>
 
 	<insert id="saveJobInfo" parameterType="JobInfo" useGeneratedKeys="true" keyProperty="id">
-	   <![CDATA[
-        INSERT INTO job_info(job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone, 
-                    executor_handlers, cmd, params, param_file_path, parent_job_id, dist_type, dist_rule, create_time, update_time,
-                    priority, enable)
-        VALUES (#{jobName}, #{crontab}, #{handlerType}, #{handlerFailStrategy}, #{admin}, #{adminEmail}, #{adminPhone}, 
-                #{executorHandlers}, #{cmd}, #{params}, #{paramFilePath}, #{parentJobId}, #{distType}, #{distRule}, #{createTime},
-                #{updateTime}, #{priority}, #{enable})
+	    <![CDATA[
+            INSERT INTO job_info(job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone,
+                        executor_handlers, cmd, params, param_file_path, parent_job_id, dist_type, dist_rule, create_time, update_time,
+                        priority, enable)
+            VALUES (#{jobName}, #{crontab}, #{handlerType}, #{handlerFailStrategy}, #{admin}, #{adminEmail}, #{adminPhone},
+                    #{executorHandlers}, #{cmd}, #{params}, #{paramFilePath}, #{parentJobId}, #{distType}, #{distRule}, #{createTime},
+                    #{updateTime}, #{priority}, #{enable})
         ]]>
-  </insert>
-  
-  <select id="findJobInfoById" resultMap="jobInfoMap" parameterType="long">
-     <![CDATA[
-          SELECT id, job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone, 
+    </insert>
+
+    <insert id="batchInsert" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+        <![CDATA[
+            INSERT INTO job_info(job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone,
+                        executor_handlers, cmd, params, param_file_path, parent_job_id, dist_type, dist_rule, create_time, update_time,
+                        priority, enable) VALUES
+        ]]>
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.jobName}, #{item.crontab}, #{item.handlerType}, #{item.handlerFailStrategy}, #{item.admin}, #{item.adminEmail},
+            #{item.adminPhone}, #{item.executorHandlers}, #{item.cmd}, #{item.params}, #{item.paramFilePath}, #{item.parentJobId},
+            #{item.distType}, #{item.distRule}, #{item.createTime}, #{item.updateTime}, #{item.priority}, #{item.enable})
+        </foreach>
+    </insert>
+
+    <select id="findJobInfoById" resultMap="jobInfoMap" parameterType="long">
+        <![CDATA[
+            SELECT id, job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone,
                  executor_handlers, cmd, params, param_file_path, parent_job_id, dist_type, dist_rule, create_time, update_time, priority, enable
-            FROM job_info 
-           WHERE id = #{id}
-            ]]>
-  </select>
-  
-  <select id="queryJobInfoForPager" resultMap="jobInfoMap" parameterType="string">
-  <![CDATA[
-      SELECT id, job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone,
-             executor_handlers, cmd, params, param_file_path, parent_job_id, dist_type, dist_rule, create_time, update_time, priority, enable
-        FROM job_info 
-     ]]>
-  <if test="jobName != null">
-    <where>
-        job_name LIKE CONCAT(#{jobName}, '%')
-    </where>
-  </if>
- </select>
- 
- <select id="queryJobInfoForList" resultMap="jobInfoMap" parameterType="string">
-  <![CDATA[
-      SELECT id, job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone, 
-             executor_handlers, cmd, params, param_file_path, parent_job_id, dist_type, dist_rule, create_time, update_time, priority, enable
-        FROM job_info 
-     ]]>
-  <if test="jobName != null">
-    <where>
-        job_name LIKE CONCAT(#{jobName}, '%')
-    </where>
-  </if>
- </select>
- 
- <select id="queryJobInfoInIds" parameterType="list" resultMap="jobInfoMap">
-     <![CDATA[
-      SELECT id, job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone, 
-             executor_handlers, cmd, params, param_file_path, parent_job_id, dist_type, dist_rule, create_time, update_time, priority, enable
-        FROM job_info  
-       WHERE id IN 
-         ]]>
-    <foreach collection="list" item="item" index="index" separator="," open="(" close=")">
-        #{item}
-    </foreach>
- </select>
- 
- <update id="upgradeJonInfo" parameterType="JobInfo">
-	 <![CDATA[
-	 UPDATE job_info 
-	    SET crontab = #{crontab}, handler_type = #{handlerType}, handler_fail_strategy = #{handlerFailStrategy}, admin = #{admin}, admin_phone = #{adminPhone}, 
-	        admin_email = #{adminEmail}, executor_handlers = #{executorHandlers}, cmd = #{cmd}, params = #{params}, param_file_path = #{paramFilePath}, parent_job_id = #{parentJobId},
-	        dist_type = #{distType}, dist_rule = #{distRule}, create_time = #{createTime}, update_time = #{updateTime}, priority = #{priority}, enable = #{enable}
-	  WHERE id = #{id}
-	   ]]>
- </update>
- 
- <select id="queryJobInfoByEnable" parameterType="int" resultMap="jobInfoMap">
-    <![CDATA[
-      SELECT id, job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone, 
-             executor_handlers, cmd, params, param_file_path, parent_job_id, dist_type, dist_rule, create_time, update_time, priority, enable
-        FROM job_info  
-       WHERE enable = #{enable}
-         ]]>
- </select>
- 
- <select id="countJobInfoByEnable" parameterType="int" resultType="int">
-    <![CDATA[
-        SELECT COUNT(*) FROM job_info WHERE enable = #{enable}
-         ]]>
- </select>
+            FROM job_info
+            WHERE id = #{id}
+        ]]>
+    </select>
+
+    <select id="queryJobInfoForPager" resultMap="jobInfoMap" parameterType="string">
+        <![CDATA[
+            SELECT id, job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone,
+                 executor_handlers, cmd, params, param_file_path, parent_job_id, dist_type, dist_rule, create_time, update_time, priority, enable
+            FROM job_info
+        ]]>
+        <if test="jobName != null">
+            <where>
+                job_name LIKE CONCAT(#{jobName}, '%')
+            </where>
+        </if>
+    </select>
+
+    <select id="queryJobInfoForList" resultMap="jobInfoMap" parameterType="string">
+        <![CDATA[
+            SELECT id, job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone,
+                 executor_handlers, cmd, params, param_file_path, parent_job_id, dist_type, dist_rule, create_time, update_time, priority, enable
+            FROM job_info
+        ]]>
+        <if test="jobName != null">
+            <where>
+                job_name LIKE CONCAT(#{jobName}, '%')
+            </where>
+        </if>
+    </select>
+
+    <select id="queryJobInfoInIds" parameterType="list" resultMap="jobInfoMap">
+        <![CDATA[
+            SELECT id, job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone,
+                 executor_handlers, cmd, params, param_file_path, parent_job_id, dist_type, dist_rule, create_time, update_time, priority, enable
+            FROM job_info
+            WHERE id IN
+        ]]>
+        <foreach collection="list" item="item" index="index" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <update id="upgradeJonInfo" parameterType="JobInfo">
+	    <![CDATA[
+            UPDATE job_info
+            SET crontab = #{crontab}, handler_type = #{handlerType}, handler_fail_strategy = #{handlerFailStrategy},
+                admin = #{admin}, admin_phone = #{adminPhone}, admin_email = #{adminEmail}, executor_handlers = #{executorHandlers},
+                cmd = #{cmd}, params = #{params}, param_file_path = #{paramFilePath}, parent_job_id = #{parentJobId},
+                dist_type = #{distType}, dist_rule = #{distRule}, create_time = #{createTime}, update_time = #{updateTime},
+                priority = #{priority}, enable = #{enable}
+            WHERE id = #{id}
+	    ]]>
+    </update>
+
+    <select id="queryJobInfoByEnable" parameterType="int" resultMap="jobInfoMap">
+        <![CDATA[
+            SELECT id, job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone,
+                   executor_handlers, cmd, params, param_file_path, parent_job_id, dist_type, dist_rule, create_time,
+                   update_time, priority, enable
+            FROM job_info
+            WHERE enable = #{enable}
+        ]]>
+    </select>
+
+    <select id="countJobInfoByEnable" parameterType="int" resultType="int">
+        <![CDATA[
+            SELECT COUNT(*) FROM job_info WHERE enable = #{enable}
+        ]]>
+    </select>
 
     <select id="findJobInfoByParentId" parameterType="string" resultMap="jobInfoMap">
         <![CDATA[
-        SELECT id, job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone,
-               executor_handlers, cmd, params, param_file_path, parent_job_id, dist_type, dist_rule, create_time, update_time, priority, enable
-        FROM job_info
-        WHERE parent_job_id = #{jobId} AND enable = 1
-        ]]>
+            SELECT id, job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone,
+                   executor_handlers, cmd, params, param_file_path, parent_job_id, dist_type, dist_rule, create_time, update_time, priority, enable
+            FROM job_info
+            WHERE parent_job_id = #{jobId} AND enable = 1
+            ]]>
     </select>
 
     <select id="queryLoadedJobs" parameterType="string" resultMap="jobInfoMap">
         <![CDATA[
-        SELECT id, job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone,
-               executor_handlers, cmd, params, param_file_path, parent_job_id, dist_type, dist_rule, create_time, update_time, priority, enable
-        FROM job_info
-        WHERE crontab is NOT NULL AND crontab <> '' AND enable = 1
+            SELECT id, job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone,
+                   executor_handlers, cmd, params, param_file_path, parent_job_id, dist_type, dist_rule, create_time, update_time, priority, enable
+            FROM job_info
+            WHERE crontab is NOT NULL AND crontab <> '' AND enable = 1
         ]]>
     </select>
-  
+
+    <delete id="deleteJobById" parameterType="java.lang.Long">
+        <![CDATA[
+            DELETE FROM job_info WHERE id = #{jobId}
+        ]]>
+    </delete>
+
+    <!-- job information and associated app information -->
+    <resultMap id="JobAppMap" type="org.sam.shen.scheduing.vo.JobApiVo" extends="jobInfoMap">
+        <result column="ref_id" property="refId"/>
+        <result column="app_id" property="appId"/>
+    </resultMap>
+
+    <select id="findJobAppById" parameterType="java.lang.Long" resultMap="JobAppMap">
+        <![CDATA[
+            SELECT a.id, a.job_name, a.crontab, a.handler_type, a.handler_fail_strategy, a.admin, a.admin_email, a.admin_phone,
+                   a.executor_handlers, a.cmd, a.params, a.param_file_path, a.parent_job_id, a.dist_type, a.dist_rule, a.create_time,
+                   a.update_time, a.priority, a.enable, b.id as ref_id, b.app_id
+            FROM job_info a, job_app_ref b
+            WHERE a.id = b.job_id AND a.id = #{jobId}
+        ]]>
+    </select>
+
+    <select id="findJobsByAppId" parameterType="java.lang.String" resultMap="jobInfoMap">
+        <![CDATA[
+            SELECT a.id, a.job_name, a.crontab, a.handler_type, a.handler_fail_strategy, a.admin, a.admin_email, a.admin_phone,
+                   a.executor_handlers, a.cmd, a.params, a.param_file_path, a.parent_job_id, a.dist_type, a.dist_rule, a.create_time,
+                   a.update_time, a.priority, a.enable
+            FROM job_info a, job_app_ref b
+            WHERE a.id = b.job_id AND b.app_id = #{appId}
+        ]]>
+    </select>
+
 </mapper>

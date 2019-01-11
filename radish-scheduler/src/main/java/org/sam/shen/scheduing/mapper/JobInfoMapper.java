@@ -7,11 +7,14 @@ import org.apache.ibatis.annotations.Param;
 import org.sam.shen.scheduing.entity.JobInfo;
 
 import com.github.pagehelper.Page;
+import org.sam.shen.scheduing.vo.JobApiVo;
 
 @Mapper
 public interface JobInfoMapper {
 
 	void saveJobInfo(JobInfo jobInfo);
+
+	void batchInsert(List<JobInfo> list);
 	
 	JobInfo findJobInfoById(Long id);
 	
@@ -36,5 +39,11 @@ public interface JobInfoMapper {
      * @return 待加载的job
      */
 	List<JobInfo> queryLoadedJobs();
+
+	JobApiVo findJobAppById(Long jobId);
+
+	List<JobInfo> findJobsByAppId(String appId);
+
+	int deleteJobById(long jobId);
 	
 }
