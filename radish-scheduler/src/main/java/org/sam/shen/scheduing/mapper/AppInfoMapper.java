@@ -1,5 +1,6 @@
 package org.sam.shen.scheduing.mapper;
 
+import org.apache.ibatis.annotations.Mapper;
 import org.sam.shen.scheduing.entity.AppInfo;
 
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.List;
  * @author clock
  * @date 2019/1/8 上午10:49
  */
+@Mapper
 public interface AppInfoMapper {
 
     AppInfo selectAppInfoById(String appId);

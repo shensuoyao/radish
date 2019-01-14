@@ -15,9 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -37,9 +35,6 @@ public class JobApiService {
     @Transactional(rollbackFor = Exception.class)
     public void saveJobAppRef(JobApiVo vo) {
         // 保存基本信息
-        if (StringUtils.isEmpty(vo.getAppId())) {
-            throw new RuntimeException("应用ID不能为空.");
-        }
         vo.setCreateTime(new Date());
         jobInfoMapper.saveJobInfo(vo);
         JobAppRef jobAppRef = new JobAppRef(Long.toString(vo.getId()), vo.getAppId());
@@ -56,18 +51,7 @@ public class JobApiService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void batchSaveJobAppRef(List<JobApiVo> jobApiVos) {
-        Set<String> appIdSet = new HashSet<>();
-        for (JobApiVo vo : jobApiVos) {
-            if (StringUtils.isEmpty(vo.getAppId())) {
-                throw new RuntimeException("应用ID不能为空.");
-            } else {
-                appIdSet.add(vo.getAppId());
-            }
-        }
-        if (appIdSet.size() != 1) {
-            throw new RuntimeException("同一个请求不能出现不同的应用ID.");
-        }
+    public void batchSaveJobAppRef(List<JobApiVo> jobApiVos, String appId) {
         // 保存基本信息
         List<JobInfo> jobs = jobApiVos.stream().map(jav -> {
             jav.setCreateTime(new Date());
@@ -75,7 +59,7 @@ public class JobApiService {
         }).collect(Collectors.toList());
         jobInfoMapper.batchInsert(jobs);
         List<JobAppRef> refs = jobs.stream()
-                .map(job -> new JobAppRef(Long.toString(job.getId()), appIdSet.toArray()[0].toString()))
+                .map(job -> new JobAppRef(Long.toString(job.getId()), appId))
                 .collect(Collectors.toList());
         jobAppRefMapper.batchInsert(refs);
         // 添加job任务
@@ -90,8 +74,15 @@ public class JobApiService {
         }
     }
 
-    public JobApiVo findJobAppById(Long jobId) {
-        return jobInfoMapper.findJobAppById(jobId);
+    public JobApiVo findJobAppById(Long jobId, String appId) {
+        JobApiVo job = jobInfoMapper.findJobAppById(jobId);
+        if (job == null) {
+            throw new RuntimeException("无效的任务ID！");
+        }
+        if (!appId.equals(job.getAppId())) {
+            throw new RuntimeException("任务ID和应用ID不匹配！");
+        }
+        return job;
     }
 
     public List<JobInfo> findJobsByAppId(String appId) {
@@ -100,13 +91,7 @@ public class JobApiService {
 
     @Transactional(rollbackFor = Exception.class)
     public void removeJobById(long jobId, String appId) {
-        JobApiVo job = jobInfoMapper.findJobAppById(jobId);
-        if (job == null) {
-            throw new RuntimeException("无效的任务ID！");
-        }
-        if (!appId.equals(job.getAppId())) {
-            throw new RuntimeException("任务ID和应用ID不匹配！");
-        }
+        JobApiVo job = this.findJobAppById(jobId, appId);
         // 删除数据库中的job
         jobInfoMapper.deleteJobById(jobId);
         jobAppRefMapper.deleteJobAppRefByJobId(Long.toString(jobId));
@@ -119,13 +104,7 @@ public class JobApiService {
     }
 
     public void unableJobById(long jobId, String appId) {
-        JobApiVo job = jobInfoMapper.findJobAppById(jobId);
-        if (job == null) {
-            throw new RuntimeException("无效的任务ID！");
-        }
-        if (!appId.equals(job.getAppId())) {
-            throw new RuntimeException("任务ID和应用ID不匹配！");
-        }
+        JobApiVo job = this.findJobAppById(jobId, appId);
         // 更新任务状态
         job.setEnable(Constant.NO);
         job.setUpdateTime(new Date());
@@ -139,13 +118,7 @@ public class JobApiService {
     }
 
     public void enableJobById(long jobId, String appId) {
-        JobApiVo job = jobInfoMapper.findJobAppById(jobId);
-        if (job == null) {
-            throw new RuntimeException("无效的任务ID！");
-        }
-        if (!appId.equals(job.getAppId())) {
-            throw new RuntimeException("任务ID和应用ID不匹配！");
-        }
+        JobApiVo job = this.findJobAppById(jobId, appId);
         // 更新任务状态
         job.setEnable(Constant.YES);
         job.setUpdateTime(new Date());
@@ -165,13 +138,7 @@ public class JobApiService {
     }
 
     public void updateJob(JobApiVo vo) {
-        JobApiVo job = jobInfoMapper.findJobAppById(vo.getId());
-        if (job == null) {
-            throw new RuntimeException("无效的任务ID！");
-        }
-        if (!job.getAppId().equals(vo.getAppId())) {
-            throw new RuntimeException("无效的应用ID！");
-        }
+        JobApiVo job = this.findJobAppById(vo.getId(), vo.getAppId());
         if (StringUtils.isEmpty(vo.getJobName()) || !vo.getJobName().equals(job.getJobName())) {
             throw new RuntimeException("任务名称不允许修改！");
         }

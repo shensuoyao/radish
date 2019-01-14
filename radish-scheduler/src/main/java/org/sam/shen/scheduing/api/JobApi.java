@@ -1,6 +1,5 @@
 package org.sam.shen.scheduing.api;
 
-import org.apache.commons.lang3.StringUtils;
 import org.sam.shen.core.model.Resp;
 import org.sam.shen.scheduing.entity.JobInfo;
 import org.sam.shen.scheduing.service.JobApiService;
@@ -29,7 +28,8 @@ public class JobApi {
      * @return 任务ID
      */
     @RequestMapping(value = "/jobs", method = RequestMethod.POST)
-    public Resp<Long> addJob(@RequestBody JobApiVo jobApiVo) {
+    public Resp<Long> addJob(@RequestBody JobApiVo jobApiVo, @RequestParam String appId) {
+        jobApiVo.setAppId(appId);
         jobApiService.saveJobAppRef(jobApiVo);
         return new Resp<>(jobApiVo.getId());
     }
@@ -42,8 +42,8 @@ public class JobApi {
      * @return 批量创建任务结果
      */
     @RequestMapping(value = "/jobs/bulk", method = RequestMethod.POST)
-    public Resp<String> addJobs(@RequestBody List<JobApiVo> jobApiVos) {
-        jobApiService.batchSaveJobAppRef(jobApiVos);
+    public Resp<String> addJobs(@RequestBody List<JobApiVo> jobApiVos, @RequestParam String appId) {
+        jobApiService.batchSaveJobAppRef(jobApiVos, appId);
         return Resp.SUCCESS;
     }
 
@@ -55,11 +55,8 @@ public class JobApi {
      * @return 任务信息
      */
     @RequestMapping(value = "/jobs/{jobId}", method = RequestMethod.GET)
-    public Resp<JobApiVo> getJob(@PathVariable Long jobId) {
-        if (jobId == null) {
-            return new Resp<>(Resp.FAIL.getCode(), "任务ID不能为空！");
-        }
-        JobApiVo job = jobApiService.findJobAppById(jobId);
+    public Resp<JobApiVo> getJob(@PathVariable Long jobId, @RequestParam String appId) {
+        JobApiVo job = jobApiService.findJobAppById(jobId, appId);
         return new Resp<>(job);
     }
 
@@ -70,11 +67,8 @@ public class JobApi {
      * @param appId 应用ID
      * @return 任务信息
      */
-    @RequestMapping(value = "/jobs/app/{appId}", method = RequestMethod.GET)
-    public Resp<List<JobInfo>> getAppJobs(@PathVariable String appId) {
-        if (StringUtils.isEmpty(appId)) {
-            return new Resp<>(Resp.FAIL.getCode(), "应用ID不能为空！");
-        }
+    @RequestMapping(value = "/jobs}", method = RequestMethod.GET)
+    public Resp<List<JobInfo>> getAppJobs(@RequestParam String appId) {
         List<JobInfo> data = jobApiService.findJobsByAppId(appId);
         return new Resp<>(data);
     }
@@ -88,11 +82,9 @@ public class JobApi {
      * @return 处理结果
      */
     @RequestMapping(value = "/jobs/{jobId}", method = RequestMethod.PUT)
-    public Resp<String> updateJob(@PathVariable Long jobId, @RequestBody JobApiVo vo) {
-        if (jobId == null) {
-            return new Resp<>(Resp.FAIL.getCode(), "任务ID不能为空！");
-        }
+    public Resp<String> updateJob(@RequestBody JobApiVo vo, @PathVariable Long jobId, @RequestParam String appId) {
         vo.setId(jobId);
+        vo.setAppId(appId);
         jobApiService.updateJob(vo);
         return Resp.SUCCESS;
     }
@@ -107,13 +99,6 @@ public class JobApi {
      */
     @RequestMapping(value = "/jobs/{jobId}", method = RequestMethod.DELETE)
     public Resp<String> removeJob(@PathVariable Long jobId, @RequestParam String appId) {
-
-        if (jobId == null) {
-            return new Resp<>(Resp.FAIL.getCode(), "任务ID不能为空！");
-        }
-        if (StringUtils.isEmpty(appId)) {
-            return new Resp<>(Resp.FAIL.getCode(), "应用ID不能为空！");
-        }
         jobApiService.removeJobById(jobId, appId);
         return Resp.SUCCESS;
     }
@@ -128,12 +113,6 @@ public class JobApi {
      */
     @RequestMapping(value = "/jobs/{jobId}/unable", method = RequestMethod.POST)
     public Resp<String> unableJob(@PathVariable Long jobId, @RequestParam String appId) {
-        if (jobId == null) {
-            return new Resp<>(Resp.FAIL.getCode(), "任务ID不能为空！");
-        }
-        if (StringUtils.isEmpty(appId)) {
-            return new Resp<>(Resp.FAIL.getCode(), "应用ID不能为空！");
-        }
         jobApiService.unableJobById(jobId, appId);
         return Resp.SUCCESS;
     }
@@ -148,14 +127,13 @@ public class JobApi {
      */
     @RequestMapping(value = "/jobs/{jobId}/enable", method = RequestMethod.POST)
     public Resp<String> enableJob(@PathVariable Long jobId, @RequestParam String appId) {
-        if (jobId == null) {
-            return new Resp<>(Resp.FAIL.getCode(), "任务ID不能为空！");
-        }
-        if (StringUtils.isEmpty(appId)) {
-            return new Resp<>(Resp.FAIL.getCode(), "应用ID不能为空！");
-        }
         jobApiService.enableJobById(jobId, appId);
         return Resp.SUCCESS;
+    }
+
+    @RequestMapping(value = "/jobs/test", method = RequestMethod.GET)
+    public Resp<String> test() {
+        return new Resp<>("test");
     }
 
 }
