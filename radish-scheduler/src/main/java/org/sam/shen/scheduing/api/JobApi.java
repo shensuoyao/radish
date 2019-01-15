@@ -131,9 +131,4 @@ public class JobApi {
         return Resp.SUCCESS;
     }
 
-    @RequestMapping(value = "/jobs/test", method = RequestMethod.GET)
-    public Resp<String> test() {
-        return new Resp<>("test");
-    }
-
 }
