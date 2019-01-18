@@ -67,7 +67,7 @@ public class JobApi {
      * @param appId 应用ID
      * @return 任务信息
      */
-    @RequestMapping(value = "/jobs}", method = RequestMethod.GET)
+    @RequestMapping(value = "/jobs", method = RequestMethod.GET)
     public Resp<List<JobInfo>> getAppJobs(@RequestParam String appId) {
         List<JobInfo> data = jobApiService.findJobsByAppId(appId);
         return new Resp<>(data);
