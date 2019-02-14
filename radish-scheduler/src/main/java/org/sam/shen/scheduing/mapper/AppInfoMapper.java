@@ -1,6 +1,8 @@
 package org.sam.shen.scheduing.mapper;
 
+import com.github.pagehelper.Page;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.sam.shen.scheduing.entity.AppInfo;
 
 import java.util.List;
@@ -11,6 +13,8 @@ import java.util.List;
  */
 @Mapper
 public interface AppInfoMapper {
+
+    Page<AppInfo> selectApps(@Param("appName") String appName);
 
     AppInfo selectAppInfoById(String appId);
 

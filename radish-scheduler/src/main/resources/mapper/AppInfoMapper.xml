@@ -11,6 +11,15 @@
         app_id, app_name, domain
     </sql>
 
+    <select id="selectApps" parameterType="java.lang.String" resultMap="AppInfoMap">
+        SELECT 
+        <include refid="Base_Column_List"/>
+        FROM app_info
+        <where>
+            <if test="appName != null and appName != ''">app_name LIKE concat(concat('%', #{appName}), '%')</if>
+        </where>
+    </select>
+
     <select id="selectAppInfoById" parameterType="java.lang.String" resultMap="AppInfoMap">
         SELECT
         <include refid="Base_Column_List"/>
@@ -23,7 +32,7 @@
     </insert>
     
     <update id="updateAppInfoById" parameterType="org.sam.shen.scheduing.entity.AppInfo">
-        UPDATE app_info SET app_id = #{appId}, app_name = #{appName}, domain = #{domain}
+        UPDATE app_info SET app_name = #{appName}, domain = #{domain} WHERE app_id = #{appId}
     </update>
 
     <insert id="batchInsert" parameterType="java.util.List">

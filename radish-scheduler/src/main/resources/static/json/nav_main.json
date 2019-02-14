@@ -59,6 +59,18 @@
          "href": "404.html"
                 }
 			]
+		},
+		{
+			"text": "参数设置",
+            "icon": "&#xe716;",
+            "href": "",
+            "subset": [
+                {
+                    "text": "应用ID设置",
+                    "icon": "&#xe679;",
+                    "href": "/radish-scheduing/config/app"
+                }
+            ]
 		}
 	]
 }
