@@ -176,12 +176,24 @@ CREATE TABLE `job_app_ref` (
 
 
 -- ----------------------------
---  Table structure for `app_handler_ref`
+--  Table structure for `app_kind`
 -- ----------------------------
-DROP TABLE IF EXISTS `app_handler_ref`;
-CREATE TABLE `app_handler_ref` (
+DROP TABLE IF EXISTS `app_kind`;
+CREATE TABLE `app_kind` (
   `id` varchar(32) NOT NULL COMMENT '主键',
   `app_id` varchar(32) DEFAULT NULL COMMENT '应用ID',
-  `handler_id` int(11) DEFAULT NULL COMMENT '处理器ID',
+  `kind` varchar(32) DEFAULT NULL COMMENT '分类标签',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+-- ----------------------------
+--  Table structure for `app_kind_handler`
+-- ----------------------------
+DROP TABLE IF EXISTS `app_kind_handler`;
+CREATE TABLE `app_kind_handler` (
+  `id` varchar(32) NOT NULL COMMENT '主键',
+  `kind_id` varchar(32) DEFAULT NULL COMMENT '分类ID',
+  `handler_id` varchar(32) DEFAULT NULL COMMENT '处理器ID',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
