@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * @author clock
  * @date 2019/1/10 上午11:05
  */
-@ControllerAdvice(basePackages = "org.sam.shen.scheduing.api")
+@ControllerAdvice(basePackages = {"org.sam.shen.scheduing.api", "org.sam.shen.scheduing.controller"})
 public class ApiControllerAdvice {
 
 

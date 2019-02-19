@@ -8,6 +8,7 @@
     <title>app config</title>
     <link rel="stylesheet" th:href="@{/static/layui/css/layui.css}">
     <link rel="stylesheet" th:href="@{/static/css/style.css}">
+    <link rel="stylesheet" th:href="@{/static/layui/css/modules/formSelects-v4.css}"/>
     <link rel="icon" th:href="@{/static/image/code.png}">
     <script type="text/javascript" th:src="@{/static/layui/layui.js}"></script>
     <script type="text/javascript" th:src="@{/static/js/index.js}"></script>
@@ -15,7 +16,6 @@
     <script type="text/html" id="barOption">
         <a class="layui-btn layui-btn-sm layui-btn-normal" lay-event="edit"><i class="layui-icon">&#xe642;</i></a>
         <a class="layui-btn layui-btn-sm layui-btn-danger" lay-event="del"><i class="layui-icon">&#xe640;</i></a>
-        <a class="layui-btn layui-btn-sm layui-btn-danger" lay-event="handler"><i class="layui-icon">&#xe640;</i></a>
     </script>
 </head>
 <body class="body">
@@ -23,9 +23,9 @@
 <!-- 工具集 -->
 <div class="my-btn-box">
     <span class="fl">
-        应用名称：
+        分类标签：
         <div class="layui-input-inline">
-            <input type="text" autocomplete="off" id="appName" placeholder="请输入搜索条件" class="layui-input">
+            <input type="text" autocomplete="off" id="kind" placeholder="请输入搜索条件" class="layui-input">
         </div>
         <button class="layui-btn mgl-20" id="btn-search">查询</button>
         <a class="layui-btn btn-add btn-default" id="btn-add"><i class="layui-icon">&#xe608;</i> 添加</a>
@@ -38,69 +38,69 @@
 
 <!-- 新增应用弹出层 -->
 <div id="app-add" style="margin: 40px 20px;display: none;">
-    <input type="hidden" id="appId" name="appId"/>
+    <input type="hidden" id="kindId"/>
     <div class="layui-form-item">
-        <label class="layui-form-label">应用名称</label>
+        <label class="layui-form-label">分类标签</label>
         <div class="layui-input-block">
-            <input type="input" name="appName" lay-verify="title" autocomplete="off" placeholder="应用名称" class="layui-input">
+            <input type="input" name="kind" lay-verify="title" autocomplete="off" placeholder="分类标签" class="layui-input">
         </div>
     </div>
     <div class="layui-form-item">
-        <label class="layui-form-label">域名</label>
+        <label class="layui-form-label">处理器</label>
         <div class="layui-input-block">
-            <input type="input" name="domain" lay-verify="title" autocomplete="off" placeholder="域名" class="layui-input">
+            <select name="handlers" xm-select="handlers-select" xm-select-search="" xm-select-search-type="dl">
+                <option value=""></option>
+            </select>
         </div>
     </div>
 </div>
 
-<script th:inline="javascript">
+<script language="JavaScript" th:inline="javascript">
     // layui方法
-    layui.use(['table', 'form', 'layer', 'laytpl'], function () {
+    layui.use(['table', 'form', 'layer', 'formSelects'], function () {
 
         // 操作对象
         var form = layui.form,
             table = layui.table,
             layer = layui.layer,
             $ = layui.jquery,
-            laytpl = layui.laytpl;
+            formSelects = layui.formSelects;
 
         // 表格渲染
         var tableIns = table.render({
             elem: '#app-table',                  //指定原始表格元素选择器（推荐id选择器）
             height: 'full-200',    //容器高度
             cols: [[   // 标题栏目
-                {field: 'appId', title: '应用ID'},
-                {field: 'appName', title: '应用名称'},
-                {field: 'domain', title: '域名'},
+                {field: 'id', title: '分类ID'},
+                {field: 'kind', title: '分类标签'},
                 {fixed: 'right', title: '操作', align: 'center', toolbar: '#barOption', width: 250}
             ]],
-            url: [[@{/config/apps}]],
+            url: [[@{/config/kinds}]] + '?appId=' + [[${appId}]],
             method: 'get',
             page: {
                 layout: ['count', 'prev', 'page', 'next'],   //自定义分页布局
                 groups: 10 //只显示 1 个连续页码
             },
-            loading: false,
-            done: function (res, curr, count) {
-                //如果是异步请求数据方式，res即为你接口返回的信息。
-                //如果是直接赋值的方式，res即为：{data: [], count: 99} data为当前页数据、count为数据总长度
-                // console.log(res);
-
-                //得到当前页码
-                // console.log(curr);
-
-                //得到数据总量
-                // console.log(count);
-            }
+            loading: false
         });
+
+        formSelects.config('handlers-select', {
+            type: 'get',
+            searchUrl: [[@{/common/agent-handler-group-app}]],
+            searchName: 'agentName',
+            delay: 1000,
+            beforeSearch: function(id, url, searchVal) {         //搜索前调用此方法, return true将触发搜索, 否则不触发
+                return true;
+            },
+            clearInput: false
+        }, false);
+
         // 获取选中行
         table.on('tool(appTable)', function (obj) {
             if (obj.event == 'edit') {
-                editApp(obj.data.appId);
+                editApp(obj.data.id);
             } else if (obj.event == 'del') {
-                delApp(obj.data.appId);
-            } else if (obj.event == 'handler') {
-                window.location.href = [[@{/config/kind}]] + '?appId=' + obj.data.appId;
+                delApp(obj.data.id);
             }
         });
 
@@ -112,15 +112,15 @@
         function refresh() {
             tableIns.reload({
                 where: {
-                    appName: $('#appName').val()
+                    kind: $('#kind').val()
                 }
             });
         }
 
         function clear() {
-            $('#appId').val('');
-            $('input[name="appName"]').val('');
-            $('input[name="domain"]').val('');
+            $('#kindId').val('');
+            $('input[name="kind"]').val('');
+            formSelects.value('handlers-select', ['']);
         }
 
         // 新增
@@ -128,21 +128,22 @@
             clear();
             layer.open({
                 type: 1,
-                title: '新增应用',
+                title: '新增分类标签',
                 content: $('#app-add'),
-                area: ['500px', '300px'],
+                area: ['750px', '500px'],
                 btn: ['保存'],
                 btn1: function (index) {
                     $.ajax({
                         type: 'post',
-                        url: [[@{/config/apps}]],
+                        url: [[@{/config/kinds}]],
                         dataType: 'json',
                         headers: {
                             'Content-Type' : 'application/json;charset=utf-8'
                         },
                         data: JSON.stringify({
-                            "appName": $('input[name="appName"]').val(),
-                            "domain": $('input[name="domain"]').val()
+                            "appId": [[${appId}]],
+                            "kind": $('input[name="kind"]').val(),
+                            "handlers": formSelects.value('handlers-select', 'val')
                         })
                     }).done(function (data) {
                         if (data.code === 1) {
@@ -158,30 +159,30 @@
         });
 
         // 编辑
-        function editApp(appId) {
+        function editApp(kindId) {
             clear();
-            $.get([[@{/config/apps/}]] + appId, function (data) {
-                var app = data.data;
-                $('#appId').val(app.appId);
-                $('input[name="appName"]').val(app.appName);
-                $('input[name="domain"]').val(app.domain);
+            $.get([[@{/config/kinds/}]] + kindId, function (data) {
+                var kind = data.data;
+                $('#kindId').val(kind.kindId);
+                $('input[name="kind"]').val(kind.kind);
+                formSelects.value('handlers-select', kind.handlers);
                 layer.open({
                     type: 1,
-                    title: '编辑应用',
+                    title: '编辑分类标签',
                     content: $('#app-add'),
-                    area: ['500px', '300px'],
+                    area: ['750px', '500px'],
                     btn: ['保存'],
                     btn1: function (index) {
                         $.ajax({
                             type: 'put',
-                            url: [[@{/config/apps/}]] + $('#appId').val(),
+                            url: [[@{/config/kinds/}]] + $('#kindId').val(),
                             dataType: 'json',
                             headers: {
                                 'Content-Type' : 'application/json;charset=utf-8'
                             },
                             data: JSON.stringify({
-                                "appName": $('input[name="appName"]').val(),
-                                "domain": $('input[name="domain"]').val()
+                                "kind": $('input[name="kind"]').val(),
+                                "handlers": formSelects.value('handlers-select', 'val')
                             })
                         }).done(function (data) {
                             if (data.code === 1) {
@@ -198,11 +199,11 @@
         }
 
         // 删除
-        function delApp(appId) {
-            layer.confirm('是否删除该应用？', function () {
+        function delApp(kindId) {
+            layer.confirm('是否删除该分类标签？', function () {
                 $.ajax({
                     type: 'delete',
-                    url: [[@{/config/apps/}]] + appId,
+                    url: [[@{/config/kinds/}]] + kindId,
                     dataType: 'json',
                     headers: {
                         'Content-Type' : 'application/json;charset=utf-8'

@@ -61,5 +61,40 @@ public class CommonController {
 		}
 		return result;
 	}
+
+    @RequestMapping(value = "agent-handler-group-app", method = RequestMethod.GET)
+    public List<Map<String, Object>> getAgentHandlerListForGroupApp(@RequestParam("agentName") String agentName) {
+        List<Map<String, ?>> list;
+        if (StringUtils.isEmpty(agentName)) {
+            list = agentService.queryAgentHandlerByAgentNameForPage(1, 10, agentName);
+        } else {
+            list = agentService.queryAgentHandlerByAgentName(agentName);
+        }
+        List<Map<String, Object>> result = Lists.newArrayList();
+        if(null != list && list.size() > 0) {
+            long agentId = -1L;
+            for(Map<String, ?> m : list) {
+                long aId = Long.valueOf(m.get("agentId").toString());
+                if(aId != agentId) {
+                    result.add(new HashMap<String, Object>() {
+                        private static final long serialVersionUID = -1327560835402916072L;
+                        {
+                            put("name", m.get("agentName"));
+                            put("type", "optgroup");
+                        }
+                    });
+                    agentId = aId;
+                }
+                result.add(new HashMap<String, Object>() {
+                    private static final long serialVersionUID = -393533457698464686L;
+                    {
+                        put("name", m.get("handler"));
+                        put("value", String.valueOf(m.get("id")));
+                    }
+                });
+            }
+        }
+        return result;
+    }
 	
 }

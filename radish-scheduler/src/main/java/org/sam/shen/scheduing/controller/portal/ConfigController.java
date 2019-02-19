@@ -3,12 +3,17 @@ package org.sam.shen.scheduing.controller.portal;
 import com.github.pagehelper.Page;
 import org.sam.shen.core.model.Resp;
 import org.sam.shen.scheduing.entity.AppInfo;
+import org.sam.shen.scheduing.entity.AppKind;
 import org.sam.shen.scheduing.entity.RespPager;
 import org.sam.shen.scheduing.service.AppService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -69,6 +74,59 @@ public class ConfigController {
         } else {
             return Resp.FAIL;
         }
+    }
+
+    @RequestMapping(value = "kind", method = RequestMethod.GET)
+    public ModelAndView kind(@RequestParam String appId, ModelAndView modelAndView) {
+        modelAndView.addObject("appId", appId);
+        modelAndView.setViewName("frame/config/config_app_kind");
+        return modelAndView;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "kinds", method = RequestMethod.GET)
+    public RespPager<Page<AppKind>> getKinds(@RequestParam String appId, @RequestParam(required = false) String kind,
+                                             @RequestParam(defaultValue = "1") Integer page,
+                                             @RequestParam(defaultValue = "10") Integer limit) {
+        AppKind appKind = new AppKind(appId, kind);
+        Page<AppKind> kinds = appService.getKindsWithPage(appKind, page, limit);
+        return new RespPager<>(kinds);
+    }
+
+    @SuppressWarnings("unchecked")
+    @ResponseBody
+    @RequestMapping(value = "kinds", method = RequestMethod.POST)
+    public Resp<String> saveKindHandler(@RequestBody Map<String, Object> kindHandler) {
+        String appId = kindHandler.get("appId").toString();
+        String kind = kindHandler.get("kind").toString();
+        List<String> handlers = (ArrayList<String>) kindHandler.get("handlers");
+        appService.saveKindHandlers(appId, kind, handlers);
+        return Resp.SUCCESS;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "kinds/{kindId}", method = RequestMethod.GET)
+    public Resp<Map<String, Object>> getKindHandler(@PathVariable String kindId) {
+        Map<String, Object> result = appService.getKindHandlerById(kindId);
+        return new Resp<>(result);
+    }
+
+    @SuppressWarnings("unchecked")
+    @ResponseBody
+    @RequestMapping(value = "kinds/{kindId}", method = RequestMethod.PUT)
+    public Resp<String> updateKindHandler(@PathVariable String kindId, @RequestBody Map<String, Object> kindHandler) {
+        String kind = kindHandler.get("kind").toString();
+        AppKind appKind = new AppKind(kindId, null, kind);
+        List<String> handlers = (ArrayList<String>) kindHandler.get("handlers");
+        appService.updateKindHandlers(appKind, handlers);
+        return Resp.SUCCESS;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "kinds/{kindId}", method = RequestMethod.DELETE)
+    public Resp<String> deleteKindHandler(@PathVariable String kindId) {
+        appService.deleteKindHandlers(kindId);
+        return Resp.SUCCESS;
     }
 
 }

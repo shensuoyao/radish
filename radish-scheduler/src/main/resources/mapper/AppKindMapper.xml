@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.sam.shen.scheduing.mapper.AppKindMapper">
+    <resultMap id="AppKindMap" type="org.sam.shen.scheduing.entity.AppKind">
+        <result column="id" property="id"/>
+        <result column="app_id" property="appId"/>
+        <result column="kind" property="kind"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, app_id, kind
+    </sql>
+
+    <select id="selectAppKind" parameterType="org.sam.shen.scheduing.entity.AppKind" resultMap="AppKindMap">
+        SELECT <include refid="Base_Column_List"/> FROM app_kind
+        <where>
+            <if test="appId != null and appId != ''">app_id = #{appId}</if>
+            <if test="kind != null and kind != ''">AND kind LIKE CONCAT(CONCAT('%', #{kind}), '%')</if>
+        </where>
+    </select>
+    
+    <insert id="insertAppKind" parameterType="org.sam.shen.scheduing.entity.AppKind">
+        INSERT INTO app_kind(id, app_id, kind) VALUES (#{id}, #{appId}, #{kind})
+    </insert>
+    
+    <update id="updateAppKind" parameterType="org.sam.shen.scheduing.entity.AppKind">
+        UPDATE app_kind SET kind = #{kind} WHERE id = #{id}
+    </update>
+
+    <delete id="deleteAppKind" parameterType="java.lang.String">
+        DELETE FROM app_kind WHERE id = #{id}
+    </delete>
+</mapper>

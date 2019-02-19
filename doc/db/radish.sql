@@ -173,3 +173,15 @@ CREATE TABLE `job_app_ref` (
   `app_id` varchar(32) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+-- ----------------------------
+--  Table structure for `app_handler_ref`
+-- ----------------------------
+DROP TABLE IF EXISTS `app_handler_ref`;
+CREATE TABLE `app_handler_ref` (
+  `id` varchar(32) NOT NULL COMMENT '主键',
+  `app_id` varchar(32) DEFAULT NULL COMMENT '应用ID',
+  `handler_id` int(11) DEFAULT NULL COMMENT '处理器ID',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
