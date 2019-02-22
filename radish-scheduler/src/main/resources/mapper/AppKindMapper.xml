@@ -17,6 +17,10 @@
             <if test="kind != null and kind != ''">AND kind LIKE CONCAT(CONCAT('%', #{kind}), '%')</if>
         </where>
     </select>
+
+    <select id="selectByAppAndKind" resultMap="AppKindMap">
+        SELECT <include refid="Base_Column_List"/> FROM app_kind WHERE app_id = #{appId} AND kind = #{kind}
+    </select>
     
     <insert id="insertAppKind" parameterType="org.sam.shen.scheduing.entity.AppKind">
         INSERT INTO app_kind(id, app_id, kind) VALUES (#{id}, #{appId}, #{kind})

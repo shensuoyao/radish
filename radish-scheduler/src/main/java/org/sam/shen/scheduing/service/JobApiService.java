@@ -4,16 +4,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.SchedulerException;
 import org.sam.shen.core.constants.Constant;
+import org.sam.shen.scheduing.entity.AppKind;
 import org.sam.shen.scheduing.entity.JobAppRef;
 import org.sam.shen.scheduing.entity.JobInfo;
+import org.sam.shen.scheduing.mapper.AppKindHandlerMapper;
+import org.sam.shen.scheduing.mapper.AppKindMapper;
 import org.sam.shen.scheduing.mapper.JobAppRefMapper;
 import org.sam.shen.scheduing.mapper.JobInfoMapper;
 import org.sam.shen.scheduing.scheduler.RadishDynamicScheduler;
+import org.sam.shen.scheduing.vo.AppKindHandlerVo;
 import org.sam.shen.scheduing.vo.JobApiVo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,8 +37,24 @@ public class JobApiService {
     @Resource
     private JobAppRefMapper jobAppRefMapper;
 
+    @Resource
+    private AppKindMapper appKindMapper;
+
+    @Resource
+    private AppKindHandlerMapper appKindHandlerMapper;
+
     @Transactional(rollbackFor = Exception.class)
-    public void saveJobAppRef(JobApiVo vo) {
+    public void saveJobAppRef(JobApiVo vo, String kind) {
+        // 查询handler
+        AppKind appKind = appKindMapper.selectByAppAndKind(vo.getAppId(), kind);
+        if (appKind == null) {
+            throw new RuntimeException("无效的kind！");
+        }
+        List<AppKindHandlerVo> handlers = appKindHandlerMapper.selectKindHandler(appKind.getId());
+        if (handlers != null && handlers.size() > 0) {
+            String executors = handlers.stream().map(akh -> akh.getAgentId().concat("-").concat(akh.getHandler())).collect(Collectors.joining(","));
+            vo.setExecutorHandlers(executors);
+        }
         // 保存基本信息
         vo.setCreateTime(new Date());
         jobInfoMapper.saveJobInfo(vo);
@@ -51,12 +72,24 @@ public class JobApiService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public void batchSaveJobAppRef(List<JobApiVo> jobApiVos, String appId) {
+    public void batchSaveJobAppRef(List<JobApiVo> jobApiVos, String appId, String kind) {
+        // 查询handler
+        String executors = null;
+        AppKind appKind = appKindMapper.selectByAppAndKind(appId, kind);
+        if (appKind == null) {
+            throw new RuntimeException("无效的kind！");
+        }
+        List<AppKindHandlerVo> handlers = appKindHandlerMapper.selectKindHandler(appKind.getId());
+        if (handlers != null && handlers.size() > 0) {
+            executors = handlers.stream().map(akh -> akh.getAgentId().concat("-").concat(akh.getHandler())).collect(Collectors.joining(","));
+        }
         // 保存基本信息
-        List<JobInfo> jobs = jobApiVos.stream().map(jav -> {
+        List<JobInfo> jobs = new ArrayList<>();
+        for (JobApiVo jav : jobApiVos) {
             jav.setCreateTime(new Date());
-            return (JobInfo) jav;
-        }).collect(Collectors.toList());
+            jav.setExecutorHandlers(executors);
+            jobs.add(jav);
+        }
         jobInfoMapper.batchInsert(jobs);
         List<JobAppRef> refs = jobs.stream()
                 .map(job -> new JobAppRef(Long.toString(job.getId()), appId))

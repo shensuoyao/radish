@@ -28,9 +28,9 @@ public class JobApi {
      * @return 任务ID
      */
     @RequestMapping(value = "/jobs", method = RequestMethod.POST)
-    public Resp<Long> addJob(@RequestBody JobApiVo jobApiVo, @RequestParam String appId) {
+    public Resp<Long> addJob(@RequestBody JobApiVo jobApiVo, @RequestParam String appId, @RequestParam String kind) {
         jobApiVo.setAppId(appId);
-        jobApiService.saveJobAppRef(jobApiVo);
+        jobApiService.saveJobAppRef(jobApiVo, kind);
         return new Resp<>(jobApiVo.getId());
     }
 
@@ -42,8 +42,8 @@ public class JobApi {
      * @return 批量创建任务结果
      */
     @RequestMapping(value = "/jobs/bulk", method = RequestMethod.POST)
-    public Resp<String> addJobs(@RequestBody List<JobApiVo> jobApiVos, @RequestParam String appId) {
-        jobApiService.batchSaveJobAppRef(jobApiVos, appId);
+    public Resp<String> addJobs(@RequestBody List<JobApiVo> jobApiVos, @RequestParam String appId, @RequestParam String kind) {
+        jobApiService.batchSaveJobAppRef(jobApiVos, appId, kind);
         return Resp.SUCCESS;
     }
 

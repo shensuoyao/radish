@@ -2,6 +2,7 @@ package org.sam.shen.scheduing.mapper;
 
 import com.github.pagehelper.Page;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.sam.shen.scheduing.entity.AppKind;
 
 /**
@@ -12,6 +13,8 @@ import org.sam.shen.scheduing.entity.AppKind;
 public interface AppKindMapper {
 
     Page<AppKind> selectAppKind(AppKind appKind);
+
+    AppKind selectByAppAndKind(@Param("appId") String appId, @Param("kind") String kind);
 
     int insertAppKind(AppKind appKind);
 
