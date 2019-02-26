@@ -69,12 +69,12 @@ spring:
     cache: true
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://rm-2ze1e9k4201bljl9w.mysql.rds.aliyuncs.com/radish?useUnicode=true&characterEncoding=UTF-8
-    username: java
-    password: 653840d8038356568455540Df67252d1
+    url: jdbc:mysql://??????/radish?useUnicode=true&characterEncoding=UTF-8
+    username: ???
+    password: ???
   redis:
     database: 3
-    host: 182.92.84.158
+    host: ???.???.???.???
     port: 6379
     password: pass
     timeout: 3000ms
