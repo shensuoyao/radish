@@ -1,17 +1,19 @@
 package org.sam.shen.scheduing.controller.portal;
 
 import com.github.pagehelper.Page;
+import org.apache.commons.lang3.StringUtils;
 import org.sam.shen.core.model.Resp;
-import org.sam.shen.scheduing.entity.AppInfo;
-import org.sam.shen.scheduing.entity.AppKind;
-import org.sam.shen.scheduing.entity.RespPager;
+import org.sam.shen.scheduing.entity.*;
 import org.sam.shen.scheduing.service.AppService;
+import org.sam.shen.scheduing.service.UserService;
+import org.sam.shen.scheduing.vo.UserAgentGroupVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +29,9 @@ public class ConfigController {
     @Autowired
     private AppService appService;
 
+    @Autowired
+    private UserService userService;
+
     @RequestMapping(value = {"app", "app/"}, method = RequestMethod.GET)
     public ModelAndView configApp(ModelAndView modelAndView) {
         modelAndView.setViewName("frame/config/config_app");
@@ -35,7 +40,8 @@ public class ConfigController {
 
     @ResponseBody
     @RequestMapping(value = "apps", method = RequestMethod.GET)
-    public RespPager<Page<AppInfo>> getApps(@RequestParam(required = false) String appName, @RequestParam(defaultValue = "0") Integer page,
+    public RespPager<Page<AppInfo>> getApps(@RequestParam(required = false) String appName,
+                                            @RequestParam(defaultValue = "0") Integer page,
                                            @RequestParam(defaultValue = "10") Integer limit) {
         Page<AppInfo> result = appService.getAppsWithPage(appName, page, limit);
         return new RespPager<>(result.getPageSize(), result.getTotal(), result);
@@ -126,6 +132,62 @@ public class ConfigController {
     @RequestMapping(value = "kinds/{kindId}", method = RequestMethod.DELETE)
     public Resp<String> deleteKindHandler(@PathVariable String kindId) {
         appService.deleteKindHandlers(kindId);
+        return Resp.SUCCESS;
+    }
+
+    @RequestMapping(value = "user",method = RequestMethod.GET)
+    public ModelAndView user(ModelAndView modelAndView) {
+        modelAndView.setViewName("frame/config/config_user");
+        return modelAndView;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "users", method = RequestMethod.GET)
+    public RespPager<Page<UserAgentGroupVo>> getUsers(@RequestParam(required = false) String uname,
+                                          @RequestParam(defaultValue = "1") Integer page,
+                                          @RequestParam(defaultValue = "10") Integer limit) {
+        Page<UserAgentGroupVo> users = userService.selectUserWithPage(uname, page, limit);
+        return new RespPager<>(limit, users.getTotal(), users);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "users", method = RequestMethod.POST)
+    public Resp<String> saveUser(@RequestBody UserAgentGroupVo userGroup) {
+        User user = new User(userGroup.getUname(), userGroup.getPassword());
+        List<String> groups = null;
+        if (StringUtils.isNotEmpty(userGroup.getGroups())) {
+            groups = Arrays.asList(userGroup.getGroups().split(","));
+        }
+        userService.saveUserGroup(user, groups);
+        return Resp.SUCCESS;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "users/{userId}", method = RequestMethod.GET)
+    public Resp<UserAgentGroupVo> getUserById(@PathVariable String userId) {
+        UserAgentGroupVo vo = userService.selectUserGroupById(userId);
+        return new Resp<>(vo);
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "users/{userId}", method = RequestMethod.PUT)
+    public Resp<String> updateUser(@PathVariable Long userId, @RequestBody UserAgentGroupVo vo) {
+        User user = new User();
+        user.setId(userId);
+        user.setUname(vo.getUname());
+        user.setPassword(vo.getPassword());
+        List<String> groups = null;
+        if (StringUtils.isNotEmpty(vo.getGroupIds())) {
+            groups = Arrays.asList(vo.getGroups().split(","));
+        }
+        userService.updateUserGroup(user, groups);
+        return Resp.SUCCESS;
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "users/{userId}", method = RequestMethod.DELETE)
+    public Resp<String> deleteUser(@PathVariable Long userId) {
+        userService.deleteUserGroup(userId);
         return Resp.SUCCESS;
     }
 

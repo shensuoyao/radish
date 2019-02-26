@@ -1,8 +1,7 @@
 package org.sam.shen.scheduing.controller.portal;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sam.shen.core.model.Resp;
@@ -145,6 +144,24 @@ public class AgentController {
 	public Resp<List<AgentGroup>> queryAgentGroupForJson() {
 		return new Resp<>(agentService.queryAgentGroup());
 	}
+
+    /**
+     * 提供页面选择group使用
+     * @author clock
+     * @date 2019/2/26 下午3:36
+     * @return 客户端组
+     */
+    @ResponseBody
+    @RequestMapping(value = "agent-group-select", method = RequestMethod.GET)
+    public List<Map<String, Object>> queryAgentGroup(@RequestParam(required = false) String groupName) {
+	    List<AgentGroup> groups = agentService.queryAgentGroup(groupName);
+	    return groups.stream().map(group -> {
+	        Map<String, Object> map = new HashMap<>();
+	        map.put("name", Long.toString(group.getId()).concat("-").concat(group.getGroupName()));
+	        map.put("value", group.getId());
+	        return map;
+        }).collect(Collectors.toList());
+    }
 	
 	/**
 	 *  跳转到AgentGroup添加页面

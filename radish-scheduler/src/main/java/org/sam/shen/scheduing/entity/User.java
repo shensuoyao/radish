@@ -23,4 +23,18 @@ public class User implements Serializable {
 
     private int enable;
 
+    public User() {}
+
+    public User(String uname, String password, int enable) {
+        this.uname = uname;
+        this.password = password;
+        this.enable = enable;
+    }
+
+    public User(String uname, String password) {
+        this.uname = uname;
+        this.password = password;
+        this.enable = 1;
+    }
+
 }

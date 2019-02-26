@@ -163,6 +163,14 @@ public class AgentService {
 		}
 		return result;
 	}
+
+	public List<AgentGroup> queryAgentGroup(String groupName) {
+		List<AgentGroup> result = agentGroupMapper.queryAgentGroupByName(groupName);
+		if(null == result) {
+			return Collections.emptyList();
+		}
+		return result;
+	}
 	
 	/** 
 	 *  保存Agent Group 组

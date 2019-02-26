@@ -16,5 +16,5 @@ public interface UserAgentGroupMapper {
 
     int batchInsert(List<UserAgentGroup> list);
 
-    int deleteByUserId(String userId);
+    int deleteByUserId(Long userId);
 }

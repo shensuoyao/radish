@@ -30,6 +30,13 @@
             FROM agent_group 
             ]]>
     </select>
+
+    <select id="queryAgentGroupByName" parameterType="java.lang.String" resultMap="agentGroupMap">
+        SELECT id, group_name, create_time FROM agent_group
+        <where>
+            <if test="groupName != null and groupName != ''">group_name like concat('%', concat(#{groupName}, '%'))</if>
+        </where>
+    </select>
     
     <select id="countAgentGroup" resultType="long">
        <![CDATA[

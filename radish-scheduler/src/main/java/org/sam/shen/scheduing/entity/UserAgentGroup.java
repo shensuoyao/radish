@@ -21,4 +21,8 @@ public class UserAgentGroup implements Serializable {
 
     private Long groupId;
 
+    public UserAgentGroup(Long userId, Long groupId) {
+        this.userId = userId;
+        this.groupId = groupId;
+    }
 }
