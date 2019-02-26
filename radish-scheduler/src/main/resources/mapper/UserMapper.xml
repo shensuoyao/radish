@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.sam.shen.scheduing.mapper.UserMapper">
+    <resultMap id="UserMap" type="org.sam.shen.scheduing.entity.User">
+        <result column="id" property="id"/>
+        <result column="uname" property="uname"/>
+        <result column="password" property="password"/>
+        <result column="enable" property="enable"/>
+    </resultMap>
+
+    <select id="login" resultMap="UserMap">
+        SELECT id, uname,password, enable FROM `user` WHERE uname = #{uname} AND password = #{password} AND enable = 1
+    </select>
+    
+    <insert id="insert" parameterType="org.sam.shen.scheduing.entity.User" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user(uname, password, enable) VALUES (#{uname}, #{password}, #{enable})
+    </insert>
+
+    <update id="modifyPassword">
+        UPDATE user SET password = #{password} WHERE uname = #{uname}
+    </update>
+    
+    <update id="enableUser">
+        UPDATE user SET enable = #{enable} WHERE id = #{id}
+    </update>
+
+
+</mapper>

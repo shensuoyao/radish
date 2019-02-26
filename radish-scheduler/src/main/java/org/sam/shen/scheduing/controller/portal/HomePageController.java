@@ -4,6 +4,7 @@ import java.util.Set;
 
 import org.quartz.SchedulerException;
 import org.sam.shen.core.constants.Constant;
+import org.sam.shen.scheduing.entity.User;
 import org.sam.shen.scheduing.service.DashboardService;
 import org.sam.shen.scheduing.service.RedisService;
 import org.sam.shen.scheduing.vo.ChartVo;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping(value="portal")
@@ -29,7 +32,9 @@ public class HomePageController {
 	private RedisService redisService;
 
 	@RequestMapping(value = {"", "/", "/index", "/home"}, method = RequestMethod.GET)
-	public ModelAndView home(ModelAndView model) {
+	public ModelAndView home(ModelAndView model, HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        model.addObject("user", user);
 		model.setViewName("home");
 		return model;
 	}

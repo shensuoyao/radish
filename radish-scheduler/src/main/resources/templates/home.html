@@ -39,10 +39,9 @@
             </li>
             <li class="layui-nav-item">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
             <li class="layui-nav-item">
-                <a class="name" href="javascript:;"><i class="layui-icon">&#xe770;</i> Admin </a>
+                <a class="name" href="javascript: void(0);" th:text="${user.uname}"><i class="layui-icon">&#xe770;</i></a>
                 <dl class="layui-nav-child">
-                    <dd><a href="javascript:;" href-url="/radish-scheduing/portal/dashboard"><i class="layui-icon">&#xe68e;</i>Dashboard</a></dd>
-                    <dd><a href="/"><i class="layui-icon">&#x1006;</i>退出</a></dd>
+                    <dd><a th:href="@{/logout}"><i class="layui-icon">&#x1006;</i>退出</a></dd>
                 </dl>
             </li>
         </ul>

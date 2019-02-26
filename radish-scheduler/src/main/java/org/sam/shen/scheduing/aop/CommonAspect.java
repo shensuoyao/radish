@@ -6,10 +6,17 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.sam.shen.core.model.Resp;
 import org.sam.shen.scheduing.entity.AppInfo;
+import org.sam.shen.scheduing.entity.User;
 import org.sam.shen.scheduing.mapper.AppInfoMapper;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.util.Objects;
 
 /**
  * @author clock
@@ -17,7 +24,7 @@ import javax.annotation.Resource;
  */
 @Aspect
 @Component
-public class ApiAspect {
+public class CommonAspect {
 
     @Resource
     private AppInfoMapper appInfoMapper;
@@ -47,6 +54,20 @@ public class ApiAspect {
             }
         }
         return joinPoint.proceed();
+    }
+
+    @Around("execution(* org.sam.shen.scheduing.controller.portal.*.*(..)) && !execution(* org.sam.shen.scheduing.controller.portal.LoginController.login*(..))")
+    public Object checkSession(ProceedingJoinPoint joinPoint) throws Throwable {
+        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
+        HttpServletResponse response = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getResponse();
+        HttpSession session = request.getSession();
+        User user = (User) session.getAttribute("user");
+        if (user == null) {
+            response.sendRedirect(request.getContextPath());
+            return null;
+        } else {
+            return joinPoint.proceed();
+        }
     }
 
 }
