@@ -169,9 +169,9 @@ public class JobEventService {
 		}
 	}
 	
-	public Page<JobEvent> queryJobEventForPager(int index, int limit, EventStatus stat) {
+	public Page<JobEvent> queryJobEventForPager(int index, int limit, EventStatus stat, Long userId) {
 		PageHelper.startPage(index, limit);
-		return jobEventMapper.queryJobEventForPager(stat.name());
+		return jobEventMapper.queryJobEventForPager(stat.name(), userId);
 	}
 	
 	/**

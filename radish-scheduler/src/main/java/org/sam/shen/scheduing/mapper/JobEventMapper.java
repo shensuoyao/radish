@@ -18,10 +18,10 @@ public interface JobEventMapper {
 	
 	JobEvent findJobEventByEventId(String eventId);
 	
-	Page<JobEvent> queryJobEventForPager(@Param("stat") String stat);
+	Page<JobEvent> queryJobEventForPager(@Param("stat") String stat, @Param("userId") Long userId);
 	
 	// ------------  统计 -----------------------------------
-	Integer countJobEventByStat(String stat);
+	Integer countJobEventByStat(@Param("stat") String stat, @Param("userId") Long userId);
 
 	List<JobEvent> queryJobEventByJobId(Long jobId);
 

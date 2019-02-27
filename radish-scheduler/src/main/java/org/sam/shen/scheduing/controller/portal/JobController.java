@@ -285,9 +285,10 @@ public class JobController {
 	 */
 	@RequestMapping(value = "job-event/json-pager", method = RequestMethod.GET)
 	@ResponseBody
-	public RespPager<Page<JobEvent>> queryJobEventForJsonPager(@RequestParam("page") Integer page,
-	        @RequestParam("limit") Integer limit,
-	        @RequestParam(value = "stat", required = false) EventStatus stat) {
+	public RespPager<Page<JobEvent>> queryJobEventForJsonPager(@RequestParam("page") Integer page
+            , @RequestParam("limit") Integer limit
+            , @RequestParam(value = "stat", required = false) EventStatus stat
+            , HttpSession session) {
 		if (null == page) {
 			page = 1;
 		}
@@ -297,7 +298,11 @@ public class JobController {
 		if(null == stat) {
 			stat = EventStatus.READY;
 		}
-		Page<JobEvent> pager = jobEventService.queryJobEventForPager(page, limit, stat);
+		User user = (User) session.getAttribute("user");
+        if (SchedConstant.ADMINISTRATOR.equals(user.getUname())){ // 如果管理员登陆查询所有数据
+            user.setId(null);
+        }
+		Page<JobEvent> pager = jobEventService.queryJobEventForPager(page, limit, stat, user.getId());
 		return new RespPager<>(pager.getPageSize(), pager.getTotal(), pager);
 	}
 	

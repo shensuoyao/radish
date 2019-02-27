@@ -43,12 +43,12 @@ public class DashboardService {
 		return jobInfoMapper.countJobInfoByEnable(enable, userId);
 	}
 	
-	public ChartVo eventChart() {
+	public ChartVo eventChart(Long userId) {
 		ChartVo chartVo = new ChartVo();
 		chartVo.addLegend("Event");
 		for (EventStatus item : EventStatus.values()) {
 			chartVo.addXAxis(item.name());
-			chartVo.addYAxis(jobEventMapper.countJobEventByStat(item.name()));
+			chartVo.addYAxis(jobEventMapper.countJobEventByStat(item.name(), userId));
 		}
 		return chartVo;
 	}

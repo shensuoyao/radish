@@ -93,25 +93,23 @@
 
     <select id="queryJobEventForPager" resultMap="jobEventMap" parameterType="string">
         <![CDATA[
-            SELECT event_id, parent_event_id, job_id, parent_job_id, group_id, parent_group_id, executor_handlers,
-                   handler_type, cmd, params, param_file_path, stat, handler_agent_id, priority, retry_count, create_time, handler_log_path,
-                   dist_type, event_rule
-            FROM job_event
+            SELECT a.event_id, a.parent_event_id, a.job_id, a.parent_job_id, a.group_id, a.parent_group_id, a.executor_handlers,
+                   a.handler_type, a.cmd, a.params, a.param_file_path, a.stat, a.handler_agent_id, a.priority, a.retry_count,
+                   a.create_time, a.handler_log_path, a.dist_type, a.event_rule
+            FROM job_event a, job_info b
+            WHERE a.job_id = b.id
         ]]>
-        <if test="stat != null">
-            <where>
-                stat = #{stat}
-            </where>
-        </if>
-        <![CDATA[  ORDER BY create_time DESC ]]>
+        <if test="stat != null"> AND a.stat = #{stat}</if>
+        <if test="userId != null"> AND b.user_id = #{userId}</if>
+        <![CDATA[  ORDER BY a.create_time DESC ]]>
     </select>
 
     <select id="countJobEventByStat" parameterType="string" resultType="int">
         <![CDATA[
-            SELECT count(*)
-            FROM job_event
-            WHERE stat = #{stat}
+            SELECT count(a.event_id) FROM job_event a, job_info b WHERE a.job_id = b.id
         ]]>
+        <if test="stat != null"> AND a.stat = #{stat}</if>
+        <if test="userId != null"> AND b.user_id = #{userId}</if>
     </select>
 
     <select id="queryJobEventByJobId" parameterType="long" resultMap="jobEventMap">

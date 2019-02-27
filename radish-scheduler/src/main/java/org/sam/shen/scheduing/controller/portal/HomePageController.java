@@ -69,8 +69,12 @@ public class HomePageController {
 	 */
 	@RequestMapping(value = "/dashboard/event-chart", method = RequestMethod.GET)
 	@ResponseBody
-	public ChartVo eventChart() {
-		return dashboardService.eventChart();
+	public ChartVo eventChart(HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        if (SchedConstant.ADMINISTRATOR.equals(user.getUname())){ // 如果管理员登陆查询所有数据
+            user.setId(null);
+        }
+		return dashboardService.eventChart(user.getId());
 	}
 	
 	/**
