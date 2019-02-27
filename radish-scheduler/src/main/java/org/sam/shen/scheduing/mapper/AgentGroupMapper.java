@@ -15,6 +15,8 @@ public interface AgentGroupMapper {
 	
 	List<AgentGroup> queryAgentGroup();
 
+    List<AgentGroup> queryUserAgentGroup(Long userId);
+
 	List<AgentGroup> queryAgentGroupByName(@Param("groupName") String groupName);
 	
 	Long countAgentGroup();

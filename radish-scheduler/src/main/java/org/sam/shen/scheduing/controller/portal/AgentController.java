@@ -5,9 +5,11 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sam.shen.core.model.Resp;
+import org.sam.shen.scheduing.constants.SchedConstant;
 import org.sam.shen.scheduing.entity.Agent;
 import org.sam.shen.scheduing.entity.AgentGroup;
 import org.sam.shen.scheduing.entity.RespPager;
+import org.sam.shen.scheduing.entity.User;
 import org.sam.shen.scheduing.service.AgentService;
 import org.sam.shen.scheduing.vo.AgentEditVo;
 import org.sam.shen.scheduing.vo.AgentGroupEditView;
@@ -22,6 +24,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.github.pagehelper.Page;
+
+import javax.servlet.http.HttpSession;
 
 /**
  * @author suoyao
@@ -59,15 +63,20 @@ public class AgentController {
 	@RequestMapping(value = "agent/json-pager", method = RequestMethod.GET)
 	@ResponseBody
 	public RespPager<Page<Agent>> queryAgentForJsonPager(@RequestParam("page") Integer page,
-	        @RequestParam("limit") Integer limit,
-	        @RequestParam(value = "agentName", required = false, defaultValue = "") String agentName) {
+                                                         @RequestParam("limit") Integer limit,
+                                                         @RequestParam(value = "agentName", required = false, defaultValue = "") String agentName,
+                                                         HttpSession session) {
 		if(null == page) {
 			page = 1;
 		}
 		if(null == limit) {
 			limit = 10;
 		}
-		Page<Agent> pager = agentService.queryAgentForPager(page, limit, agentName);
+        User user = (User) session.getAttribute("user");
+		if (SchedConstant.ADMINISTRATOR.equals(user.getUname())) {
+		    user.setId(null);
+        }
+		Page<Agent> pager = agentService.queryAgentForPager(page, limit, agentName, user.getId());
 		return new RespPager<>(pager.getPageSize(), pager.getTotal(), pager);
 	}
 	
@@ -141,8 +150,12 @@ public class AgentController {
 	 */
 	@RequestMapping(value = "agent-group/json", method = RequestMethod.GET)
 	@ResponseBody
-	public Resp<List<AgentGroup>> queryAgentGroupForJson() {
-		return new Resp<>(agentService.queryAgentGroup());
+	public Resp<List<AgentGroup>> queryAgentGroupForJson(HttpSession session) {
+	    User user = (User) session.getAttribute("user");
+	    if (SchedConstant.ADMINISTRATOR.equals(user.getUname())) {
+	        user.setId(null);
+        }
+		return new Resp<>(agentService.queryAgentGroup(user.getId()));
 	}
 
     /**

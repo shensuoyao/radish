@@ -197,7 +197,7 @@ public class ConfigController {
         user.setPassword(vo.getPassword());
         List<String> groups = null;
         if (StringUtils.isNotEmpty(vo.getGroupIds())) {
-            groups = Arrays.asList(vo.getGroups().split(","));
+            groups = Arrays.asList(vo.getGroupIds().split(","));
         }
         userService.updateUserGroup(user, groups);
         return Resp.SUCCESS;

@@ -98,9 +98,12 @@ public class AgentService {
 	 * @param agentName
 	 * @return
 	 */
-	public Page<Agent> queryAgentForPager(int index, int limit, String agentName) {
+	public Page<Agent> queryAgentForPager(int index, int limit, String agentName, Long userId) {
 		PageHelper.startPage(index, limit);
-		return agentMapper.queryAgentForPager(agentName);
+		if (userId == null) {
+		    return agentMapper.queryAgentForPager(agentName);
+        }
+		return agentMapper.queryAgentForPagerUser(agentName, userId);
 	}
 	
 	public List<Agent> queryAgentForList(String agentName) {
@@ -156,8 +159,13 @@ public class AgentService {
 	 * @date 下午4:56:14
 	 * @return
 	 */
-	public List<AgentGroup> queryAgentGroup() {
-		List<AgentGroup> result = agentGroupMapper.queryAgentGroup();
+	public List<AgentGroup> queryAgentGroup(Long userId) {
+		List<AgentGroup> result;
+		if (userId == null) {
+		    result = agentGroupMapper.queryAgentGroup();
+        } else {
+		    result = agentGroupMapper.queryUserAgentGroup(userId);
+        }
 		if(null == result) {
 			return Collections.emptyList();
 		}

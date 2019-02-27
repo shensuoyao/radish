@@ -31,6 +31,12 @@
             ]]>
     </select>
 
+    <select id="queryUserAgentGroup" parameterType="java.lang.Long" resultMap="agentGroupMap">
+        SELECT b.id, b.group_name, b.create_time
+        FROM user_agent_group a, agent_group b
+        WHERE a.group_id = b.id AND a.user_id = #{userId}
+    </select>
+
     <select id="queryAgentGroupByName" parameterType="java.lang.String" resultMap="agentGroupMap">
         SELECT id, group_name, create_time FROM agent_group
         <where>

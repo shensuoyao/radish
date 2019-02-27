@@ -40,18 +40,42 @@
               ]]>
 	  </where>
 	</select>
-	
-	<select id="queryAgentForPager" resultMap="agentMap" parameterType="string">
-  <![CDATA[
-	  SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat, network, netty_port
-	    FROM agent 
-     ]]>
-  <if test="agentName != null">
-    <where>
-        agent_name LIKE CONCAT(#{agentName}, '%')
-    </where>
-  </if>
- </select>
+
+    <select id="queryAgentForPagerUser" resultMap="agentMap" parameterType="string">
+        SELECT
+            a.id ,
+            a.agent_name ,
+            a.agent_ip ,
+            a.agent_port ,
+            a.admin ,
+            a.admin_email ,
+            a.admin_phone ,
+            a.reg_time ,
+            a.stat ,
+            a.network ,
+            a.netty_port
+        FROM agent a, agent_group_ref b, user_agent_group c
+        where a.id = b.agent_id and b.id = c.group_id
+        <if test="agentName != null">
+            AND a.agent_name LIKE CONCAT(#{agentName}, '%')
+        </if>
+        <if test="userId != null">
+            AND c.user_id = #{userId}
+        </if>
+    </select>
+
+    <select id="queryAgentForPager" resultMap="agentMap" parameterType="string">
+        <![CDATA[
+	        SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat, network, netty_port
+	        FROM agent
+        ]]>
+        <if test="agentName != null">
+            <where>
+                agent_name LIKE CONCAT(#{agentName}, '%')
+            </where>
+        </if>
+    </select>
+
  <select id="queryAgentForList" resultMap="agentMap" parameterType="string">
   <![CDATA[
       SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat, network, netty_port

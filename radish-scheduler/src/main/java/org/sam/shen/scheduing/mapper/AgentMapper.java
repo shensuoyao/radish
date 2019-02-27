@@ -15,6 +15,8 @@ public interface AgentMapper {
 	
 	Agent findAgentById(Long id);
 	
+	Page<Agent> queryAgentForPagerUser(@Param("agentName") String agentName, @Param("userId") Long userId);
+
 	Page<Agent> queryAgentForPager(@Param("agentName") String agentName);
 	
 	List<Agent> queryAgentForList(@Param("agentName") String agentName);
