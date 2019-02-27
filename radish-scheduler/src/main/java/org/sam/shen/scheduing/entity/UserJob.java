@@ -21,4 +21,8 @@ public class UserJob implements Serializable {
 
     private Long jobId;
 
+    public UserJob(Long userId, Long jobId) {
+        this.userId = userId;
+        this.jobId = jobId;
+    }
 }

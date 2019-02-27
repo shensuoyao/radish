@@ -39,8 +39,8 @@ public class DashboardService {
 		return null == count ? 0 : count;
 	}
 	
-	public Integer countJobInfo(int enable) {
-		return jobInfoMapper.countJobInfoByEnable(enable);
+	public Integer countJobInfo(int enable, Long userId) {
+		return jobInfoMapper.countJobInfoByEnable(enable, userId);
 	}
 	
 	public ChartVo eventChart() {
@@ -54,7 +54,7 @@ public class DashboardService {
 	}
 	
 	@SuppressWarnings("serial")
-	public ChartVo jobChart() throws SchedulerException {
+	public ChartVo jobChart(Long userId) throws SchedulerException {
 		ChartVo chartVo = new ChartVo();
 		chartVo.addLegend("启用");
 		chartVo.addLegend("禁用");
@@ -63,13 +63,13 @@ public class DashboardService {
 		chartVo.addYAxis(new HashMap<String, Object>() {
 			{
 				put("name", "启用");
-				put("value", jobInfoMapper.countJobInfoByEnable(1));
+				put("value", jobInfoMapper.countJobInfoByEnable(1, userId));
 			}
 		});
 		chartVo.addYAxis(new HashMap<String, Object>() {
 			{
 				put("name", "禁用");
-				put("value", jobInfoMapper.countJobInfoByEnable(0));
+				put("value", jobInfoMapper.countJobInfoByEnable(0, userId));
 			}
 		});
 		chartVo.addYAxis(new HashMap<String, Object>() {

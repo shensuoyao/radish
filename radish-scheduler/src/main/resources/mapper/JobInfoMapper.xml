@@ -23,16 +23,17 @@
         <result column="update_time" property="updateTime"/>
         <result column="priority" property="priority"/>
         <result column="enable" property="enable"/>
+        <result column="user_id" property="userId"/>
     </resultMap>
 
 	<insert id="saveJobInfo" parameterType="JobInfo" useGeneratedKeys="true" keyProperty="id">
 	    <![CDATA[
             INSERT INTO job_info(job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone,
                         executor_handlers, cmd, params, param_file_path, parent_job_id, dist_type, dist_rule, create_time, update_time,
-                        priority, enable)
+                        priority, enable, user_id)
             VALUES (#{jobName}, #{crontab}, #{handlerType}, #{handlerFailStrategy}, #{admin}, #{adminEmail}, #{adminPhone},
                     #{executorHandlers}, #{cmd}, #{params}, #{paramFilePath}, #{parentJobId}, #{distType}, #{distRule}, #{createTime},
-                    #{updateTime}, #{priority}, #{enable})
+                    #{updateTime}, #{priority}, #{enable}, #{userId})
         ]]>
     </insert>
 
@@ -40,57 +41,44 @@
         <![CDATA[
             INSERT INTO job_info(job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone,
                         executor_handlers, cmd, params, param_file_path, parent_job_id, dist_type, dist_rule, create_time, update_time,
-                        priority, enable) VALUES
+                        priority, enable, user_id) VALUES
         ]]>
         <foreach collection="list" item="item" index="index" separator=",">
             (#{item.jobName}, #{item.crontab}, #{item.handlerType}, #{item.handlerFailStrategy}, #{item.admin}, #{item.adminEmail},
             #{item.adminPhone}, #{item.executorHandlers}, #{item.cmd}, #{item.params}, #{item.paramFilePath}, #{item.parentJobId},
-            #{item.distType}, #{item.distRule}, #{item.createTime}, #{item.updateTime}, #{item.priority}, #{item.enable})
+            #{item.distType}, #{item.distRule}, #{item.createTime}, #{item.updateTime}, #{item.priority}, #{item.enable}, #{item.userId})
         </foreach>
     </insert>
+    
+    <sql id="Base_Column_List">
+        id, job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone, executor_handlers,
+        cmd, params, param_file_path, parent_job_id, dist_type, dist_rule, create_time,update_time, priority, enable, user_id
+    </sql>
 
     <select id="findJobInfoById" resultMap="jobInfoMap" parameterType="long">
-        <![CDATA[
-            SELECT id, job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone,
-                 executor_handlers, cmd, params, param_file_path, parent_job_id, dist_type, dist_rule, create_time, update_time, priority, enable
-            FROM job_info
-            WHERE id = #{id}
-        ]]>
+        SELECT <include refid="Base_Column_List"/> FROM job_info WHERE id = #{id}
     </select>
 
     <select id="queryJobInfoForPager" resultMap="jobInfoMap" parameterType="string">
-        <![CDATA[
-            SELECT id, job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone,
-                 executor_handlers, cmd, params, param_file_path, parent_job_id, dist_type, dist_rule, create_time, update_time, priority, enable
-            FROM job_info
-        ]]>
-        <if test="jobName != null">
-            <where>
-                job_name LIKE CONCAT(#{jobName}, '%')
-            </where>
-        </if>
+        SELECT <include refid="Base_Column_List"/> FROM job_info
+        <where>
+            <if test="jobName != null">job_name LIKE CONCAT(#{jobName}, '%')</if>
+            <if test="userId != null">AND user_id = #{userId}</if>
+        </where>
+
     </select>
 
     <select id="queryJobInfoForList" resultMap="jobInfoMap" parameterType="string">
-        <![CDATA[
-            SELECT id, job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone,
-                 executor_handlers, cmd, params, param_file_path, parent_job_id, dist_type, dist_rule, create_time, update_time, priority, enable
-            FROM job_info
-        ]]>
-        <if test="jobName != null">
-            <where>
-                job_name LIKE CONCAT(#{jobName}, '%')
-            </where>
-        </if>
+        SELECT <include refid="Base_Column_List"/> FROM job_info
+        <where>
+            <if test="jobName != null">job_name LIKE CONCAT(#{jobName}, '%')</if>
+            <if test="userId != null">AND user_id = #{userId}</if>
+        </where>
     </select>
 
     <select id="queryJobInfoInIds" parameterType="list" resultMap="jobInfoMap">
-        <![CDATA[
-            SELECT id, job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone,
-                 executor_handlers, cmd, params, param_file_path, parent_job_id, dist_type, dist_rule, create_time, update_time, priority, enable
-            FROM job_info
-            WHERE id IN
-        ]]>
+        SELECT <include refid="Base_Column_List"/> FROM job_info
+        WHERE id IN
         <foreach collection="list" item="item" index="index" separator="," open="(" close=")">
             #{item}
         </foreach>
@@ -108,35 +96,25 @@
 	    ]]>
     </update>
 
-    <select id="queryJobInfoByEnable" parameterType="int" resultMap="jobInfoMap">
-        <![CDATA[
-            SELECT id, job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone,
-                   executor_handlers, cmd, params, param_file_path, parent_job_id, dist_type, dist_rule, create_time,
-                   update_time, priority, enable
-            FROM job_info
-            WHERE enable = #{enable}
-        ]]>
+    <select id="queryJobInfoByEnable" resultMap="jobInfoMap">
+        SELECT <include refid="Base_Column_List"/> FROM job_info WHERE enable = #{enable}
+        <if test="userId != null"> AND user_id = #{userId}</if>
     </select>
 
-    <select id="countJobInfoByEnable" parameterType="int" resultType="int">
-        <![CDATA[
-            SELECT COUNT(*) FROM job_info WHERE enable = #{enable}
-        ]]>
+    <select id="countJobInfoByEnable" resultType="int">
+        SELECT COUNT(*) FROM job_info WHERE enable = #{enable}
+        <if test="userId != null"> AND user_id = #{userId}</if>
     </select>
 
     <select id="findJobInfoByParentId" parameterType="string" resultMap="jobInfoMap">
-        <![CDATA[
-            SELECT id, job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone,
-                   executor_handlers, cmd, params, param_file_path, parent_job_id, dist_type, dist_rule, create_time, update_time, priority, enable
-            FROM job_info
-            WHERE parent_job_id = #{jobId} AND enable = 1
-            ]]>
+        SELECT <include refid="Base_Column_List"/>
+        FROM job_info
+        WHERE parent_job_id = #{jobId} AND enable = 1
     </select>
 
     <select id="queryLoadedJobs" parameterType="string" resultMap="jobInfoMap">
+        SELECT <include refid="Base_Column_List"/>
         <![CDATA[
-            SELECT id, job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone,
-                   executor_handlers, cmd, params, param_file_path, parent_job_id, dist_type, dist_rule, create_time, update_time, priority, enable
             FROM job_info
             WHERE crontab is NOT NULL AND crontab <> '' AND enable = 1
         ]]>

@@ -36,7 +36,7 @@ public class JobService {
 	 * 添加任务
 	 * @author suoyao
 	 * @date 下午5:48:51
-	 * @param jobInfo
+	 * @param jobInfo 任务信息
 	 */
 	@Transactional
 	public void addJobinfo(JobInfo jobInfo) {
@@ -87,13 +87,13 @@ public class JobService {
 	 * @param jobName
 	 * @return
 	 */
-	public Page<JobInfo> queryJobInfoForPager(int index, int limit, String jobName) {
+	public Page<JobInfo> queryJobInfoForPager(int index, int limit, String jobName, Long userId) {
 		PageHelper.startPage(index, limit);
-		return jobInfoMapper.queryJobInfoForPager(jobName);
+		return jobInfoMapper.queryJobInfoForPager(jobName, userId);
 	}
 	
-	public List<JobInfo> queryJobInfoForList(String jobName) {
-		return jobInfoMapper.queryJobInfoForList(jobName);
+	public List<JobInfo> queryJobInfoForList(String jobName, Long userId) {
+		return jobInfoMapper.queryJobInfoForList(jobName, userId);
 	}
 	
 	public JobInfo findJobInfo(Long id) {

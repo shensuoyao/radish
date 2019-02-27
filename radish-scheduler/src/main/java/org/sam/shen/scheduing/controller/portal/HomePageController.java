@@ -4,6 +4,7 @@ import java.util.Set;
 
 import org.quartz.SchedulerException;
 import org.sam.shen.core.constants.Constant;
+import org.sam.shen.scheduing.constants.SchedConstant;
 import org.sam.shen.scheduing.entity.User;
 import org.sam.shen.scheduing.service.DashboardService;
 import org.sam.shen.scheduing.service.RedisService;
@@ -80,9 +81,13 @@ public class HomePageController {
 	 */
 	@RequestMapping(value = "/dashboard/job-chart", method = RequestMethod.GET)
 	@ResponseBody
-	public ChartVo jobChart() {
+	public ChartVo jobChart(HttpSession session) {
 		try {
-			return dashboardService.jobChart();
+		    User user = (User) session.getAttribute("user");
+            if (SchedConstant.ADMINISTRATOR.equals(user.getUname())){ // 如果管理员登陆查询所有数据
+                user.setId(null);
+            }
+			return dashboardService.jobChart(user.getId());
 		} catch (SchedulerException e) {
 			logger.error("job chart fail.", e);
 		}
