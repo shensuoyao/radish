@@ -8,6 +8,7 @@
     <title>app config</title>
     <link rel="stylesheet" th:href="@{/static/layui/css/layui.css}">
     <link rel="stylesheet" th:href="@{/static/css/style.css}">
+    <link rel="stylesheet" th:href="@{/static/layui/css/modules/formSelects-v4.css}"/>
     <link rel="icon" th:href="@{/static/image/code.png}">
     <script type="text/javascript" th:src="@{/static/layui/layui.js}"></script>
     <script type="text/javascript" th:src="@{/static/js/index.js}"></script>
@@ -51,18 +52,26 @@
             <input type="input" name="domain" lay-verify="title" autocomplete="off" placeholder="域名" class="layui-input">
         </div>
     </div>
+    <div id="user-select" class="layui-form-item" style="display: none;">
+        <label class="layui-form-label">用户</label>
+        <div class="layui-input-block">
+            <select name="user" xm-select="user-select" xm-select-search="" xm-select-radio xm-select-search-type="dl">
+                <option value=""></option>
+            </select>
+        </div>
+    </div>
 </div>
 
 <script th:inline="javascript">
     // layui方法
-    layui.use(['table', 'form', 'layer', 'laytpl'], function () {
+    layui.use(['table', 'form', 'layer', 'formSelects'], function () {
 
         // 操作对象
         var form = layui.form,
             table = layui.table,
             layer = layui.layer,
             $ = layui.jquery,
-            laytpl = layui.laytpl;
+            formSelects = layui.formSelects;
 
         // 表格渲染
         var tableIns = table.render({
@@ -72,6 +81,7 @@
                 {field: 'appId', title: '应用ID'},
                 {field: 'appName', title: '应用名称'},
                 {field: 'domain', title: '域名'},
+                {field: 'userId', title: '关联用户ID'},
                 {fixed: 'right', title: '操作', align: 'center', toolbar: '#barOption', width: 250}
             ]],
             url: [[@{/config/apps}]],
@@ -80,19 +90,18 @@
                 layout: ['count', 'prev', 'page', 'next'],   //自定义分页布局
                 groups: 10 //只显示 1 个连续页码
             },
-            loading: false,
-            done: function (res, curr, count) {
-                //如果是异步请求数据方式，res即为你接口返回的信息。
-                //如果是直接赋值的方式，res即为：{data: [], count: 99} data为当前页数据、count为数据总长度
-                // console.log(res);
-
-                //得到当前页码
-                // console.log(curr);
-
-                //得到数据总量
-                // console.log(count);
-            }
+            loading: false
         });
+
+        formSelects.config('user-select', {
+            type: 'get',
+            searchUrl: [[@{/config/users/select}]],
+            searchName: 'uname',
+            radio: true,
+            delay: 1000,
+            clearInput: false
+        }, false);
+
         // 获取选中行
         table.on('tool(appTable)', function (obj) {
             if (obj.event == 'edit') {
@@ -121,11 +130,13 @@
             $('#appId').val('');
             $('input[name="appName"]').val('');
             $('input[name="domain"]').val('');
+            formSelects.value('user-select', '');
         }
 
         // 新增
         $('#btn-add').on('click', function () {
             clear();
+            $('#user-select').hide();
             layer.open({
                 type: 1,
                 title: '新增应用',
@@ -160,16 +171,18 @@
         // 编辑
         function editApp(appId) {
             clear();
+            $('#user-select').show();
             $.get([[@{/config/apps/}]] + appId, function (data) {
                 var app = data.data;
                 $('#appId').val(app.appId);
                 $('input[name="appName"]').val(app.appName);
                 $('input[name="domain"]').val(app.domain);
+                formSelects.value('user-select', [app.userId]);
                 layer.open({
                     type: 1,
                     title: '编辑应用',
                     content: $('#app-add'),
-                    area: ['500px', '300px'],
+                    area: ['750px', '500px'],
                     btn: ['保存'],
                     btn1: function (index) {
                         $.ajax({
@@ -181,7 +194,8 @@
                             },
                             data: JSON.stringify({
                                 "appName": $('input[name="appName"]').val(),
-                                "domain": $('input[name="domain"]').val()
+                                "domain": $('input[name="domain"]').val(),
+                                "userId": formSelects.value('user-select', 'valStr')
                             })
                         }).done(function (data) {
                             if (data.code === 1) {

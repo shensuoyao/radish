@@ -32,6 +32,10 @@ public class UserService {
         return userMapper.selectUserAndGroup(uname);
     }
 
+    public List<UserAgentGroupVo> selectUser(String uname) {
+        return userMapper.selectUserAndGroup(uname);
+    }
+
     @Transactional(rollbackFor = Exception.class)
     public void saveUserGroup(User user, List<String> groups) {
         userMapper.insert(user);

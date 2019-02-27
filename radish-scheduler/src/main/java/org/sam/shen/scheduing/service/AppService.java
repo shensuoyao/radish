@@ -32,9 +32,9 @@ public class AppService {
     @Resource
     private AppKindHandlerMapper appKindHandlerMapper;
 
-    public Page<AppInfo> getAppsWithPage(String appName, Integer page, Integer pageSize) {
+    public Page<AppInfo> getAppsWithPage(String appName, Integer page, Integer pageSize, Long userId) {
         PageHelper.startPage(page, pageSize);
-        return appInfoMapper.selectApps(appName);
+        return appInfoMapper.selectApps(appName, userId);
     }
 
     public AppInfo getAppById(String appId) {
