@@ -82,6 +82,7 @@
         <foreach collection="list" item="item" index="index" separator="," open="(" close=")">
             #{item}
         </foreach>
+        <if test="userId != null"> AND user_id = #{userId}</if>
     </select>
 
     <update id="upgradeJonInfo" parameterType="JobInfo">

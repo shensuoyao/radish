@@ -117,7 +117,7 @@ public class JobService {
 		if(null == ids || ids.isEmpty()) {
 			return Collections.emptyList();
 		}
-		return jobInfoMapper.queryJobInfoInIds(ids);
+		return jobInfoMapper.queryJobInfoInIds(ids, null);
 	}
 	
 	/**
@@ -134,7 +134,7 @@ public class JobService {
 			Splitter.on(",").splitToList(jobInfo.getParentJobId()).forEach(id -> ids.add(Long.valueOf(id)));
 		}
 		if(ids.size() > 0) {
-			List<JobInfo> depend = jobInfoMapper.queryJobInfoInIds(ids);
+			List<JobInfo> depend = jobInfoMapper.queryJobInfoInIds(ids, null);
 			if(null != depend && depend.size() > 0) {
 				depend.forEach(jf -> {
 					nodes.add(jf.getJobName());

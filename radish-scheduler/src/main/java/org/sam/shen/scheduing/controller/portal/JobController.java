@@ -256,9 +256,13 @@ public class JobController {
 	 * @return
 	 */
 	@RequestMapping(value = "job-scheduler", method = RequestMethod.GET)
-	public ModelAndView jobInScheduler(ModelAndView model) {
+	public ModelAndView jobInScheduler(ModelAndView model, HttpSession session) {
 		try {
-			List<SchedulerJobVo> jobs = RadishDynamicScheduler.listJobsInScheduler();
+            User user = (User) session.getAttribute("user");
+            if (SchedConstant.ADMINISTRATOR.equals(user.getUname())){ // 如果管理员登陆查询所有数据
+                user.setId(null);
+            }
+			List<SchedulerJobVo> jobs = RadishDynamicScheduler.listJobsInScheduler(user.getId());
 			model.addObject("jobs", jobs);
 		} catch (SchedulerException e) {
 			logger.error("list scheduler jobs error. ", e);

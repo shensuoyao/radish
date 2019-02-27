@@ -75,7 +75,7 @@ public class DashboardService {
 		chartVo.addYAxis(new HashMap<String, Object>() {
 			{
 				put("name", "调度中");
-				put("value", RadishDynamicScheduler.listJobsInScheduler().size());
+				put("value", RadishDynamicScheduler.listJobsInScheduler(userId).size());
 			}
 		});
 		return chartVo;
