@@ -1,0 +1,76 @@
+{
+  "data": [
+    {
+      "text": "Dashboard",
+      "icon": "&#xe68e;",
+      "href": "/radish-scheduing/portal/dashboard"
+    },
+    {
+      "text": "Agent 客户端",
+      "icon": "&#xe653;",
+      "subset": [
+        {
+          "text": "Agent Group",
+          "icon": "&#xe656;",
+          "href": "/radish-scheduing/portal/agent-group"
+        },
+        {
+          "text": "Agent",
+          "icon": "&#xe857;",
+          "href": "/radish-scheduing/portal/agent"
+        }
+      ]
+    },
+    {
+      "text": "Job 任务",
+      "icon": "&#xe628;",
+      "href": "",
+      "subset": [
+        {
+          "text": "Job",
+          "icon": "&#xe64e;",
+          "href": "/radish-scheduing/portal/job"
+        },
+        {
+          "text": "Scheduler Job",
+          "icon": "&#xe635;",
+          "href": "/radish-scheduing/portal/job-scheduler"
+        },
+        {
+          "text": "Job Event",
+          "icon": "&#xe60e;",
+          "href": "/radish-scheduing/portal/job-event"
+        }
+      ]
+    },
+    {
+      "text": "Monitor 监控",
+      "icon": "&#xe62c;",
+      "href": "",
+      "subset": [
+        {
+          "text": "Agent Online",
+          "icon": "&#xe629;",
+          "href": "/radish-scheduing/monitor/agent-online"
+        },
+        {
+          "text": "报警",
+          "icon": "&#xe667;",
+          "href": "404.html"
+        }
+      ]
+    },
+    {
+      "text": "参数设置",
+      "icon": "&#xe716;",
+      "href": "",
+      "subset": [
+        {
+          "text": "应用设置",
+          "icon": "&#xe679;",
+          "href": "/radish-scheduing/config/app"
+        }
+      ]
+    }
+  ]
+}
