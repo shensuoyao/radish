@@ -15,6 +15,8 @@ public interface AgentMapper {
 	
 	Agent findAgentById(Long id);
 	
+	Page<Agent> queryAgentForPagerUser(@Param("agentName") String agentName, @Param("userId") Long userId);
+
 	Page<Agent> queryAgentForPager(@Param("agentName") String agentName);
 	
 	List<Agent> queryAgentForList(@Param("agentName") String agentName);
@@ -25,7 +27,7 @@ public interface AgentMapper {
 	
 	void upgradeAgent(Agent agent);
 	
-	Integer countAgent();
+	Integer countAgent(@Param("userId") Long userId);
 	
 	List<Agent> queryAgentByAgentGroup(Long agentGroupId);
 	

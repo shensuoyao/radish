@@ -8,4 +8,6 @@ public class SchedConstant {
 
     public static final String PARAMS_FILE_PATH = "/tmp/log/radish/params";
 
+    public static final String ADMINISTRATOR = "admin";
+
 }

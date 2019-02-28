@@ -58,6 +58,8 @@ public class JobInfo extends Identity {
 	private int priority;
 	
 	private int enable;
+
+	private Long userId; // 创建的用户ID
 	
 	public JobInfo() {
 		super();

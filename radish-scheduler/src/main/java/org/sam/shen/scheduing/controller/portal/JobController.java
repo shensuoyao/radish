@@ -35,6 +35,8 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
+import javax.servlet.http.HttpSession;
+
 /**
  * 任务
  * 
@@ -93,7 +95,9 @@ public class JobController {
 	 */
 	@RequestMapping(value = "job-save", method = RequestMethod.POST)
 	public ModelAndView jobSave(ModelAndView model, @ModelAttribute JobInfo jobInfo,
-	        @RequestParam("parentJob") List<String> parentJob, @RequestParam("agentHandlers") List<String> agentHandlers) {
+								@RequestParam("parentJob") List<String> parentJob,
+								@RequestParam("agentHandlers") List<String> agentHandlers,
+								HttpSession session) {
         model.setViewName("frame/job/job_add");
 		if (null != parentJob && parentJob.size() > 0) {
 			jobInfo.setParentJobId(Joiner.on(",").join(parentJob));
@@ -105,6 +109,11 @@ public class JobController {
 		if(null == jobInfo.getId()) {
 			 // 新增Job
 			jobInfo.setCreateTime(new Date());
+			User user = (User) session.getAttribute("user");
+			if (SchedConstant.ADMINISTRATOR.equals(user.getUname())){ // 如果管理员登陆查询所有数据
+			    user.setId(null);
+            }
+			jobInfo.setUserId(user.getId());
 			jobService.addJobinfo(jobInfo);
 		} else {
 			 // 更新
@@ -126,23 +135,32 @@ public class JobController {
 	@RequestMapping(value = "job/json-pager", method = RequestMethod.GET)
 	@ResponseBody
 	public RespPager<Page<JobInfo>> queryJobInfoForJsonPager(@RequestParam("page") Integer page,
-	        @RequestParam("limit") Integer limit,
-	        @RequestParam(value = "jobName", required = false, defaultValue = "") String jobName) {
+                                                             @RequestParam("limit") Integer limit,
+                                                             @RequestParam(value = "jobName", required = false, defaultValue = "") String jobName,
+                                                             HttpSession session) {
 		if (null == page) {
 			page = 1;
 		}
 		if (null == limit) {
 			limit = 10;
 		}
-		Page<JobInfo> pager = jobService.queryJobInfoForPager(page, limit, jobName);
+		User user = (User) session.getAttribute("user");
+        if (SchedConstant.ADMINISTRATOR.equals(user.getUname())){ // 如果管理员登陆查询所有数据
+            user.setId(null);
+        }
+		Page<JobInfo> pager = jobService.queryJobInfoForPager(page, limit, jobName, user.getId());
 		return new RespPager<>(pager.getPageSize(), pager.getTotal(), pager);
 	}
 
 	@RequestMapping(value = "job/json", method = RequestMethod.GET)
 	@ResponseBody
 	public Resp<List<JobInfo>> queryJobInfoForJsonPager(
-	        @RequestParam(value = "jobName", required = false, defaultValue = "") String jobName) {
-		List<JobInfo> list = jobService.queryJobInfoForList(jobName);
+	        @RequestParam(value = "jobName", required = false, defaultValue = "") String jobName, HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        if (SchedConstant.ADMINISTRATOR.equals(user.getUname())){ // 如果管理员登陆查询所有数据
+            user.setId(null);
+        }
+		List<JobInfo> list = jobService.queryJobInfoForList(jobName, user.getId());
 		if (null == list) {
 			list = Collections.emptyList();
 		}
@@ -238,9 +256,13 @@ public class JobController {
 	 * @return
 	 */
 	@RequestMapping(value = "job-scheduler", method = RequestMethod.GET)
-	public ModelAndView jobInScheduler(ModelAndView model) {
+	public ModelAndView jobInScheduler(ModelAndView model, HttpSession session) {
 		try {
-			List<SchedulerJobVo> jobs = RadishDynamicScheduler.listJobsInScheduler();
+            User user = (User) session.getAttribute("user");
+            if (SchedConstant.ADMINISTRATOR.equals(user.getUname())){ // 如果管理员登陆查询所有数据
+                user.setId(null);
+            }
+			List<SchedulerJobVo> jobs = RadishDynamicScheduler.listJobsInScheduler(user.getId());
 			model.addObject("jobs", jobs);
 		} catch (SchedulerException e) {
 			logger.error("list scheduler jobs error. ", e);
@@ -267,9 +289,10 @@ public class JobController {
 	 */
 	@RequestMapping(value = "job-event/json-pager", method = RequestMethod.GET)
 	@ResponseBody
-	public RespPager<Page<JobEvent>> queryJobEventForJsonPager(@RequestParam("page") Integer page,
-	        @RequestParam("limit") Integer limit,
-	        @RequestParam(value = "stat", required = false) EventStatus stat) {
+	public RespPager<Page<JobEvent>> queryJobEventForJsonPager(@RequestParam("page") Integer page
+            , @RequestParam("limit") Integer limit
+            , @RequestParam(value = "stat", required = false) EventStatus stat
+            , HttpSession session) {
 		if (null == page) {
 			page = 1;
 		}
@@ -279,7 +302,11 @@ public class JobController {
 		if(null == stat) {
 			stat = EventStatus.READY;
 		}
-		Page<JobEvent> pager = jobEventService.queryJobEventForPager(page, limit, stat);
+		User user = (User) session.getAttribute("user");
+        if (SchedConstant.ADMINISTRATOR.equals(user.getUname())){ // 如果管理员登陆查询所有数据
+            user.setId(null);
+        }
+		Page<JobEvent> pager = jobEventService.queryJobEventForPager(page, limit, stat, user.getId());
 		return new RespPager<>(pager.getPageSize(), pager.getTotal(), pager);
 	}
 	

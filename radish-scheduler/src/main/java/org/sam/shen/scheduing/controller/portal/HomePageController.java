@@ -1,9 +1,16 @@
 package org.sam.shen.scheduing.controller.portal;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.quartz.SchedulerException;
 import org.sam.shen.core.constants.Constant;
+import org.sam.shen.scheduing.constants.SchedConstant;
+import org.sam.shen.scheduing.entity.Agent;
+import org.sam.shen.scheduing.entity.User;
+import org.sam.shen.scheduing.service.AgentService;
 import org.sam.shen.scheduing.service.DashboardService;
 import org.sam.shen.scheduing.service.RedisService;
 import org.sam.shen.scheduing.vo.ChartVo;
@@ -16,6 +23,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpSession;
+
 @Controller
 @RequestMapping(value="portal")
 public class HomePageController {
@@ -24,21 +33,30 @@ public class HomePageController {
 	
 	@Autowired
 	private DashboardService dashboardService;
+
+	@Autowired
+    private AgentService agentService;
 	
 	@Autowired
 	private RedisService redisService;
 
 	@RequestMapping(value = {"", "/", "/index", "/home"}, method = RequestMethod.GET)
-	public ModelAndView home(ModelAndView model) {
+	public ModelAndView home(ModelAndView model, HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        model.addObject("user", user);
 		model.setViewName("home");
 		return model;
 	}
 	
 	@RequestMapping(value = "dashboard", method = RequestMethod.GET)
-	public ModelAndView dashboard(ModelAndView model) {
-		model.addObject("agentGroupCount", dashboardService.countAgentGroup());
+	public ModelAndView dashboard(ModelAndView model, HttpSession session) {
+	    User user = (User) session.getAttribute("user");
+	    if (SchedConstant.ADMINISTRATOR.equals(user.getUname())) {
+	        user.setId(null);
+        }
+		model.addObject("agentGroupCount", dashboardService.countAgentGroup(user.getId()));
 		
-		Integer agentTotalCount = dashboardService.countAgent();
+		Integer agentTotalCount = dashboardService.countAgent(user.getId());
 		if(null == agentTotalCount) {
 			agentTotalCount = 0;
 		}
@@ -46,10 +64,19 @@ public class HomePageController {
 		Set<String> keys = redisService.getKeys(Constant.REDIS_AGENT_PREFIX + "*");
 		int agentOnlineCount = 0;
 		if(null != keys) {
-			agentOnlineCount = keys.size();
+            if (user.getId() == null) {
+                agentOnlineCount = keys.size();
+            } else {
+                List<String> aids = new ArrayList<>();
+                for (String key : keys) {
+                    aids.add(key.split("_")[1]);
+                }
+                List<Agent> agents = agentService.queryAgentForList(null, user.getId());
+                agentOnlineCount = agents.stream().filter(a -> aids.contains(Long.toString(a.getId()))).collect(Collectors.toList()).size();
+            }
 		}
 		model.addObject("agentOnlineCount", agentOnlineCount);
-		model.addObject("agentOfflineCount", agentTotalCount.intValue() - agentOnlineCount);
+		model.addObject("agentOfflineCount", agentTotalCount - agentOnlineCount);
 		
 		model.setViewName("frame/dashboard");
 		return model;
@@ -63,8 +90,12 @@ public class HomePageController {
 	 */
 	@RequestMapping(value = "/dashboard/event-chart", method = RequestMethod.GET)
 	@ResponseBody
-	public ChartVo eventChart() {
-		return dashboardService.eventChart();
+	public ChartVo eventChart(HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        if (SchedConstant.ADMINISTRATOR.equals(user.getUname())){ // 如果管理员登陆查询所有数据
+            user.setId(null);
+        }
+		return dashboardService.eventChart(user.getId());
 	}
 	
 	/**
@@ -75,9 +106,13 @@ public class HomePageController {
 	 */
 	@RequestMapping(value = "/dashboard/job-chart", method = RequestMethod.GET)
 	@ResponseBody
-	public ChartVo jobChart() {
+	public ChartVo jobChart(HttpSession session) {
 		try {
-			return dashboardService.jobChart();
+		    User user = (User) session.getAttribute("user");
+            if (SchedConstant.ADMINISTRATOR.equals(user.getUname())){ // 如果管理员登陆查询所有数据
+                user.setId(null);
+            }
+			return dashboardService.jobChart(user.getId());
 		} catch (SchedulerException e) {
 			logger.error("job chart fail.", e);
 		}

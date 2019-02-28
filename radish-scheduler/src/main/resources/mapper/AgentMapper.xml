@@ -40,18 +40,42 @@
               ]]>
 	  </where>
 	</select>
-	
-	<select id="queryAgentForPager" resultMap="agentMap" parameterType="string">
-  <![CDATA[
-	  SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat, network, netty_port
-	    FROM agent 
-     ]]>
-  <if test="agentName != null">
-    <where>
-        agent_name LIKE CONCAT(#{agentName}, '%')
-    </where>
-  </if>
- </select>
+
+    <select id="queryAgentForPagerUser" resultMap="agentMap" parameterType="string">
+        SELECT
+            a.id ,
+            a.agent_name ,
+            a.agent_ip ,
+            a.agent_port ,
+            a.admin ,
+            a.admin_email ,
+            a.admin_phone ,
+            a.reg_time ,
+            a.stat ,
+            a.network ,
+            a.netty_port
+        FROM agent a, agent_group_ref b, user_agent_group c
+        where a.id = b.agent_id and b.agent_group_id = c.group_id
+        <if test="agentName != null">
+            AND a.agent_name LIKE CONCAT(#{agentName}, '%')
+        </if>
+        <if test="userId != null">
+            AND c.user_id = #{userId}
+        </if>
+    </select>
+
+    <select id="queryAgentForPager" resultMap="agentMap" parameterType="string">
+        <![CDATA[
+	        SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat, network, netty_port
+	        FROM agent
+        ]]>
+        <if test="agentName != null">
+            <where>
+                agent_name LIKE CONCAT(#{agentName}, '%')
+            </where>
+        </if>
+    </select>
+
  <select id="queryAgentForList" resultMap="agentMap" parameterType="string">
   <![CDATA[
       SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat, network, netty_port
@@ -88,11 +112,14 @@
         ]]>
   </update>
   
-  <select id="countAgent" resultType="int">
-    <![CDATA[
-        SELECT count(*) cnt FROM agent
-         ]]>
-  </select>
+    <select id="countAgent" resultType="int">
+        <![CDATA[
+            SELECT count(a.id) cnt FROM agent a LEFT JOIN agent_group_ref agf on a.id=agf.agent_id LEFT JOIN user_agent_group uag on agf.agent_group_id=uag.group_id
+        ]]>
+        <where>
+            <if test="userId != null">uag.user_id = #{userId}</if>
+        </where>
+    </select>
   
   <select id="queryAgentByAgentGroup" resultMap="agentMap" parameterType="long">
   <![CDATA[

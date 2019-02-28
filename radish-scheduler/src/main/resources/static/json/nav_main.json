@@ -66,10 +66,15 @@
             "href": "",
             "subset": [
                 {
-                    "text": "应用ID设置",
+                    "text": "应用设置",
                     "icon": "&#xe679;",
                     "href": "/radish-scheduing/config/app"
-                }
+                },
+				{
+					"text": "用户设置",
+					"icon": "&#xe770;",
+					"href": "/radish-scheduing/config/user"
+				}
             ]
 		}
 	]

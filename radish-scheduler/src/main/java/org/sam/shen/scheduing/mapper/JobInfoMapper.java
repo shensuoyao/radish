@@ -18,19 +18,19 @@ public interface JobInfoMapper {
 	
 	JobInfo findJobInfoById(Long id);
 	
-	Page<JobInfo> queryJobInfoForPager(@Param("jobName") String jobName);
+	Page<JobInfo> queryJobInfoForPager(@Param("jobName") String jobName, @Param("userId") Long userId);
 	
-	List<JobInfo> queryJobInfoForList(@Param("jobName") String jobName);
+	List<JobInfo> queryJobInfoForList(@Param("jobName") String jobName, @Param("userId") Long userId);
 	
-	List<JobInfo> queryJobInfoInIds(List<Long> ids);
+	List<JobInfo> queryJobInfoInIds(@Param("list") List<Long> ids, @Param("userId") Long userId);
 	
 	void upgradeJonInfo(JobInfo jobInfo);
 	
-	List<JobInfo> queryJobInfoByEnable(int enable);
+	List<JobInfo> queryJobInfoByEnable(@Param("enable") int enable, @Param("userId") Long userId);
 	
 	// ---------------  统计  ------------------------
 	
-	Integer countJobInfoByEnable(int enable);
+	Integer countJobInfoByEnable(@Param("enable") int enable, @Param("userId") Long userId);
 
 	List<JobInfo> findJobInfoByParentId(String id);
 

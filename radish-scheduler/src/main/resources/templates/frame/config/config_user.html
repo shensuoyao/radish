@@ -16,7 +16,6 @@
     <script type="text/html" id="barOption">
         <a class="layui-btn layui-btn-sm layui-btn-normal" lay-event="edit"><i class="layui-icon">&#xe642;</i></a>
         <a class="layui-btn layui-btn-sm layui-btn-danger" lay-event="del"><i class="layui-icon">&#xe640;</i></a>
-        <a class="layui-btn layui-btn-sm layui-btn-danger" lay-event="handler"><i class="layui-icon">&#xe613;</i></a>
     </script>
 </head>
 <body class="body">
@@ -24,38 +23,38 @@
 <!-- 工具集 -->
 <div class="my-btn-box">
     <span class="fl">
-        应用名称：
+        用户名：
         <div class="layui-input-inline">
-            <input type="text" autocomplete="off" id="appName" placeholder="请输入搜索条件" class="layui-input">
+            <input type="text" autocomplete="off" id="uname" placeholder="请输入搜索条件" class="layui-input">
         </div>
         <button class="layui-btn mgl-20" id="btn-search">查询</button>
         <a class="layui-btn btn-add btn-default" id="btn-add"><i class="layui-icon">&#xe608;</i> 添加</a>
     </span>
 </div>
 
-<div id="app-table" lay-filter="appTable"></div>
+<div id="user-table" lay-filter="userTable"></div>
 
 </body>
 
 <!-- 新增应用弹出层 -->
-<div id="app-add" style="margin: 40px 20px;display: none;">
-    <input type="hidden" id="appId" name="appId"/>
+<div id="user-add" style="margin: 40px 20px;display: none;">
+    <input type="hidden" id="id" name="id"/>
     <div class="layui-form-item">
-        <label class="layui-form-label">应用名称</label>
+        <label class="layui-form-label">用户名</label>
         <div class="layui-input-block">
-            <input type="input" name="appName" lay-verify="title" autocomplete="off" placeholder="应用名称" class="layui-input">
+            <input type="text" name="uname" lay-verify="required" autocomplete="off" placeholder="用户名" class="layui-input">
         </div>
     </div>
     <div class="layui-form-item">
-        <label class="layui-form-label">域名</label>
+        <label class="layui-form-label">密码</label>
         <div class="layui-input-block">
-            <input type="input" name="domain" lay-verify="title" autocomplete="off" placeholder="域名" class="layui-input">
+            <input type="password" name="password" lay-verify="required" autocomplete="off" placeholder="密码" class="layui-input">
         </div>
     </div>
-    <div id="user-select" class="layui-form-item" style="display: none;">
-        <label class="layui-form-label">用户</label>
+    <div class="layui-form-item">
+        <label class="layui-form-label">客户端组</label>
         <div class="layui-input-block">
-            <select name="user" xm-select="user-select" xm-select-search="" xm-select-radio xm-select-search-type="dl">
+            <select name="groups" xm-select="groups-select" xm-select-search="" xm-select-search-type="dl">
                 <option value=""></option>
             </select>
         </div>
@@ -64,27 +63,27 @@
 
 <script th:inline="javascript">
     // layui方法
-    layui.use(['table', 'form', 'layer', 'formSelects'], function () {
+    layui.use(['table', 'form', 'layer', 'laytpl', 'formSelects'], function () {
 
         // 操作对象
         var form = layui.form,
+            formSelects = layui.formSelects,
             table = layui.table,
             layer = layui.layer,
-            $ = layui.jquery,
-            formSelects = layui.formSelects;
+            $ = layui.jquery;
 
         // 表格渲染
         var tableIns = table.render({
-            elem: '#app-table',                  //指定原始表格元素选择器（推荐id选择器）
+            elem: '#user-table',                  //指定原始表格元素选择器（推荐id选择器）
             height: 'full-200',    //容器高度
             cols: [[   // 标题栏目
-                {field: 'appId', title: '应用ID'},
-                {field: 'appName', title: '应用名称'},
-                {field: 'domain', title: '域名'},
-                {field: 'userId', title: '关联用户ID'},
+                {field: 'userId', title: '用户ID'},
+                {field: 'uname', title: '用户名'},
+                {field: 'password', title: '密码'},
+                {field: 'groups', title: '客户端组'},
                 {fixed: 'right', title: '操作', align: 'center', toolbar: '#barOption', width: 250}
             ]],
-            url: [[@{/config/apps}]],
+            url: [[@{/config/users}]],
             method: 'get',
             page: {
                 layout: ['count', 'prev', 'page', 'next'],   //自定义分页布局
@@ -93,23 +92,20 @@
             loading: false
         });
 
-        formSelects.config('user-select', {
+        formSelects.config('groups-select', {
             type: 'get',
-            searchUrl: [[@{/config/users/select}]],
-            searchName: 'uname',
-            radio: true,
+            searchUrl: [[@{/portal/agent-group-select}]],
+            searchName: 'groupName',
             delay: 1000,
             clearInput: false
         }, false);
 
         // 获取选中行
-        table.on('tool(appTable)', function (obj) {
+        table.on('tool(userTable)', function (obj) {
             if (obj.event == 'edit') {
-                editApp(obj.data.appId);
+                editApp(obj.data.userId);
             } else if (obj.event == 'del') {
-                delApp(obj.data.appId);
-            } else if (obj.event == 'handler') {
-                window.location.href = [[@{/config/kind}]] + '?appId=' + obj.data.appId;
+                delApp(obj.data.userId);
             }
         });
 
@@ -121,39 +117,37 @@
         function refresh() {
             tableIns.reload({
                 where: {
-                    appName: $('#appName').val()
+                    uname: $('#uname').val()
                 }
             });
         }
 
         function clear() {
-            $('#appId').val('');
-            $('input[name="appName"]').val('');
-            $('input[name="domain"]').val('');
-            formSelects.value('user-select', '');
+            $('#id').val('');
+            $('input[name="uname"]').val('');
+            $('input[name="password"]').val('');
+            formSelects.value('groups-select', ['']);
         }
 
         // 新增
         $('#btn-add').on('click', function () {
             clear();
-            $('#user-select').hide();
             layer.open({
                 type: 1,
-                title: '新增应用',
-                content: $('#app-add'),
-                area: ['500px', '300px'],
+                title: '新增用户',
+                content: $('#user-add'),
+                area: ['750px', '500px'],
                 btn: ['保存'],
                 btn1: function (index) {
                     $.ajax({
                         type: 'post',
-                        url: [[@{/config/apps}]],
+                        url: [[@{/config/users}]],
                         dataType: 'json',
-                        headers: {
-                            'Content-Type' : 'application/json;charset=utf-8'
-                        },
+                        contentType: 'application/json;charset=utf-8',
                         data: JSON.stringify({
-                            "appName": $('input[name="appName"]').val(),
-                            "domain": $('input[name="domain"]').val()
+                            uname: $('input[name="uname"]').val(),
+                            password: $('input[name="password"]').val(),
+                            groups: formSelects.value('groups-select', 'valStr')
                         })
                     }).done(function (data) {
                         if (data.code === 1) {
@@ -169,33 +163,32 @@
         });
 
         // 编辑
-        function editApp(appId) {
+        function editApp(userId) {
             clear();
-            $('#user-select').show();
-            $.get([[@{/config/apps/}]] + appId, function (data) {
-                var app = data.data;
-                $('#appId').val(app.appId);
-                $('input[name="appName"]').val(app.appName);
-                $('input[name="domain"]').val(app.domain);
-                formSelects.value('user-select', [app.userId]);
+            $.get([[@{/config/users/}]] + userId, function (data) {
+                var user = data.data;
+                $('#id').val(user.userId);
+                $('input[name="uname"]').val(user.uname);
+                $('input[name="password"]').val(user.password);
+                if (user.groupIds != null && user.groupIds !== '') {
+                    formSelects.value('groups-select', user.groupIds.split(','));
+                }
                 layer.open({
                     type: 1,
-                    title: '编辑应用',
-                    content: $('#app-add'),
+                    title: '编辑用户',
+                    content: $('#user-add'),
                     area: ['750px', '500px'],
                     btn: ['保存'],
                     btn1: function (index) {
                         $.ajax({
                             type: 'put',
-                            url: [[@{/config/apps/}]] + $('#appId').val(),
+                            url: [[@{/config/users/}]] + $('#id').val(),
                             dataType: 'json',
-                            headers: {
-                                'Content-Type' : 'application/json;charset=utf-8'
-                            },
+                            contentType: 'application/json;charset=utf-8',
                             data: JSON.stringify({
-                                "appName": $('input[name="appName"]').val(),
-                                "domain": $('input[name="domain"]').val(),
-                                "userId": formSelects.value('user-select', 'valStr')
+                                uname: $('input[name="uname"]').val(),
+                                password: $('input[name="password"]').val(),
+                                groupIds: formSelects.value('groups-select', 'valStr')
                             })
                         }).done(function (data) {
                             if (data.code === 1) {
@@ -212,15 +205,13 @@
         }
 
         // 删除
-        function delApp(appId) {
-            layer.confirm('是否删除该应用？', function () {
+        function delApp(userId) {
+            layer.confirm('是否删除该用户？', function () {
                 $.ajax({
                     type: 'delete',
-                    url: [[@{/config/apps/}]] + appId,
+                    url: [[@{/config/users/}]] + userId,
                     dataType: 'json',
-                    headers: {
-                        'Content-Type' : 'application/json;charset=utf-8'
-                    }
+                    contentType: 'application/json;charset=utf-8',
                 }).done(function (data) {
                     if (data.code === 1) {
                         layer.msg(data.msg);

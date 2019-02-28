@@ -257,8 +257,9 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static List<SchedulerJobVo> listJobsInScheduler() throws SchedulerException {
-		List<SchedulerJobVo> list = Lists.newArrayList();
+	public static List<SchedulerJobVo> listJobsInScheduler(Long userId) throws SchedulerException {
+	    Map<String, SchedulerJobVo> jobMap = new HashMap<>();
+	    List<Long> ids = new ArrayList<>();
 		for(String groupName: scheduler.getJobGroupNames()) {
 		    // enumerate each job in group
 		    for(JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals(groupName))) {
@@ -271,11 +272,26 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 		        	vo.setCrontab(triggers.get(0).getCronExpression());
 		        	vo.setPrevFireTime(triggers.get(0).getPreviousFireTime());
 		        	vo.setNextFireTime(triggers.get(0).getNextFireTime());
-		        		 }
-		        list.add(vo);
+		        }
+                jobMap.put(jobKey.getName(), vo);
+		        ids.add(Long.parseLong(jobKey.getName()));
 		    }
 		}
-		return list;
+		if (userId == null) {
+		    return new ArrayList<>(jobMap.values());
+        } else if (ids.size() > 0) {
+            List<SchedulerJobVo> list = Lists.newArrayList();
+            List<JobInfo> jobList = jobInfoMapper.queryJobInfoInIds(ids, userId);
+            for (JobInfo job : jobList) {
+                SchedulerJobVo sjvo = jobMap.get(Long.toString(job.getId()));
+                if (sjvo != null) {
+                    list.add(sjvo);
+                }
+            }
+            return list;
+        } else {
+            return Collections.emptyList();
+        }
 	}
 
     /**

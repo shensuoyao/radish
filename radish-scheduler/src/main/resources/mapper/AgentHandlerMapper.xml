@@ -58,6 +58,32 @@
           WHERE ah.enable = 1 AND a.agent_name LIKE CONCAT(#{agentName}, '%')
 	       ]]>
   </select>
+
+    <select id="queryByAgentNameForUser" resultType="map">
+        SELECT
+            ah.id,
+            agr.agent_id agentId,
+            ah.`handler`,
+            ah.description,
+            ah.`enable`,
+            a.agent_name agentName
+        FROM
+            user_agent_group uag,
+            agent_group_ref agr,
+            agent a,
+            agent_handler ah
+        WHERE
+	        uag.group_id = agr.agent_group_id
+            AND agr.agent_id = a.id
+            AND a.id = ah.agent_id
+            AND ah.`enable` = 1
+            <if test="agentName != null and agentName != ''">
+                AND a.agent_name LIKE concat(#{agentName}, '%')
+            </if>
+            <if test="userId != null">
+                AND uag.user_id = #{userId}
+            </if>
+    </select>
   
   <delete id="deleteAgentHandler" parameterType="long">
     <![CDATA[

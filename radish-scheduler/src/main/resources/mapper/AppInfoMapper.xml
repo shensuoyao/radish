@@ -5,10 +5,11 @@
         <result column="app_id" property="appId"/>
         <result column="app_name" property="appName"/>
         <result column="domain" property="domain"/>
+        <result column="user_id" property="userId"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        app_id, app_name, domain
+        app_id, app_name, domain, user_id
     </sql>
 
     <select id="selectApps" parameterType="java.lang.String" resultMap="AppInfoMap">
@@ -17,6 +18,7 @@
         FROM app_info
         <where>
             <if test="appName != null and appName != ''">app_name LIKE concat(concat('%', #{appName}), '%')</if>
+            <if test="userId != null">AND user_id = #{userId}</if>
         </where>
     </select>
 
@@ -28,17 +30,17 @@
     </select>
 
     <insert id="insertAppInfo" parameterType="org.sam.shen.scheduing.entity.AppInfo">
-        INSERT INTO app_info(app_id, app_name, domain) VALUES (#{appId}, #{appName}, #{domain})
+        INSERT INTO app_info(app_id, app_name, domain, user_id) VALUES (#{appId}, #{appName}, #{domain}, #{userId})
     </insert>
     
     <update id="updateAppInfoById" parameterType="org.sam.shen.scheduing.entity.AppInfo">
-        UPDATE app_info SET app_name = #{appName}, domain = #{domain} WHERE app_id = #{appId}
+        UPDATE app_info SET app_name = #{appName}, domain = #{domain}, user_id = #{userId} WHERE app_id = #{appId}
     </update>
 
     <insert id="batchInsert" parameterType="java.util.List">
-        INSERT INTO app_info(app_id, app_name, domain) VALUES
+        INSERT INTO app_info(app_id, app_name, domain, user_id) VALUES
         <foreach collection="list" item="item" index="index" separator=",">
-            (#{item.appId}, #{item.appName}, #{item.domain})
+            (#{item.appId}, #{item.appName}, #{item.domain}), #{item.userId}
         </foreach>
     </insert>
     

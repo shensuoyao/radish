@@ -29,32 +29,32 @@ public class DashboardService {
 	@Resource
 	private JobEventMapper jobEventMapper;
 	
-	public Long countAgentGroup() {
-		Long count = agentGroupMapper.countAgentGroup();
+	public Long countAgentGroup(Long userId) {
+		Long count = agentGroupMapper.countAgentGroup(userId);
 		return null == count ? 0 : count;
 	}
 	
-	public Integer countAgent() {
-		Integer count = agentMapper.countAgent();
+	public Integer countAgent(Long userId) {
+		Integer count = agentMapper.countAgent(userId);
 		return null == count ? 0 : count;
 	}
 	
-	public Integer countJobInfo(int enable) {
-		return jobInfoMapper.countJobInfoByEnable(enable);
+	public Integer countJobInfo(int enable, Long userId) {
+		return jobInfoMapper.countJobInfoByEnable(enable, userId);
 	}
 	
-	public ChartVo eventChart() {
+	public ChartVo eventChart(Long userId) {
 		ChartVo chartVo = new ChartVo();
 		chartVo.addLegend("Event");
 		for (EventStatus item : EventStatus.values()) {
 			chartVo.addXAxis(item.name());
-			chartVo.addYAxis(jobEventMapper.countJobEventByStat(item.name()));
+			chartVo.addYAxis(jobEventMapper.countJobEventByStat(item.name(), userId));
 		}
 		return chartVo;
 	}
 	
 	@SuppressWarnings("serial")
-	public ChartVo jobChart() throws SchedulerException {
+	public ChartVo jobChart(Long userId) throws SchedulerException {
 		ChartVo chartVo = new ChartVo();
 		chartVo.addLegend("启用");
 		chartVo.addLegend("禁用");
@@ -63,19 +63,19 @@ public class DashboardService {
 		chartVo.addYAxis(new HashMap<String, Object>() {
 			{
 				put("name", "启用");
-				put("value", jobInfoMapper.countJobInfoByEnable(1));
+				put("value", jobInfoMapper.countJobInfoByEnable(1, userId));
 			}
 		});
 		chartVo.addYAxis(new HashMap<String, Object>() {
 			{
 				put("name", "禁用");
-				put("value", jobInfoMapper.countJobInfoByEnable(0));
+				put("value", jobInfoMapper.countJobInfoByEnable(0, userId));
 			}
 		});
 		chartVo.addYAxis(new HashMap<String, Object>() {
 			{
 				put("name", "调度中");
-				put("value", RadishDynamicScheduler.listJobsInScheduler().size());
+				put("value", RadishDynamicScheduler.listJobsInScheduler(userId).size());
 			}
 		});
 		return chartVo;

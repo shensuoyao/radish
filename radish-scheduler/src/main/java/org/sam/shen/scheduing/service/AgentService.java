@@ -98,13 +98,20 @@ public class AgentService {
 	 * @param agentName
 	 * @return
 	 */
-	public Page<Agent> queryAgentForPager(int index, int limit, String agentName) {
+	public Page<Agent> queryAgentForPager(int index, int limit, String agentName, Long userId) {
 		PageHelper.startPage(index, limit);
-		return agentMapper.queryAgentForPager(agentName);
+		if (userId == null) {
+		    return agentMapper.queryAgentForPager(agentName);
+        }
+		return agentMapper.queryAgentForPagerUser(agentName, userId);
 	}
 	
-	public List<Agent> queryAgentForList(String agentName) {
-		return agentMapper.queryAgentForList(agentName);
+	public List<Agent> queryAgentForList(String agentName, Long userId) {
+	    if (userId == null) {
+            return agentMapper.queryAgentForList(agentName);
+        } else {
+	        return agentMapper.queryAgentForPagerUser(agentName, userId);
+        }
 	}
 	
 	/**
@@ -156,8 +163,21 @@ public class AgentService {
 	 * @date 下午4:56:14
 	 * @return
 	 */
-	public List<AgentGroup> queryAgentGroup() {
-		List<AgentGroup> result = agentGroupMapper.queryAgentGroup();
+	public List<AgentGroup> queryAgentGroup(Long userId) {
+		List<AgentGroup> result;
+		if (userId == null) {
+		    result = agentGroupMapper.queryAgentGroup();
+        } else {
+		    result = agentGroupMapper.queryUserAgentGroup(userId);
+        }
+		if(null == result) {
+			return Collections.emptyList();
+		}
+		return result;
+	}
+
+	public List<AgentGroup> queryAgentGroup(String groupName) {
+		List<AgentGroup> result = agentGroupMapper.queryAgentGroupByName(groupName);
 		if(null == result) {
 			return Collections.emptyList();
 		}
@@ -227,8 +247,12 @@ public class AgentService {
      * @param name 客户端名称
      * @return 客户端和处理器的列表信息
      */
-	public List<Map<String, ?>> queryAgentHandlerByAgentName(String name) {
-	    return agentHandlerMapper.queryAgentHandlerByAgentName(name);
+	public List<Map<String, ?>> queryAgentHandlerByAgentName(String name, Long userId) {
+	    if (userId == null) {
+            return agentHandlerMapper.queryAgentHandlerByAgentName(name);
+        } else {
+            return agentHandlerMapper.queryByAgentNameForUser(name, userId);
+        }
     }
 
     /**
@@ -238,8 +262,13 @@ public class AgentService {
      * @param name 客户端名称
      * @return 客户端和处理器的列表信息
      */
-    public List<Map<String, ?>> queryAgentHandlerByAgentNameForPage(int index, int limit, String name) {
+    public List<Map<String, ?>> queryAgentHandlerByAgentNameForPage(int index, int limit, String name, Long userId) {
 	    PageHelper.startPage(index, limit);
-	    return agentHandlerMapper.queryAgentHandlerByAgentName(name);
+        if (userId == null) {
+            return agentHandlerMapper.queryAgentHandlerByAgentName(name);
+        } else {
+            return agentHandlerMapper.queryByAgentNameForUser(name, userId);
+        }
     }
+
 }

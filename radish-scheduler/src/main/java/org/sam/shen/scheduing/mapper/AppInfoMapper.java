@@ -14,7 +14,7 @@ import java.util.List;
 @Mapper
 public interface AppInfoMapper {
 
-    Page<AppInfo> selectApps(@Param("appName") String appName);
+    Page<AppInfo> selectApps(@Param("appName") String appName, @Param("userId") Long userId);
 
     AppInfo selectAppInfoById(String appId);
 

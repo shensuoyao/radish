@@ -112,6 +112,7 @@ CREATE TABLE `job_info` (
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
   `priority` tinyint(2) DEFAULT '0' COMMENT '任务优先级 0 - 9',
   `enable` tinyint(2) DEFAULT '1' COMMENT '是否启用, 1: 启用, 0:禁用',
+  `user_id` int(11) DEFAULT NULL COMMENT '创建用户ID',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -159,6 +160,7 @@ CREATE TABLE `app_info` (
   `app_id` varchar(32) NOT NULL COMMENT '应用id',
   `app_name` varchar(128) DEFAULT NULL COMMENT '应用名称',
   `domain` varchar(128) DEFAULT NULL COMMENT '域名',
+  `user_id` int(11) DEFAULT NULL COMMENT '创建用户',
   PRIMARY KEY (`app_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -197,3 +199,28 @@ CREATE TABLE `app_kind_handler` (
   `handler_id` varchar(32) DEFAULT NULL COMMENT '处理器ID',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+-- ----------------------------
+--  Table structure for `user`
+-- ----------------------------
+DROP TABLE IF EXISTS `user`;
+CREATE TABLE `user` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `uname` varchar(32) DEFAULT NULL,
+  `password` varchar(32) DEFAULT NULL,
+  `enable` int(1) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
+
+
+-- ----------------------------
+--  Table structure for `user_agent_group`
+-- ----------------------------
+DROP TABLE IF EXISTS `user_agent_group`;
+CREATE TABLE `user_agent_group` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) DEFAULT NULL,
+  `group_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;

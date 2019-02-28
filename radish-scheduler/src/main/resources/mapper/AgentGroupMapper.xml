@@ -30,11 +30,27 @@
             FROM agent_group 
             ]]>
     </select>
+
+    <select id="queryUserAgentGroup" parameterType="java.lang.Long" resultMap="agentGroupMap">
+        SELECT b.id, b.group_name, b.create_time
+        FROM user_agent_group a, agent_group b
+        WHERE a.group_id = b.id AND a.user_id = #{userId}
+    </select>
+
+    <select id="queryAgentGroupByName" parameterType="java.lang.String" resultMap="agentGroupMap">
+        SELECT id, group_name, create_time FROM agent_group
+        <where>
+            <if test="groupName != null and groupName != ''">group_name like concat('%', concat(#{groupName}, '%'))</if>
+        </where>
+    </select>
     
     <select id="countAgentGroup" resultType="long">
-       <![CDATA[
-           SELECT count(*) cnt FROM agent_group;
-                ]]>
+        <![CDATA[
+            SELECT count(ag.id) cnt FROM agent_group ag left join user_agent_group uag on ag.id=uag.group_id
+        ]]>
+        <where>
+            <if test="userId != null">user_id = #{userId}</if>
+        </where>
     </select>
     
     <update id="upgradeAgentGroup" parameterType="AgentGroup">
