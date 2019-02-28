@@ -94,7 +94,7 @@ public class AgentController {
 		if (StringUtils.isEmpty(agentName)) {
 			return new Resp<>(Collections.emptyList());
 		}
-		List<Agent> list = agentService.queryAgentForList(agentName);
+		List<Agent> list = agentService.queryAgentForList(agentName, null);
 		if(null == list) {
 			list = Collections.emptyList();
 		}
@@ -137,11 +137,16 @@ public class AgentController {
 	}
 
 	@RequestMapping(value = "agent-group", method = RequestMethod.GET)
-	public ModelAndView toAgentGroupPage(ModelAndView model) {
-		model.setViewName("frame/agent/agent_group");
+	public ModelAndView toAgentGroupPage(ModelAndView model, HttpSession session) {
+	    User user = (User) session.getAttribute("user");
+	    if (SchedConstant.ADMINISTRATOR.equals(user.getUname())) {
+            model.setViewName("frame/agent/agent_group");
+        } else {
+	        model.setViewName("frame/agent/agent_group_select");
+        }
 		return model;
 	}
-	
+
 	/**
 	 *  查询AgentGroup Json数据集
 	 * @author suoyao

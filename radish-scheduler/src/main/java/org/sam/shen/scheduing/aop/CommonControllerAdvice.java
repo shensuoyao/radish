@@ -25,6 +25,7 @@ public class CommonControllerAdvice {
     @ResponseBody
     @ExceptionHandler(RuntimeException.class)
     public Resp<String> handleRuntimeException(RuntimeException e) {
+        log.error(e.getMessage());
         return new Resp<>(Resp.FAIL.getCode(), e.getMessage());
     }
 

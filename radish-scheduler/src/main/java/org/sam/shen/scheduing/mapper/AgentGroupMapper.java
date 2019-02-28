@@ -19,7 +19,7 @@ public interface AgentGroupMapper {
 
 	List<AgentGroup> queryAgentGroupByName(@Param("groupName") String groupName);
 	
-	Long countAgentGroup();
+	Long countAgentGroup(@Param("userId") Long userId);
 	
 	void upgradeAgentGroup(AgentGroup agentGroup);
 	

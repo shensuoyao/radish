@@ -29,13 +29,13 @@ public class DashboardService {
 	@Resource
 	private JobEventMapper jobEventMapper;
 	
-	public Long countAgentGroup() {
-		Long count = agentGroupMapper.countAgentGroup();
+	public Long countAgentGroup(Long userId) {
+		Long count = agentGroupMapper.countAgentGroup(userId);
 		return null == count ? 0 : count;
 	}
 	
-	public Integer countAgent() {
-		Integer count = agentMapper.countAgent();
+	public Integer countAgent(Long userId) {
+		Integer count = agentMapper.countAgent(userId);
 		return null == count ? 0 : count;
 	}
 	

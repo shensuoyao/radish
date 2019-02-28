@@ -27,7 +27,7 @@ public interface AgentMapper {
 	
 	void upgradeAgent(Agent agent);
 	
-	Integer countAgent();
+	Integer countAgent(@Param("userId") Long userId);
 	
 	List<Agent> queryAgentByAgentGroup(Long agentGroupId);
 	

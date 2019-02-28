@@ -22,7 +22,7 @@ public interface JobInfoMapper {
 	
 	List<JobInfo> queryJobInfoForList(@Param("jobName") String jobName, @Param("userId") Long userId);
 	
-	List<JobInfo> queryJobInfoInIds(List<Long> ids, Long userId);
+	List<JobInfo> queryJobInfoInIds(@Param("list") List<Long> ids, @Param("userId") Long userId);
 	
 	void upgradeJonInfo(JobInfo jobInfo);
 	

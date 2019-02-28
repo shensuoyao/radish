@@ -279,7 +279,7 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 		}
 		if (userId == null) {
 		    return new ArrayList<>(jobMap.values());
-        } else {
+        } else if (ids.size() > 0) {
             List<SchedulerJobVo> list = Lists.newArrayList();
             List<JobInfo> jobList = jobInfoMapper.queryJobInfoInIds(ids, userId);
             for (JobInfo job : jobList) {
@@ -289,6 +289,8 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
                 }
             }
             return list;
+        } else {
+            return Collections.emptyList();
         }
 	}
 

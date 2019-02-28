@@ -45,9 +45,12 @@
     </select>
     
     <select id="countAgentGroup" resultType="long">
-       <![CDATA[
-           SELECT count(*) cnt FROM agent_group;
-                ]]>
+        <![CDATA[
+            SELECT count(ag.id) cnt FROM agent_group ag left join user_agent_group uag on ag.id=uag.group_id
+        ]]>
+        <where>
+            <if test="userId != null">user_id = #{userId}</if>
+        </where>
     </select>
     
     <update id="upgradeAgentGroup" parameterType="AgentGroup">

@@ -1,14 +1,16 @@
 package org.sam.shen.scheduing.controller.portal;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.sam.shen.core.constants.Constant;
 import org.sam.shen.core.model.AgentMonitorInfo;
+import org.sam.shen.scheduing.constants.SchedConstant;
+import org.sam.shen.scheduing.entity.Agent;
+import org.sam.shen.scheduing.entity.User;
+import org.sam.shen.scheduing.service.AgentService;
 import org.sam.shen.scheduing.service.RedisService;
 import org.sam.shen.scheduing.vo.DynamicChartNodeVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,15 +25,20 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import javax.servlet.http.HttpSession;
+
 @Controller
 @RequestMapping(value = "monitor")
 public class MonitorController {
 
 	private final RedisService redisService;
 
+	private final AgentService agentService;
+
     @Autowired
-    public MonitorController(RedisService redisService) {
+    public MonitorController(RedisService redisService, AgentService agentService) {
         this.redisService = redisService;
+        this.agentService = agentService;
     }
 
     /**
@@ -42,16 +49,31 @@ public class MonitorController {
 	 * @return
 	 */
 	@RequestMapping(value = "agent-online", method = RequestMethod.GET)
-	public ModelAndView agentOnline(ModelAndView model) {
-		List<AgentMonitorInfo> agentOnlines = Lists.newArrayList();
+	public ModelAndView agentOnline(ModelAndView model, HttpSession session) {
+		Map<Long, AgentMonitorInfo> agentOnlineMap = new HashMap<>();
 		Set<String> keys = redisService.getKeys(Constant.REDIS_AGENT_PREFIX.concat("*"));
 		if(null != keys && keys.size() > 0) {
 			keys.forEach(key -> {
 				Map<String, Object> hash = redisService.hmget(key);
-                agentOnlines.add(JSON.parseObject(JSON.toJSONString(hash), AgentMonitorInfo.class));
+				AgentMonitorInfo monitorInfo = JSON.parseObject(JSON.toJSONString(hash), AgentMonitorInfo.class);
+                agentOnlineMap.put(monitorInfo.getAgentId(), monitorInfo);
 			});
 		}
-		model.addObject("agentOnlines", agentOnlines);
+
+        User user = (User) session.getAttribute("user");
+        if (SchedConstant.ADMINISTRATOR.equals(user.getUname())) {
+            model.addObject("agentOnlines", new ArrayList<>(agentOnlineMap.values()));
+        } else {
+            List<AgentMonitorInfo> agentMonitorInfos = new ArrayList<>();
+            List<Agent> agents = agentService.queryAgentForList(null, user.getId());
+            for (Agent agent : agents) {
+                AgentMonitorInfo info = agentOnlineMap.get(agent.getId());
+                if (info != null) {
+                    agentMonitorInfos.add(info);
+                }
+            }
+            model.addObject("agentOnlines", agentMonitorInfos);
+        }
 		model.setViewName("frame/monitor/agent_online");
 		return model;
 	}

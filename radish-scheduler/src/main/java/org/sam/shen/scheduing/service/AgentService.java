@@ -106,8 +106,12 @@ public class AgentService {
 		return agentMapper.queryAgentForPagerUser(agentName, userId);
 	}
 	
-	public List<Agent> queryAgentForList(String agentName) {
-		return agentMapper.queryAgentForList(agentName);
+	public List<Agent> queryAgentForList(String agentName, Long userId) {
+	    if (userId == null) {
+            return agentMapper.queryAgentForList(agentName);
+        } else {
+	        return agentMapper.queryAgentForPagerUser(agentName, userId);
+        }
 	}
 	
 	/**
@@ -243,8 +247,12 @@ public class AgentService {
      * @param name 客户端名称
      * @return 客户端和处理器的列表信息
      */
-	public List<Map<String, ?>> queryAgentHandlerByAgentName(String name) {
-	    return agentHandlerMapper.queryAgentHandlerByAgentName(name);
+	public List<Map<String, ?>> queryAgentHandlerByAgentName(String name, Long userId) {
+	    if (userId == null) {
+            return agentHandlerMapper.queryAgentHandlerByAgentName(name);
+        } else {
+            return agentHandlerMapper.queryByAgentNameForUser(name, userId);
+        }
     }
 
     /**
@@ -254,8 +262,13 @@ public class AgentService {
      * @param name 客户端名称
      * @return 客户端和处理器的列表信息
      */
-    public List<Map<String, ?>> queryAgentHandlerByAgentNameForPage(int index, int limit, String name) {
+    public List<Map<String, ?>> queryAgentHandlerByAgentNameForPage(int index, int limit, String name, Long userId) {
 	    PageHelper.startPage(index, limit);
-	    return agentHandlerMapper.queryAgentHandlerByAgentName(name);
+        if (userId == null) {
+            return agentHandlerMapper.queryAgentHandlerByAgentName(name);
+        } else {
+            return agentHandlerMapper.queryByAgentNameForUser(name, userId);
+        }
     }
+
 }

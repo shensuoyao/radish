@@ -1,11 +1,16 @@
 package org.sam.shen.scheduing.controller.portal;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.quartz.SchedulerException;
 import org.sam.shen.core.constants.Constant;
 import org.sam.shen.scheduing.constants.SchedConstant;
+import org.sam.shen.scheduing.entity.Agent;
 import org.sam.shen.scheduing.entity.User;
+import org.sam.shen.scheduing.service.AgentService;
 import org.sam.shen.scheduing.service.DashboardService;
 import org.sam.shen.scheduing.service.RedisService;
 import org.sam.shen.scheduing.vo.ChartVo;
@@ -28,6 +33,9 @@ public class HomePageController {
 	
 	@Autowired
 	private DashboardService dashboardService;
+
+	@Autowired
+    private AgentService agentService;
 	
 	@Autowired
 	private RedisService redisService;
@@ -41,10 +49,14 @@ public class HomePageController {
 	}
 	
 	@RequestMapping(value = "dashboard", method = RequestMethod.GET)
-	public ModelAndView dashboard(ModelAndView model) {
-		model.addObject("agentGroupCount", dashboardService.countAgentGroup());
+	public ModelAndView dashboard(ModelAndView model, HttpSession session) {
+	    User user = (User) session.getAttribute("user");
+	    if (SchedConstant.ADMINISTRATOR.equals(user.getUname())) {
+	        user.setId(null);
+        }
+		model.addObject("agentGroupCount", dashboardService.countAgentGroup(user.getId()));
 		
-		Integer agentTotalCount = dashboardService.countAgent();
+		Integer agentTotalCount = dashboardService.countAgent(user.getId());
 		if(null == agentTotalCount) {
 			agentTotalCount = 0;
 		}
@@ -52,10 +64,19 @@ public class HomePageController {
 		Set<String> keys = redisService.getKeys(Constant.REDIS_AGENT_PREFIX + "*");
 		int agentOnlineCount = 0;
 		if(null != keys) {
-			agentOnlineCount = keys.size();
+            if (user.getId() == null) {
+                agentOnlineCount = keys.size();
+            } else {
+                List<String> aids = new ArrayList<>();
+                for (String key : keys) {
+                    aids.add(key.split("_")[1]);
+                }
+                List<Agent> agents = agentService.queryAgentForList(null, user.getId());
+                agentOnlineCount = agents.stream().filter(a -> aids.contains(Long.toString(a.getId()))).collect(Collectors.toList()).size();
+            }
 		}
 		model.addObject("agentOnlineCount", agentOnlineCount);
-		model.addObject("agentOfflineCount", agentTotalCount.intValue() - agentOnlineCount);
+		model.addObject("agentOfflineCount", agentTotalCount - agentOnlineCount);
 		
 		model.setViewName("frame/dashboard");
 		return model;

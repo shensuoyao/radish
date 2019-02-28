@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sam.shen.scheduing.constants.SchedConstant;
+import org.sam.shen.scheduing.entity.User;
 import org.sam.shen.scheduing.service.AgentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.Lists;
+
+import javax.servlet.http.HttpSession;
 
 @RestController
 @RequestMapping(value="common")
@@ -30,12 +34,16 @@ public class CommonController {
 	 */
 	@SuppressWarnings("serial")
 	@RequestMapping(value = "agent-handler-group", method = RequestMethod.GET)
-	public List<Map<String, Object>> getAgentHandlerListForGroup(@RequestParam("agentName") String agentName) {
+	public List<Map<String, Object>> getAgentHandlerListForGroup(@RequestParam("agentName") String agentName, HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        if (SchedConstant.ADMINISTRATOR.equals(user.getUname())) {
+            user.setId(null);
+        }
 		List<Map<String, ?>> list;
 		if (StringUtils.isEmpty(agentName)) {
-            list = agentService.queryAgentHandlerByAgentNameForPage(1, 10, agentName);
+            list = agentService.queryAgentHandlerByAgentNameForPage(1, 10, agentName, user.getId());
         } else {
-            list = agentService.queryAgentHandlerByAgentName(agentName);
+            list = agentService.queryAgentHandlerByAgentName(agentName, user.getId());
         }
 		List<Map<String, Object>> result = Lists.newArrayList();
 		if(null != list && list.size() > 0) {
@@ -63,12 +71,16 @@ public class CommonController {
 	}
 
     @RequestMapping(value = "agent-handler-group-app", method = RequestMethod.GET)
-    public List<Map<String, Object>> getAgentHandlerListForGroupApp(@RequestParam("agentName") String agentName) {
+    public List<Map<String, Object>> getAgentHandlerListForGroupApp(@RequestParam("agentName") String agentName, HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        if (SchedConstant.ADMINISTRATOR.equals(user.getUname())) {
+            user.setId(null);
+        }
         List<Map<String, ?>> list;
         if (StringUtils.isEmpty(agentName)) {
-            list = agentService.queryAgentHandlerByAgentNameForPage(1, 10, agentName);
+            list = agentService.queryAgentHandlerByAgentNameForPage(1, 10, agentName, user.getId());
         } else {
-            list = agentService.queryAgentHandlerByAgentName(agentName);
+            list = agentService.queryAgentHandlerByAgentName(agentName, user.getId());
         }
         List<Map<String, Object>> result = Lists.newArrayList();
         if(null != list && list.size() > 0) {
