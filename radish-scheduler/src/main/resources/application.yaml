@@ -2,6 +2,11 @@ server:
   port: 8888
   servlet:
     context-path: /${spring.application.name}
+  syncLimit: 5
+  cluster:
+            - 192.168.140.21:2888:3888
+            - 192.168.140.215:2888:3888
+            - 192.168.140.216:2888:3888
 
 spring:
   profiles:
@@ -69,12 +74,12 @@ spring:
     cache: true
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://rm-2ze1e9k4201bljl9w.mysql.rds.aliyuncs.com/radish?useUnicode=true&characterEncoding=UTF-8
-    username: java
-    password: 653840d8038356568455540Df67252d1
+    url: jdbc:mysql://??????/radish?useUnicode=true&characterEncoding=UTF-8
+    username: ???
+    password: ???
   redis:
     database: 3
-    host: 182.92.84.158
+    host: ???.???.???.???
     port: 6379
     password: pass
     timeout: 3000ms
@@ -109,3 +114,4 @@ spring:
         max-wait: -1s
         max-idle: 8
         min-idle: 0
+
