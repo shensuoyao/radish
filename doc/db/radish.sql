@@ -224,3 +224,8 @@ CREATE TABLE `user_agent_group` (
   `group_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
+
+
+-- Initialize administrator
+INSERT INTO user(id, uname, password, enable) VALUES (1, 'admin', 'admin', 1);
+COMMIT;
