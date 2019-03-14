@@ -45,5 +45,9 @@ public interface JobInfoMapper {
 	List<JobInfo> findJobsByAppId(String appId);
 
 	int deleteJobById(long jobId);
+
+	int changeRunningStatus(JobInfo jobInfo);
+
+	List<JobInfo> queryJobScheduler(@Param("runningStatus") JobInfo.RunningStatus status, @Param("userId") Long userId);
 	
 }

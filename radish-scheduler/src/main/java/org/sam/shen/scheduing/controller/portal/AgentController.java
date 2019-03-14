@@ -229,7 +229,14 @@ public class AgentController {
 		agentService.saveAgentGroup(agentGroup, agents);
 		return "redirect:/portal/agent-group-edit/" + agentGroup.getId();
 	}
-	
+
+    /**
+     * 删除机器组
+     * @author clock
+     * @date 2019/3/12 下午1:33
+     * @param id 机组ID
+     * @return 删除结果
+     */
 	@RequestMapping(value = "agent-group-del", method = RequestMethod.POST)
 	@ResponseBody
 	public Resp<String> agentGroupDel(@RequestParam(value = "id", required = false) Long id) {

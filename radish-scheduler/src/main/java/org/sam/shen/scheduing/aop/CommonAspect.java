@@ -29,6 +29,14 @@ public class CommonAspect {
     @Resource
     private AppInfoMapper appInfoMapper;
 
+
+    /**
+     * 外部接口的拦截切面，主要用于一些固定参数的校验
+     * @author clock
+     * @date 2019/3/12 下午1:26
+     * @param joinPoint 切入点
+     * @return 返回值
+     */
     @Around("execution(* org.sam.shen.scheduing.api.JobApi.*(..))")
     public Object checkParams(ProceedingJoinPoint joinPoint) throws Throwable {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
@@ -56,6 +64,13 @@ public class CommonAspect {
         return joinPoint.proceed();
     }
 
+    /**
+     * 登陆权限校验切面
+     * @author clock
+     * @date 2019/3/12 下午1:28
+     * @param joinPoint 切入点
+     * @return 返回值
+     */
     @Around("execution(* org.sam.shen.scheduing.controller.portal.*.*(..)) && !execution(* org.sam.shen.scheduing.controller.portal.LoginController.login*(..))")
     public Object checkSession(ProceedingJoinPoint joinPoint) throws Throwable {
         HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();

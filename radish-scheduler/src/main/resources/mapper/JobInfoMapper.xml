@@ -24,16 +24,19 @@
         <result column="priority" property="priority"/>
         <result column="enable" property="enable"/>
         <result column="user_id" property="userId"/>
+        <result column="running_status" property="runningStatus"/>
+        <result column="prev_fire_time" property="prevFireTime"/>
+        <result column="next_fire_time" property="nextFireTime"/>
     </resultMap>
 
 	<insert id="saveJobInfo" parameterType="JobInfo" useGeneratedKeys="true" keyProperty="id">
 	    <![CDATA[
             INSERT INTO job_info(job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone,
                         executor_handlers, cmd, params, param_file_path, parent_job_id, dist_type, dist_rule, create_time, update_time,
-                        priority, enable, user_id)
+                        priority, enable, user_id, running_status, prev_fire_time, next_fire_time)
             VALUES (#{jobName}, #{crontab}, #{handlerType}, #{handlerFailStrategy}, #{admin}, #{adminEmail}, #{adminPhone},
                     #{executorHandlers}, #{cmd}, #{params}, #{paramFilePath}, #{parentJobId}, #{distType}, #{distRule}, #{createTime},
-                    #{updateTime}, #{priority}, #{enable}, #{userId})
+                    #{updateTime}, #{priority}, #{enable}, #{userId}, #{runningStatus}, #{prevFireTime}, #{nextFireTime})
         ]]>
     </insert>
 
@@ -41,18 +44,20 @@
         <![CDATA[
             INSERT INTO job_info(job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone,
                         executor_handlers, cmd, params, param_file_path, parent_job_id, dist_type, dist_rule, create_time, update_time,
-                        priority, enable, user_id) VALUES
+                        priority, enable, user_id, running_status, prev_fire_time, next_fire_time) VALUES
         ]]>
         <foreach collection="list" item="item" index="index" separator=",">
             (#{item.jobName}, #{item.crontab}, #{item.handlerType}, #{item.handlerFailStrategy}, #{item.admin}, #{item.adminEmail},
             #{item.adminPhone}, #{item.executorHandlers}, #{item.cmd}, #{item.params}, #{item.paramFilePath}, #{item.parentJobId},
-            #{item.distType}, #{item.distRule}, #{item.createTime}, #{item.updateTime}, #{item.priority}, #{item.enable}, #{item.userId})
+            #{item.distType}, #{item.distRule}, #{item.createTime}, #{item.updateTime}, #{item.priority}, #{item.enable}, #{item.userId},
+            #{item.runningStatus}, #{item.prevFireTime}, #{item.nextFireTime})
         </foreach>
     </insert>
     
     <sql id="Base_Column_List">
         id, job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone, executor_handlers,
-        cmd, params, param_file_path, parent_job_id, dist_type, dist_rule, create_time,update_time, priority, enable, user_id
+        cmd, params, param_file_path, parent_job_id, dist_type, dist_rule, create_time,update_time, priority, enable,
+        user_id, running_status, prev_fire_time, next_fire_time
     </sql>
 
     <select id="findJobInfoById" resultMap="jobInfoMap" parameterType="long">
@@ -151,6 +156,23 @@
             FROM job_info a, job_app_ref b
             WHERE a.id = b.job_id AND b.app_id = #{appId}
         ]]>
+    </select>
+    
+    <update id="changeRunningStatus" parameterType="org.sam.shen.scheduing.entity.JobInfo">
+        UPDATE job_info
+        <set>
+            next_fire_time = #{nextFireTime},
+            <if test="runningStatus != null">running_status = #{runningStatus},</if>
+            <if test="prevFireTime != null">prev_fire_time = #{prevFireTime},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    
+    <select id="queryJobScheduler" resultMap="jobInfoMap">
+        SELECT id, job_name, crontab, running_status, prev_fire_time, next_fire_time FROM job_info WHERE running_status = #{runningStatus}
+        <if test="userId != null">
+            and user_id = #{userId}
+        </if>
     </select>
 
 </mapper>

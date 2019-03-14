@@ -31,7 +31,7 @@
 	  </thead>
 	  <tbody>
 	    <tr th:each="job : ${jobs}">
-	      <td th:text="${job.jobId}"></td>
+	      <td th:text="${job.id}"></td>
 	      <td th:text="${job.jobName}"></td>
 	      <td th:text="${job.crontab}"></td>
 	      <td th:text="${#dates.format(job.prevFireTime, 'yyyy-MM-dd HH:mm:ss')}"></td>

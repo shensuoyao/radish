@@ -7,7 +7,6 @@ import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.quartz.SchedulerException;
 import org.sam.shen.core.constants.*;
 import org.sam.shen.core.log.LogReader;
 import org.sam.shen.core.model.Resp;
@@ -18,7 +17,6 @@ import org.sam.shen.scheduing.service.AgentService;
 import org.sam.shen.scheduing.service.JobEventService;
 import org.sam.shen.scheduing.service.JobService;
 import org.sam.shen.scheduing.vo.JobEventTreeNode;
-import org.sam.shen.scheduing.vo.SchedulerJobVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -257,16 +255,12 @@ public class JobController {
 	 */
 	@RequestMapping(value = "job-scheduler", method = RequestMethod.GET)
 	public ModelAndView jobInScheduler(ModelAndView model, HttpSession session) {
-		try {
-            User user = (User) session.getAttribute("user");
-            if (SchedConstant.ADMINISTRATOR.equals(user.getUname())){ // 如果管理员登陆查询所有数据
-                user.setId(null);
-            }
-			List<SchedulerJobVo> jobs = RadishDynamicScheduler.listJobsInScheduler(user.getId());
-			model.addObject("jobs", jobs);
-		} catch (SchedulerException e) {
-			logger.error("list scheduler jobs error. ", e);
+		User user = (User) session.getAttribute("user");
+		if (SchedConstant.ADMINISTRATOR.equals(user.getUname())){ // 如果管理员登陆查询所有数据
+			user.setId(null);
 		}
+		List<JobInfo> jobs = RadishDynamicScheduler.listJobsInScheduler(user.getId());
+		model.addObject("jobs", jobs);
 		model.setViewName("frame/job/job_scheduler");
 		return model;
 	}

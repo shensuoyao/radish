@@ -70,9 +70,17 @@ public class CommonController {
 		return result;
 	}
 
+    /**
+     * 提供给app模块的Agent和Handler选择
+     * @author clock
+     * @date 2019/3/12 下午1:34
+     * @param agentName 客户端名称
+     * @param session session
+     * @return Agent和Handler列表
+     */
     @RequestMapping(value = "agent-handler-group-app", method = RequestMethod.GET)
     public List<Map<String, Object>> getAgentHandlerListForGroupApp(@RequestParam("agentName") String agentName, HttpSession session) {
-        User user = (User) session.getAttribute("user");
+	    User user = (User) session.getAttribute("user");
         if (SchedConstant.ADMINISTRATOR.equals(user.getUname())) {
             user.setId(null);
         }
