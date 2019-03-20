@@ -5,6 +5,8 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.quartz.SchedulerException;
+import org.sam.shen.scheduing.cluster.ClusterPeer;
+import org.sam.shen.scheduing.cluster.ClusterPeerConfig;
 import org.sam.shen.scheduing.entity.JobInfo;
 import org.sam.shen.scheduing.mapper.JobInfoMapper;
 import org.sam.shen.scheduing.scheduler.RadishDynamicScheduler;
@@ -28,6 +30,12 @@ public class RadishScheduingApplication implements ApplicationRunner {
 	@Resource
 	private JobInfoMapper jobInfoMappper;
 	
+	@Resource
+	private ClusterPeer clusterPeer;
+	
+	@Resource
+	private ClusterPeerConfig clusterPeerConfig;
+	
 	public static void main(String[] args) {
 		SpringApplication.run(RadishScheduingApplication.class, args);
 	}
@@ -37,6 +45,7 @@ public class RadishScheduingApplication implements ApplicationRunner {
 	 */
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
+		// 加载调度任务
 		if (args.containsOption("loadjob")) {
 			// 从数据库加载jobinfo生成任务集合
 			List<JobInfo> enableJobInfo = jobInfoMappper.queryLoadedJobs();
@@ -50,6 +59,22 @@ public class RadishScheduingApplication implements ApplicationRunner {
 				});
 			}
 		}
+		
+		if(clusterPeerConfig.isClusterDeploy()) {
+			// 初始化配置
+			clusterPeerConfig = clusterPeerConfig.init();
+			// 启动集群服务
+			ClusterPeer clusterPeer = new ClusterPeer();
+			clusterPeer.setMyId(clusterPeerConfig.getNid());
+			clusterPeer.setInitLimit(clusterPeerConfig.getInitLimit());
+			clusterPeer.setTickTime(clusterPeerConfig.getTickTime());
+			clusterPeer.setSyncLimit(clusterPeerConfig.getSyncLimit());
+			clusterPeer.setCnxTimeout(clusterPeerConfig.getCnxTimeout());
+			clusterPeer.setClusterListenOnAllIPs(clusterPeerConfig.isClusterListenOnAllIPs());
+			clusterPeer.setClusterServers(clusterPeerConfig.getClusterPeerServers());
+			clusterPeer.start();
+		}
+		
 	}
 	
 }

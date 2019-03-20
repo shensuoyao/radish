@@ -1,5 +1,7 @@
 package org.sam.shen.scheduing.cluster;
 
+import org.sam.shen.scheduing.cluster.ClusterPeer.NodeState;
+
 /**
  * 投票结果对象
  * 
@@ -10,46 +12,40 @@ package org.sam.shen.scheduing.cluster;
 public class Vote {
 
 	// 服务节点ID
-	private String nodeId;
+	private int nid;
 
 	// 每次投票的随机ID
 	// 根据jobNum调度的任务数计算
-	private long rhid;
-
-	// 猜拳ID，随机计算
-	private long moraid;
+	private Integer rhid;
 
 	// 投票的轮次
-	private long electionEpoch;
+	private long electionEpoch = 1L;
 
 	// 节点当前状态
 	private NodeState state;
 
-	// 节点版本号
-	final private long version;
-
-	public Vote(String nodeId, long rhid, long moraid, long electionEpoch) {
-		this.version = System.currentTimeMillis();
-		this.nodeId = nodeId;
+	public Vote(int nid, int rhid, long electionEpoch) {
+		this.nid = nid;
 		this.rhid = rhid;
-		this.moraid = moraid;
 		this.electionEpoch = electionEpoch;
+		this.state = NodeState.LOOKING;
+	}
+	
+	public Vote(int nid, int rhid, long electionEpoch, NodeState state) {
+		this(nid, rhid, electionEpoch);
+		this.state = state;
 	}
 
-	public Vote(String nodeId, long rhid, long moraid) {
-		this(nodeId, rhid, moraid, -1);
+	public Vote(int nid, int rhid) {
+		this(nid, rhid, -1, NodeState.LOOKING);
 	}
 
-	public String getNodeId() {
-		return nodeId;
+	public int getNid() {
+		return nid;
 	}
 
-	public long getRhid() {
+	public Integer getRhid() {
 		return rhid;
-	}
-
-	public long getMoraid() {
-		return moraid;
 	}
 
 	public long getElectionEpoch() {
@@ -60,13 +56,27 @@ public class Vote {
 		return state;
 	}
 
-	public long getVersion() {
-		return version;
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof Vote)) {
+			return false;
+		}
+		Vote other = (Vote) o;
+		if ((state == NodeState.LOOKING) || (other.state == NodeState.LOOKING)) {
+			return (nid == other.nid && rhid == other.rhid && electionEpoch == other.electionEpoch);
+		} else {
+			return false;
+		}
 	}
-
+	
+	@Override
+	public int hashCode() {
+		return (int) (nid & rhid);
+	}
+	
 	@Override
 	public String toString() {
-		return String.format("(%s, %s, %s, %d)", nodeId, Long.toHexString(rhid), Long.toHexString(moraid), version);
+		return String.format("(%d, %s, %s)", nid, Long.toHexString(rhid), Long.toHexString(electionEpoch));
 	}
 
 }

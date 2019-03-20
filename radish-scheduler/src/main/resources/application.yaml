@@ -2,15 +2,21 @@ server:
   port: 8888
   servlet:
     context-path: /${spring.application.name}
-  syncLimit: 5
-  cluster:
-            - 192.168.140.21:2888:3888
-            - 192.168.140.215:2888:3888
-            - 192.168.140.216:2888:3888
+
+# cluster config
+cluster: 
+  initLimit: 1
+  tickTime: 2000
+  cnxTimeout: 5000
+  syncLimit: 5 
+  clusterListenOnAllIPs: false
+  servers: 
+    node.1: 192.168.140.215:2888:3888
+    node.2: 192.168.140.21:2888:3888
 
 spring:
   profiles:
-    active: prod
+    active: dev
   application:
     name: radish-scheduing
   jackson:
@@ -99,14 +105,14 @@ spring:
     cache: false
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/radish?useUnicode=true&characterEncoding=UTF-8
+    url: jdbc:mysql://192.168.140.215:3306/radish?useUnicode=true&characterEncoding=UTF-8
     username: root
-    password: '!@#$%^&*()'
+    password: 111111
   redis:
     database: 1
-    host: 127.0.0.1
-    port: 6666
-    password: '!@#$%^&*()'
+    host: 192.168.140.215
+    port: 6379
+    password: pass
     timeout: 3000ms
     jedis:
       pool:
