@@ -197,6 +197,7 @@ public class LeaderNode {
 		}
 		
 		// 加载需要调度的任务
+		// TODO
 		// self.loadJobs();
 	}
 	
