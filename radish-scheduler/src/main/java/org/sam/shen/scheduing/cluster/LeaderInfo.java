@@ -19,4 +19,6 @@ public class LeaderInfo {
 	
 	private String crontab;
 	
+	private Integer enable;
+	
 }
