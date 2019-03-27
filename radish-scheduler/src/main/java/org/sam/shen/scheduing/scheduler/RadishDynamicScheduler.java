@@ -7,6 +7,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.CronScheduleBuilder;
@@ -21,6 +22,7 @@ import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
+import org.quartz.impl.matchers.GroupMatcher;
 import org.sam.shen.core.constants.Constant;
 import org.sam.shen.core.constants.EventStatus;
 import org.sam.shen.scheduing.entity.JobEvent;
@@ -29,6 +31,7 @@ import org.sam.shen.scheduing.mapper.JobEventMapper;
 import org.sam.shen.scheduing.mapper.JobInfoMapper;
 import org.sam.shen.scheduing.service.RedisService;
 import org.sam.shen.scheduing.strategy.DistributionStrategyFactory;
+import org.sam.shen.scheduing.vo.SchedulerJobVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
@@ -290,6 +293,28 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 	public static List<JobInfo> listJobsInScheduler(Long userId) {
 	    List<JobInfo> jobs = jobInfoMapper.queryJobScheduler(JobInfo.RunningStatus.RUNNING, userId);
 	    return jobs == null ? Collections.emptyList() : jobs;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static List<SchedulerJobVo> listJobsInScheduler() throws SchedulerException {
+		Map<String, SchedulerJobVo> jobMap = new HashMap<>();
+		for(String groupName: scheduler.getJobGroupNames()) {
+			// enumerate each job in group
+			for(JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals(groupName))) {
+				System.out.println("Found job identified by: " + jobKey);
+				System.out.println("jobName is : " + jobKey.getName());
+				System.out.println("jobGroup is : " + jobKey.getName());
+				SchedulerJobVo vo = new SchedulerJobVo(jobKey.getName(), jobKey.getGroup());
+				List<CronTrigger> triggers = (List<CronTrigger>) scheduler.getTriggersOfJob(jobKey);
+				if(null != triggers && triggers.size() > 0) {
+					vo.setCrontab(triggers.get(0).getCronExpression());
+					vo.setPrevFireTime(triggers.get(0).getPreviousFireTime());
+					vo.setNextFireTime(triggers.get(0).getNextFireTime());
+				}
+				jobMap.put(jobKey.getName(), vo);
+			}
+		}
+		return new ArrayList<>(jobMap.values());
 	}
 
     /**

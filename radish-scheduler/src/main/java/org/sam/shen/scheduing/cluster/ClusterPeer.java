@@ -234,7 +234,7 @@ public class ClusterPeer extends Thread {
 	 */
 	public int updateRhid() {
 		try {
-			this.rhid = RadishDynamicScheduler.listJobsInScheduler(null).size();
+			this.rhid = RadishDynamicScheduler.listJobsInScheduler().size();
 		} catch (SchedulerException e) {
 			log.error("get scheduler jobs error.", e);
 		}
