@@ -75,7 +75,7 @@ public class ClusterPeer extends Thread {
 	public long start_fle, end_fle;
 	
 	// 心跳次数
-	protected volatile long tick;
+	// protected volatile long tick;
 	
 	synchronized protected void setLeaderNode(LeaderNode leaderNode) {
 		this.leaderNode = leaderNode;
