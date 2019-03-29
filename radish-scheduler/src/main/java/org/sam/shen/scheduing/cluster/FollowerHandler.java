@@ -2,6 +2,7 @@ package org.sam.shen.scheduing.cluster;
 
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Set;
@@ -32,7 +33,7 @@ public class FollowerHandler extends Thread {
 	volatile long tickOfNextAckDeadline;
 	
 	private DataInputStream is;
-	private BufferedOutputStream os;
+	private DataOutputStream os;
 	
 	// 此packet为死亡数据，如果该packet数据在发送队列中，则表示需要退出发送线程
 	final ClusterPacket<?> packetOfDeath = new ClusterPacket<Object>(-1, -1, -1, null);
@@ -53,7 +54,7 @@ public class FollowerHandler extends Thread {
 		try {
 			tickOfNextAckDeadline = leader.self.tick + leader.self.initLimit + leader.self.syncLimit;
 			is =  new DataInputStream(sock.getInputStream());
-			os = new BufferedOutputStream(sock.getOutputStream());
+			os = new DataOutputStream(sock.getOutputStream());
 			// 启动发送packet数据包的线程
 			new Thread() {
 				public void run() {
@@ -66,7 +67,7 @@ public class FollowerHandler extends Thread {
 				}
 			}.start();
 			// 处理接收到的信息
-			ClusterPacket<?> cp = null;
+			ClusterPacket<?> cp;
 			while(true) {
 				cp = new ClusterPacket<>();
 				readPacket(cp);
@@ -105,8 +106,11 @@ public class FollowerHandler extends Thread {
 					// 关闭线程
 					break;
 				}
-				os.write(JSON.toJSONBytes(p, SerializerFeature.WriteNullListAsEmpty));
+				byte[] bytes = JSON.toJSONBytes(p, SerializerFeature.WriteNullListAsEmpty);
+				os.writeInt(bytes.length);
+				os.write(bytes);
 				os.flush();
+				log.info("leader send packet success.");
 			} catch (IOException e) {
 				if (!sock.isClosed()) {
 					log.warn("Unexpected exception at " + this, e);
@@ -122,10 +126,14 @@ public class FollowerHandler extends Thread {
 	}
 	
 	void readPacket(ClusterPacket<?> cp) throws IOException {
-			String packetJson = is.readUTF();
-			if(null != packetJson) {
-				cp = JSON.parseObject(packetJson, cp.getClass());
-			}
+	    if (is.available() > 0) {
+            int packetLength = is.readInt();
+            byte[] packetBytes = new byte[packetLength];
+            if (is.available() >= packetLength) {
+                is.readFully(packetBytes, 0, packetLength);
+                cp = JSON.parseObject(packetBytes, cp.getClass());
+            }
+        }
 	}
 	
 	/**
@@ -139,6 +147,9 @@ public class FollowerHandler extends Thread {
 	 */
 	@SuppressWarnings("unchecked") 
 	void processPacket(ClusterPacket<?> cp) throws IOException, InterruptedException {
+	    if (cp.getType() == null) {
+	        return;
+        }
 		switch (cp.getType()) {
 		case LeaderNode.ACK:
 			// 确认leader
@@ -159,7 +170,7 @@ public class FollowerHandler extends Thread {
 				if(ClusterPeerNodes.getSingleton().getSchedulerJobsView().contains(leaderInfo.getJobId())) {
 					// leader自己调度该任务
 					// 更新本机的调度服务
-					RadishDynamicScheduler.UpgradeScheduleJob(leaderInfo.getJobId(), leaderInfo.getJobName(), leaderInfo.getCrontab());
+                    RadishDynamicScheduler.UpgradeScheduleJob(leaderInfo.getJobId(), leaderInfo.getJobName(), leaderInfo.getCrontab());
 				} else {
 					ClusterPacket<LeaderInfo> packet = new ClusterPacket<LeaderInfo>(LeaderNode.LEADERINFO,
 							leader.self.getMyId(), ClusterPeerNodes.getSingleton().getSchedulerJobCount(), leaderInfo);

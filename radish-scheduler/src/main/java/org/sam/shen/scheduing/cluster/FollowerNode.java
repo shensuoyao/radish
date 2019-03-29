@@ -2,6 +2,7 @@ package org.sam.shen.scheduing.cluster;
 
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
@@ -9,6 +10,7 @@ import java.net.Socket;
 import java.util.List;
 
 import org.quartz.SchedulerException;
+import org.sam.shen.core.constants.Constant;
 import org.sam.shen.scheduing.cluster.ClusterPeer.ClusterServer;
 import org.sam.shen.scheduing.scheduler.RadishDynamicScheduler;
 
@@ -28,7 +30,7 @@ public class FollowerNode {
 
 	final ClusterPeer self;
 	protected DataInputStream leaderIs;
-	protected BufferedOutputStream leaderBufferOs;
+	protected DataOutputStream leaderBufferOs;
 
 	protected Socket sock;
 	protected ConfirmPacketQueue confirmQueue;
@@ -58,7 +60,7 @@ public class FollowerNode {
 							if(null == confirmPacket) {
 								confirmPacket = confirmQueue.takeConfirmPacket();
 							}
-							leaderBufferOs.write(JSON.toJSONBytes(confirmPacket, SerializerFeature.WriteNullListAsEmpty));
+							writePacket(confirmPacket, true);
 						}
 					} catch (InterruptedException e) {
 						log.warn("Unexpected interruption", e);
@@ -68,7 +70,7 @@ public class FollowerNode {
 				}
 			}.start();
 			
-			ClusterPacket<?> cp = new ClusterPacket<Object>();
+			ClusterPacket<?> cp = new ClusterPacket<>();
 			while (self.isRunning()) {
 				readPacket(cp);
 				processPacket(cp);
@@ -129,7 +131,7 @@ public class FollowerNode {
 			Thread.sleep(1000);
 		}
 		leaderIs = new DataInputStream(sock.getInputStream());
-		leaderBufferOs = new BufferedOutputStream(sock.getOutputStream());
+		leaderBufferOs = new DataOutputStream(sock.getOutputStream());
 	}
 	
 	public void shutdown() {
@@ -139,7 +141,11 @@ public class FollowerNode {
 	void writePacket(ClusterPacket<?> cp, boolean flush) throws IOException {
 		synchronized (leaderBufferOs) {
 			if (cp != null) {
-				leaderBufferOs.write(JSON.toJSONBytes(cp, SerializerFeature.WriteNullListAsEmpty));
+                byte[] bytes = JSON.toJSONBytes(cp, SerializerFeature.WriteNullListAsEmpty);
+                leaderBufferOs.writeInt(bytes.length);
+                leaderBufferOs.write(bytes);
+                leaderBufferOs.flush();
+                log.info("send follower packet success.");
 			}
 			if (flush) {
 				leaderBufferOs.flush();
@@ -149,8 +155,12 @@ public class FollowerNode {
 	
 	void readPacket(ClusterPacket<?> cp) throws IOException {
 		synchronized (leaderIs) {
-			String packetJson = leaderIs.readUTF();
-			cp = JSON.parseObject(packetJson, cp.getClass());
+            if (leaderIs.available() > 0) {
+                int packetLength = leaderIs.readInt();
+                byte[] packetBytes = new byte[packetLength];
+                leaderIs.readFully(packetBytes, 0, packetLength);
+                cp = JSON.parseObject(packetBytes, cp.getClass());
+            }
 		}
 	}
 	
@@ -165,8 +175,18 @@ public class FollowerNode {
 		packet.setT(ClusterPeerNodes.getSingleton().getSchedulerJobsView());
 		writePacket(packet, true);
 	}
+
+	public void sendFollowerInfo(LeaderInfo leaderInfo) throws IOException {
+        ClusterPacket<LeaderInfo> packet = new ClusterPacket<>(LeaderNode.FOLLOWERINFO, self.getMyId(),
+                ClusterPeerNodes.getSingleton().getSchedulerJobCount());
+        packet.setT(leaderInfo);
+        writePacket(packet, true);
+    }
 	
 	protected void processPacket(ClusterPacket<?> cp) throws IOException {
+	    if (cp.getType() == null) {
+	        return;
+        }
 		switch (cp.getType()) {
 		case LeaderNode.PING:
 			syncWithLeader();
@@ -176,9 +196,10 @@ public class FollowerNode {
 				// 处理leader的信息
 				LeaderInfo leaderInfo = (LeaderInfo) cp.getT();
 				List<Long> jobIds = ClusterPeerNodes.getSingleton().getSchedulerJobsView();
-				boolean ret = false;
+				boolean ret;
 				if(jobIds.contains(leaderInfo.getJobId())) {
-					ret = RadishDynamicScheduler.UpgradeScheduleJob(leaderInfo.getJobId(), leaderInfo.getJobName(), leaderInfo.getCrontab());
+				    // 如果调度任务可用则更新
+                    ret = RadishDynamicScheduler.UpgradeScheduleJob(leaderInfo.getJobId(), leaderInfo.getJobName(), leaderInfo.getCrontab());
 				} else {
 					// 新增调度job
 					ret = RadishDynamicScheduler.addJob(leaderInfo.getJobId(), leaderInfo.getJobName(), leaderInfo.getCrontab());

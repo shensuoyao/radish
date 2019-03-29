@@ -19,6 +19,12 @@ public class LeaderInfo {
 	
 	private String crontab;
 	
-	private Integer enable;
-	
+    public LeaderInfo() {}
+
+    public LeaderInfo(Long jobId, String jobName, String crontab) {
+		this.jobId = jobId;
+		this.jobName = jobName;
+		this.crontab = crontab;
+	}
+
 }

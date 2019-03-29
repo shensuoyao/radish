@@ -17,6 +17,7 @@ import org.sam.shen.scheduing.service.AgentService;
 import org.sam.shen.scheduing.service.JobEventService;
 import org.sam.shen.scheduing.service.JobService;
 import org.sam.shen.scheduing.vo.JobEventTreeNode;
+import org.sam.shen.scheduing.vo.JobSchedulerVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -259,7 +260,7 @@ public class JobController {
 		if (SchedConstant.ADMINISTRATOR.equals(user.getUname())){ // 如果管理员登陆查询所有数据
 			user.setId(null);
 		}
-		List<JobInfo> jobs = RadishDynamicScheduler.listJobsInScheduler(user.getId());
+		List<JobSchedulerVo> jobs = RadishDynamicScheduler.listJobsInScheduler(user.getId());
 		model.addObject("jobs", jobs);
 		model.setViewName("frame/job/job_scheduler");
 		return model;

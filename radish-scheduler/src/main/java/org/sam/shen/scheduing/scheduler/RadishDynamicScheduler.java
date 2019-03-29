@@ -7,7 +7,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.CronScheduleBuilder;
@@ -25,12 +24,17 @@ import org.quartz.TriggerKey;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.sam.shen.core.constants.Constant;
 import org.sam.shen.core.constants.EventStatus;
+import org.sam.shen.scheduing.cluster.ClusterPeer;
+import org.sam.shen.scheduing.cluster.ClusterPeerNodes;
 import org.sam.shen.scheduing.entity.JobEvent;
 import org.sam.shen.scheduing.entity.JobInfo;
+import org.sam.shen.scheduing.entity.JobScheduler;
 import org.sam.shen.scheduing.mapper.JobEventMapper;
 import org.sam.shen.scheduing.mapper.JobInfoMapper;
+import org.sam.shen.scheduing.mapper.JobSchedulerMapper;
 import org.sam.shen.scheduing.service.RedisService;
 import org.sam.shen.scheduing.strategy.DistributionStrategyFactory;
+import org.sam.shen.scheduing.vo.JobSchedulerVo;
 import org.sam.shen.scheduing.vo.SchedulerJobVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,9 +54,13 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 	
 	public static JobInfoMapper jobInfoMapper;
 	
-	public static JobEventMapper jobEventMapper;
+	private static JobEventMapper jobEventMapper;
 	
-	public static RedisService redisService;
+	private static RedisService redisService;
+
+	private static JobSchedulerMapper jobSchedulerMapper;
+
+	private static ClusterPeer clusterPeer;
 	
 	private RadishDynamicScheduler() {
 		super();
@@ -64,6 +72,8 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 		RadishDynamicScheduler.jobInfoMapper = applicationContext.getBean(JobInfoMapper.class);
 		RadishDynamicScheduler.redisService = applicationContext.getBean(RedisService.class);
 		RadishDynamicScheduler.jobEventMapper = applicationContext.getBean(JobEventMapper.class);
+		RadishDynamicScheduler.jobSchedulerMapper = applicationContext.getBean(JobSchedulerMapper.class);
+		RadishDynamicScheduler.clusterPeer = applicationContext.getBean(ClusterPeer.class);
 	}
 	
 	@PostConstruct
@@ -78,6 +88,10 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 		// TODO
 	}
 
+	private static void saveJobScheduler(JobScheduler jobScheduler) {
+
+    }
+
     /**
      * update job information by cron trigger
      * @author clock
@@ -87,13 +101,9 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
      * @param prevTime previous fire time
      * @param nextTime next fire time
      */
-	private static void updateRunningStatus(Long jobId, JobInfo.RunningStatus status, Date prevTime, Date nextTime) {
-        JobInfo jobInfo = new JobInfo();
-        jobInfo.setId(jobId);
-        jobInfo.setPrevFireTime(prevTime);
-        jobInfo.setNextFireTime(nextTime);
-        jobInfo.setRunningStatus(status);
-        jobInfoMapper.changeRunningStatus(jobInfo);
+	private static void updateRunningStatus(Long jobId, JobScheduler.RunningStatus status, Date prevTime, Date nextTime) {
+        JobScheduler jobScheduler = new JobScheduler(jobId, status, prevTime, nextTime);
+        jobSchedulerMapper.changeRunningStatus(jobScheduler);
     }
 	
 	/**
@@ -135,8 +145,11 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 		// Tell quartz to schedule the job using our trigger
 		Date date = scheduler.scheduleJob(jobDetail, cronTrigger);
 
-		// update job information
-        updateRunningStatus(jobId, JobInfo.RunningStatus.RUNNING, cronTrigger.getPreviousFireTime(), cronTrigger.getNextFireTime());
+		// save job scheduler
+        Integer nid = clusterPeer.getMyId();
+        jobSchedulerMapper.insert(new JobScheduler(jobId, nid, JobScheduler.RunningStatus.RUNNING, cronTrigger.getPreviousFireTime(), cronTrigger.getNextFireTime()));
+        // add scheduler to cluster peer nodes
+        ClusterPeerNodes.getSingleton().addSchedulerJob(jobId);
 
 		if(logger.isInfoEnabled()) {
 			logger.info(">>>>>>>>>>> addJob success, jobDetail:{}, cronTrigger:{}, date:{}", jobDetail, cronTrigger, date);
@@ -180,7 +193,7 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 			// rescheduleJob
 			scheduler.rescheduleJob(triggerKey, oldTrigger);
             // update job information
-            updateRunningStatus(jobId, JobInfo.RunningStatus.RUNNING, oldTrigger.getPreviousFireTime(), oldTrigger.getNextFireTime());
+            updateRunningStatus(jobId, JobScheduler.RunningStatus.RUNNING, oldTrigger.getPreviousFireTime(), oldTrigger.getNextFireTime());
 		} else {
 			// CronTrigger : TriggerKey + crontab
 			CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(crontab)
@@ -198,7 +211,7 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 
 			scheduler.scheduleJob(jobDetail, triggerSet, true);
             // update job information
-            updateRunningStatus(jobId, JobInfo.RunningStatus.RUNNING, cronTrigger.getPreviousFireTime(), cronTrigger.getNextFireTime());
+            updateRunningStatus(jobId, JobScheduler.RunningStatus.RUNNING, cronTrigger.getPreviousFireTime(), cronTrigger.getNextFireTime());
 		}
 		if(logger.isInfoEnabled()) {
 			logger.info(">>>>>>>>>>> resumeJob success, JobGroup:{}, JobName:{}", jobId, jobName);
@@ -221,8 +234,10 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 		boolean result = false;
 		if (checkExists(jobId, jobName)) {
 			result = scheduler.unscheduleJob(triggerKey);
-            // update job information
-            updateRunningStatus(jobId, JobInfo.RunningStatus.STOP, null, null);
+            // delete job scheduler
+            jobSchedulerMapper.delete(jobId);
+            // remove job from cluster peer nodes
+            ClusterPeerNodes.getSingleton().removeSchedulerJob(jobId);
 			logger.info(">>>>>>>>>>> removeJob, triggerKey:{}, result [{}]", triggerKey, result);
 		}
 		return true;
@@ -243,8 +258,10 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 		boolean result = false;
 		if (checkExists(jobId, jobName)) {
 			scheduler.pauseTrigger(triggerKey);
-            // update job information
-            updateRunningStatus(jobId, JobInfo.RunningStatus.PAUSED, null, null);
+            // update job scheduler
+            updateRunningStatus(jobId, JobScheduler.RunningStatus.PAUSED, null, null);
+            // remove job from cluster peer nodes
+            ClusterPeerNodes.getSingleton().removeSchedulerJob(jobId);
 			result = true;
 			logger.info(">>>>>>>>>>> pauseJob success, triggerKey:{}", triggerKey);
 		} else {
@@ -271,7 +288,9 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 			scheduler.resumeTrigger(triggerKey);
             // update job information
 			CronTrigger cronTrigger = (CronTrigger) scheduler.getTrigger(triggerKey);
-            updateRunningStatus(jobId, JobInfo.RunningStatus.RUNNING, null, cronTrigger.getNextFireTime());
+            updateRunningStatus(jobId, JobScheduler.RunningStatus.RUNNING, null, cronTrigger.getNextFireTime());
+            // add scheduler to cluster peer nodes
+            ClusterPeerNodes.getSingleton().addSchedulerJob(jobId);
 			result = true;
 			logger.info(">>>>>>>>>>> resumeJob success, triggerKey:{}", triggerKey);
 		} else {
@@ -290,8 +309,8 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static List<JobInfo> listJobsInScheduler(Long userId) {
-	    List<JobInfo> jobs = jobInfoMapper.queryJobScheduler(JobInfo.RunningStatus.RUNNING, userId);
+	public static List<JobSchedulerVo> listJobsInScheduler(Long userId) {
+	    List<JobSchedulerVo> jobs = jobSchedulerMapper.queryJobScheduler(JobScheduler.RunningStatus.RUNNING, userId);
 	    return jobs == null ? Collections.emptyList() : jobs;
 	}
 
@@ -464,7 +483,7 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 		// 更新job中的执行时间
         try {
             CronTrigger cronTrigger = (CronTrigger) scheduler.getTrigger(getTriggerKey(jobInfo.getId(), jobInfo.getJobName()));
-            updateRunningStatus(jobInfo.getId(), JobInfo.RunningStatus.RUNNING, cronTrigger.getPreviousFireTime(), cronTrigger.getNextFireTime());
+            updateRunningStatus(jobInfo.getId(), JobScheduler.RunningStatus.RUNNING, cronTrigger.getPreviousFireTime(), cronTrigger.getNextFireTime());
         } catch (SchedulerException e) {
             logger.error(e.getMessage());
         }

@@ -1,5 +1,6 @@
 package org.sam.shen.scheduing.service;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -11,11 +12,13 @@ import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.SchedulerException;
 import org.sam.shen.core.constants.Constant;
+import org.sam.shen.scheduing.cluster.*;
 import org.sam.shen.scheduing.entity.JobInfo;
 import org.sam.shen.scheduing.mapper.JobInfoMapper;
 import org.sam.shen.scheduing.scheduler.RadishDynamicScheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +34,9 @@ public class JobService {
 
 	@Resource
 	private JobInfoMapper jobInfoMapper;
+
+	@Autowired
+	private ClusterPeer clusterPeer;
 
 	/**
 	 * 添加任务
@@ -65,14 +71,25 @@ public class JobService {
 		// 修改scheduler 调度
 		if (jobInfo.getEnable() == Constant.YES && StringUtils.isNotEmpty(jobInfo.getExecutorHandlers())) {
             try {
-		        if (StringUtils.isNotEmpty(jobInfo.getCrontab())) {
-		            RadishDynamicScheduler.UpgradeScheduleJob(jobInfo.getId(), jobInfo.getJobName(), jobInfo.getCrontab());
+                // 如果该任务在当前节点运行则执行更新
+                if (ClusterPeerNodes.getSingleton().getSchedulerJobsView().contains(jobInfo.getId())) {
+                    if (StringUtils.isNotEmpty(jobInfo.getCrontab())) {
+                        RadishDynamicScheduler.UpgradeScheduleJob(jobInfo.getId(), jobInfo.getJobName(), jobInfo.getCrontab());
+                    }
                 } else {
-                    // 如果之前是以job形式存在则先移除
-                    RadishDynamicScheduler.removeJob(jobInfo.getId(), jobInfo.getJobName());
-                    // TODO: 2018/11/21 关闭执行中的线程
+                    if (StringUtils.isNotEmpty(jobInfo.getCrontab())) {
+                        LeaderInfo leaderInfo = new LeaderInfo(jobInfo.getId(), jobInfo.getJobName(), jobInfo.getCrontab());
+                        // 如果当前是leader节点，则向LeaderNode中queue中添加数据包，从节点则将LeaderInfo发送给leader节点作处理
+                        if (clusterPeer.getNodeState() == ClusterPeer.NodeState.LEADING) {
+                            ClusterPacket<LeaderInfo> packet = new ClusterPacket<>();
+                            packet.setT(leaderInfo);
+                            clusterPeer.leaderNode.queueFollowerPacket(packet);
+                        } else if (clusterPeer.getNodeState() == ClusterPeer.NodeState.FOLLOWING) {
+                            clusterPeer.followerNode.sendFollowerInfo(leaderInfo);
+                        }
+                    }
                 }
-            } catch (SchedulerException e) {
+            } catch (SchedulerException | IOException e) {
                 logger.error("add job to Scheduler failed. {}", e);
             }
 		}

@@ -17,10 +17,6 @@ public class JobInfo extends Identity {
 
 	private static final long serialVersionUID = -3205360376193569666L;
 
-	public enum RunningStatus {
-        RUNNING, PAUSED, STOP
-    }
-	
 	// id: quartz name
 	
 	private String jobName;    // quartz group is jobName.hashCode()
@@ -66,12 +62,6 @@ public class JobInfo extends Identity {
 
 	private Long userId; // 创建的用户ID
 
-    private RunningStatus runningStatus; // job的运行状态
-
-    private Date prevFireTime; // job上次运行时间
-
-    private Date nextFireTime; // job下次运行时间
-	
 	public JobInfo() {
 		super();
 	}

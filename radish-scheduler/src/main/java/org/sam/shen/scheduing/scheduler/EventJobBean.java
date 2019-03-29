@@ -7,6 +7,7 @@ import org.sam.shen.scheduing.entity.JobInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.quartz.QuartzJobBean;
+import org.springframework.util.StringUtils;
 
 /**
  *  执行Job Callback的bean
@@ -29,14 +30,15 @@ public class EventJobBean extends QuartzJobBean {
 		// JobInfo jobInfo = (JobInfo) dataMap.get("jobInfo");
 		// 1. load JobInfo
 		JobInfo jobInfo = RadishDynamicScheduler.jobInfoMapper.findJobInfoById(jobId);
-		// 2. 检查JobInfo的enable状态是否为启用
-		if(jobInfo.getEnable() != 1) {
+		// 2. 检查JobInfo的enable状态是否为启用，或者Job是否变为手动执行
+		if(jobInfo.getEnable() != 1 || StringUtils.isEmpty(jobInfo.getCrontab())) {
 			if(logger.isInfoEnabled()) {
 				logger.info("job is disabled {}", jobInfo.getJobName());
 			}
 			// 禁用状态, 则从调度器中删除该任务的调度
 			try {
 				RadishDynamicScheduler.removeJob(jobInfo.getId(), jobInfo.getJobName());
+				// TODO: 2018/11/21 关闭执行中的线程，针对没有调度周期无限循环的调度任务
 			} catch (SchedulerException e) {
 				logger.error("remove job [" + jobInfo.getJobName() + "] from scheduler failed", e);
 			}
