@@ -1,6 +1,5 @@
 package org.sam.shen.scheduing.cluster;
 
-import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -67,11 +66,11 @@ public class FollowerHandler extends Thread {
 				}
 			}.start();
 			// 处理接收到的信息
-			ClusterPacket<?> cp;
 			while(true) {
-				cp = new ClusterPacket<>();
-				readPacket(cp);
-				processPacket(cp);
+				ClusterPacket<?> packet = readPacket();
+				if (packet != null) {
+                    processPacket(packet);
+                }
 			}
 		} catch (IOException e) {
 			if (sock != null && !sock.isClosed()) {
@@ -124,16 +123,17 @@ public class FollowerHandler extends Thread {
 			}
 		}
 	}
-	
-	void readPacket(ClusterPacket<?> cp) throws IOException {
+
+    ClusterPacket<?> readPacket() throws IOException {
 	    if (is.available() > 0) {
             int packetLength = is.readInt();
             byte[] packetBytes = new byte[packetLength];
             if (is.available() >= packetLength) {
                 is.readFully(packetBytes, 0, packetLength);
-                cp = JSON.parseObject(packetBytes, cp.getClass());
+                return JSON.parseObject(packetBytes, ClusterPacket.class);
             }
         }
+        return null;
 	}
 	
 	/**
@@ -234,5 +234,5 @@ public class FollowerHandler extends Thread {
 		// 当前线程状态为存活，并且心跳截止时间大于当前节点的同步次数
 		return isAlive() && leader.self.tick <= tickOfNextAckDeadline;
 	}*/
-	
+
 }

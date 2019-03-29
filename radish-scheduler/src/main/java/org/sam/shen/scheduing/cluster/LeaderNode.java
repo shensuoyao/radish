@@ -204,7 +204,7 @@ public class LeaderNode {
 			// TODO
 			// self.loadJobs();
 			
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

@@ -25,6 +25,7 @@ import org.quartz.impl.matchers.GroupMatcher;
 import org.sam.shen.core.constants.Constant;
 import org.sam.shen.core.constants.EventStatus;
 import org.sam.shen.scheduing.cluster.ClusterPeer;
+import org.sam.shen.scheduing.cluster.ClusterPeerConfig;
 import org.sam.shen.scheduing.cluster.ClusterPeerNodes;
 import org.sam.shen.scheduing.entity.JobEvent;
 import org.sam.shen.scheduing.entity.JobInfo;
@@ -60,20 +61,20 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 
 	private static JobSchedulerMapper jobSchedulerMapper;
 
-	private static ClusterPeer clusterPeer;
-	
+    private static ApplicationContext applicationContext;
+
 	private RadishDynamicScheduler() {
 		super();
 	}
 	
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+	    RadishDynamicScheduler.applicationContext = applicationContext;
 		RadishDynamicScheduler.scheduler = applicationContext.getBean("quartzScheduler", Scheduler.class);
 		RadishDynamicScheduler.jobInfoMapper = applicationContext.getBean(JobInfoMapper.class);
 		RadishDynamicScheduler.redisService = applicationContext.getBean(RedisService.class);
 		RadishDynamicScheduler.jobEventMapper = applicationContext.getBean(JobEventMapper.class);
 		RadishDynamicScheduler.jobSchedulerMapper = applicationContext.getBean(JobSchedulerMapper.class);
-		RadishDynamicScheduler.clusterPeer = applicationContext.getBean(ClusterPeer.class);
 	}
 	
 	@PostConstruct
@@ -87,10 +88,6 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 	public void destroy() {
 		// TODO
 	}
-
-	private static void saveJobScheduler(JobScheduler jobScheduler) {
-
-    }
 
     /**
      * update job information by cron trigger
@@ -146,7 +143,7 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 		Date date = scheduler.scheduleJob(jobDetail, cronTrigger);
 
 		// save job scheduler
-        Integer nid = clusterPeer.getMyId();
+        Integer nid = applicationContext.getBean(ClusterPeerConfig.class).getNid();
         jobSchedulerMapper.insert(new JobScheduler(jobId, nid, JobScheduler.RunningStatus.RUNNING, cronTrigger.getPreviousFireTime(), cronTrigger.getNextFireTime()));
         // add scheduler to cluster peer nodes
         ClusterPeerNodes.getSingleton().addSchedulerJob(jobId);

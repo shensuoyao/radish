@@ -1,6 +1,5 @@
 package org.sam.shen.scheduing.cluster;
 
-import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -10,7 +9,6 @@ import java.net.Socket;
 import java.util.List;
 
 import org.quartz.SchedulerException;
-import org.sam.shen.core.constants.Constant;
 import org.sam.shen.scheduing.cluster.ClusterPeer.ClusterServer;
 import org.sam.shen.scheduing.scheduler.RadishDynamicScheduler;
 
@@ -70,10 +68,9 @@ public class FollowerNode {
 				}
 			}.start();
 			
-			ClusterPacket<?> cp = new ClusterPacket<>();
 			while (self.isRunning()) {
-				readPacket(cp);
-				processPacket(cp);
+				ClusterPacket<?> packet = readPacket();
+				processPacket(packet);
 			}
 		} catch (IOException | InterruptedException e) {
 			log.warn("Exception when following the leader", e);
@@ -152,16 +149,17 @@ public class FollowerNode {
 			}
 		}
 	}
-	
-	void readPacket(ClusterPacket<?> cp) throws IOException {
+
+    ClusterPacket<?> readPacket() throws IOException {
 		synchronized (leaderIs) {
             if (leaderIs.available() > 0) {
                 int packetLength = leaderIs.readInt();
                 byte[] packetBytes = new byte[packetLength];
                 leaderIs.readFully(packetBytes, 0, packetLength);
-                cp = JSON.parseObject(packetBytes, cp.getClass());
+                return JSON.parseObject(packetBytes, ClusterPacket.class);
             }
 		}
+		return null;
 	}
 	
 	public void ackWithLeader() throws IOException {

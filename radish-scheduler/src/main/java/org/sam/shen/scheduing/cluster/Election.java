@@ -9,12 +9,12 @@ public interface Election {
 	 * @return
 	 * @throws InterruptedException
 	 */
-	public Vote lookForLeader() throws InterruptedException;
+	Vote lookForLeader() throws InterruptedException;
 	
 	/**
 	 * 投票结束
 	 * @author suoyao
 	 * @date 下午5:46:54
 	 */
-	public void shutdown();
+	void shutdown();
 }

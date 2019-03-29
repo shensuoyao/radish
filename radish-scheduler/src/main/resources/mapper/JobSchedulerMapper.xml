@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.sam.shen.scheduing.mapper.JobSchedulerMapper">
+    <resultMap id="JobSchedulerMap" type="org.sam.shen.scheduing.entity.JobScheduler">
+        <result column="id" property="id"/>
+        <result column="job_id" property="jobId"/>
+        <result column="nid" property="nid"/>
+        <result column="running_status" property="runningStatus"/>
+        <result column="prev_fire_time" property="prevFireTime"/>
+        <result column="next_fire_time" property="nextFireTime"/>
+    </resultMap>
+
+    <resultMap id="JobSchedulerVoMap" type="org.sam.shen.scheduing.vo.JobSchedulerVo" extends="JobSchedulerMap">
+        <result column="job_name" property="jobName"/>
+        <result column="crontab" property="crontab"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="org.sam.shen.scheduing.entity.JobScheduler" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        INSERT INTO job_scheduler(job_id, nid, running_status, prev_fire_time, next_fire_time) VALUES (#{jobId}, #{nid}, #{runningStatus}, #{prevFireTime}, #{nextFireTime})
+    </insert>
+
+    <update id="changeRunningStatus" parameterType="org.sam.shen.scheduing.entity.JobScheduler">
+        UPDATE job_scheduler
+        <set>
+            next_fire_time = #{nextFireTime},
+            <if test="runningStatus != null">running_status = #{runningStatus},</if>
+            <if test="prevFireTime != null">prev_fire_time = #{prevFireTime},</if>
+        </set>
+        WHERE job_id = #{jobId}
+    </update>
+
+    <select id="queryJobScheduler" resultMap="JobSchedulerVoMap">
+        SELECT js.id, js.job_id, ji.job_name, ji.crontab, js.running_status, js.nid, js.prev_fire_time, js.next_fire_time
+        FROM job_scheduler js LEFT JOIN job_info ji ON js.job_id=ji.id
+        WHERE js.running_status = #{runningStatus}
+        <if test="userId != null">
+            and ji.user_id = #{userId}
+        </if>
+    </select>
+    
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE FROM job_scheduler WHERE job_id = #{jobId}
+    </delete>
+</mapper>
