@@ -29,7 +29,7 @@ public class FollowerHandler extends Thread {
 	/*
 	 * 下一个心跳的截止时间，一旦超过这个截止时间，就认为follower不再与leader同步了
 	 */
-	volatile long tickOfNextAckDeadline;
+	// volatile long tickOfNextAckDeadline;
 	
 	private DataInputStream is;
 	private BufferedOutputStream os;
@@ -51,7 +51,7 @@ public class FollowerHandler extends Thread {
 	@Override
 	public void run() {
 		try {
-			tickOfNextAckDeadline = leader.self.tick + leader.self.initLimit + leader.self.syncLimit;
+			// tickOfNextAckDeadline = leader.self.tick + leader.self.initLimit + leader.self.syncLimit;
 			is =  new DataInputStream(sock.getInputStream());
 			os = new BufferedOutputStream(sock.getOutputStream());
 			// 启动发送packet数据包的线程
@@ -219,9 +219,9 @@ public class FollowerHandler extends Thread {
 	}
 	
 	// 是否已经同步
-	public boolean acked() {
+	/*public boolean acked() {
 		// 当前线程状态为存活，并且心跳截止时间大于当前节点的同步次数
 		return isAlive() && leader.self.tick <= tickOfNextAckDeadline;
-	}
+	}*/
 	
 }

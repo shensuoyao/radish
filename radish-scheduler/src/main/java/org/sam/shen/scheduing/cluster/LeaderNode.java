@@ -9,8 +9,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
-import com.google.common.base.Joiner;
-
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -141,64 +139,74 @@ public class LeaderNode {
 		self.start_fle = 0;
 		self.end_fle = 0;
 		
-		// 开启follower连接监听, 接收follower的连接
-		cnxAcceptor = new FollowerCnxAcceptor();
-		cnxAcceptor.start();
-		
-		// 启动确认数据包队列发送线程
-		new Thread() {
-			public void run() {
-				Thread.currentThread().setName("Leader-" + ss.getLocalSocketAddress());
-				try {
-					while (true) {
-						ClusterPacket<LeaderInfo> confirmPacket = confirmQueue.pollConfirmPacket();
-						if (null == confirmPacket) {
-							confirmPacket = confirmQueue.takeConfirmPacket();
+		try {
+			// 开启follower连接监听, 接收follower的连接
+			cnxAcceptor = new FollowerCnxAcceptor();
+			cnxAcceptor.start();
+			
+			// 启动确认数据包队列发送线程
+			new Thread() {
+				public void run() {
+					Thread.currentThread().setName("Leader-" + ss.getLocalSocketAddress());
+					try {
+						while (true) {
+							ClusterPacket<LeaderInfo> confirmPacket = confirmQueue.pollConfirmPacket();
+							if (null == confirmPacket) {
+								confirmPacket = confirmQueue.takeConfirmPacket();
+							}
+							queueFollowerPacket(confirmPacket);
+							// leaderBufferOs.write(JSON.toJSONBytes(confirmPacket, SerializerFeature.WriteNullListAsEmpty));
 						}
-						queueFollowerPacket(confirmPacket);
-						// leaderBufferOs.write(JSON.toJSONBytes(confirmPacket, SerializerFeature.WriteNullListAsEmpty));
+					} catch (InterruptedException e) {
+						log.warn("Unexpected interruption", e);
 					}
-				} catch (InterruptedException e) {
-					log.warn("Unexpected interruption", e);
 				}
-			}
-		}.start();
-		
-		// 向follower发送心跳
-		self.tick = 0;
-		boolean tickSkip = true;
-		while (true) {
-			Thread.sleep(self.tickTime / 2);
-			if (!tickSkip) {
-				self.tick++;
+			}.start();
+			
+			/*
+			 * 调用该方法是为了让当前线程等待
+			* 等待超过一般的follower确认ACK之后开始建立心跳
+			 */
+			waitForFollowerAck(self.getMyId());
+			// 向follower发送心跳
+			 // self.tick = 0;
+			 // boolean tickSkip = true;
+			while (true) {
+				Thread.sleep(self.tickTime / 2);
+				/*if (!tickSkip) {
+					self.tick++;
+				}*/
+				
+				// 已经返回ack确认的follower
+				// HashSet<Integer> ackedSet = new HashSet<Integer>();
+
+				for (FollowerHandler f : getFollowers()) {
+					// acked set is used to check we have a supporting cluster, so only
+					/*if (f.acked()) {
+						ackedSet.add(f.getNid());
+					}*/
+					f.ping();
+				}
+				/*int half = self.getVotingView().size() / 2;
+				if (!tickSkip && ackedSet.size() <= half) {
+					// if (!tickSkip && syncedCount < self.clusterPeers.size() / 2) {
+					// Lost quorum, shutdown
+					shutdown("Not sufficient followers acked, only acked with sids: [ " + Joiner.on(",").join(ackedSet)
+					        + " ]");
+					// make sure the order is the same!
+					// the leader goes to looking
+					return;
+				}
+				tickSkip = !tickSkip;*/
 			}
 			
-			// 已经返回ack确认的follower
-			HashSet<Integer> ackedSet = new HashSet<Integer>();
-
-			for (FollowerHandler f : getFollowers()) {
-				// acked set is used to check we have a supporting cluster, so only
-				if (f.acked()) {
-					ackedSet.add(f.getNid());
-				}
-				f.ping();
-			}
-			int half = self.getVotingView().size() / 2;
-			if (!tickSkip && ackedSet.size() <= half) {
-				// if (!tickSkip && syncedCount < self.clusterPeers.size() / 2) {
-				// Lost quorum, shutdown
-				shutdown("Not sufficient followers acked, only acked with sids: [ " + Joiner.on(",").join(ackedSet)
-				        + " ]");
-				// make sure the order is the same!
-				// the leader goes to looking
-				return;
-			}
-			tickSkip = !tickSkip;
+			// 加载需要调度的任务
+			// TODO
+			// self.loadJobs();
+			
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-		
-		// 加载需要调度的任务
-		// TODO
-		// self.loadJobs();
 	}
 	
 	private HashSet<Integer> electingFollowers = new HashSet<Integer>();
@@ -216,7 +224,10 @@ public class LeaderNode {
 			if (electionFinished) {
 				return;
 			}
-			electingFollowers.add(nid);
+			if(self.getMyId() != nid) {
+				// 不能把自己加入到followers列表中
+				electingFollowers.add(nid);
+			}
 			int half = self.getVotingView().size() / 2;
 			if (!electingFollowers.contains(self.getMyId()) && electingFollowers.size() > half) {
 				electionFinished = true;
