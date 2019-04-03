@@ -33,6 +33,8 @@ public class FollowerNode {
 
 	protected Socket sock;
 	protected ConfirmPacketQueue confirmQueue;
+
+	protected long beatTime;
 	
 	public FollowerNode(ClusterPeer clusterPeer) {
 		this.self = clusterPeer;
@@ -68,8 +70,13 @@ public class FollowerNode {
 					}
 				}
 			}.start();
-			
+
+			this.beatTime = System.currentTimeMillis();
 			while (self.isRunning()) {
+			    // check whether server socket is closed
+                if (System.currentTimeMillis() - beatTime > self.tickTime * 20) {
+                    throw new IOException();
+                }
 				ClusterPacket<?> packet = readPacket();
 				if (packet != null) {
                     processPacket(packet);
@@ -193,6 +200,7 @@ public class FollowerNode {
 		switch (cp.getType()) {
 		case LeaderNode.PING:
 			syncWithLeader();
+            this.beatTime = System.currentTimeMillis();
 			break;
 		case LeaderNode.LEADERINFO:
             log.info("follower receive leader info!");
