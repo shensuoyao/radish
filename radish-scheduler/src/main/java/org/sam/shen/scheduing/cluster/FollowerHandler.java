@@ -4,9 +4,13 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import org.quartz.SchedulerException;
 import org.sam.shen.scheduing.scheduler.RadishDynamicScheduler;
 
@@ -109,7 +113,9 @@ public class FollowerHandler extends Thread {
 				os.writeInt(bytes.length);
 				os.write(bytes);
 				os.flush();
-				log.info("leader send packet success.");
+				if (p.getType() == LeaderNode.LEADERINFO) {
+                    log.info("leader send message: {}", JSON.toJSONString(p, SerializerFeature.WriteNullListAsEmpty));
+                }
 			} catch (IOException e) {
 				if (!sock.isClosed()) {
 					log.warn("Unexpected exception at " + this, e);
@@ -158,13 +164,15 @@ public class FollowerHandler extends Thread {
 			break;
 		case LeaderNode.SYNC:
 			// follower的同步信息
-			Set<Long> jobs = (Set<Long>) cp.getT();
+            List<Long> ts = JSONArray.parseArray(JSON.toJSONString(cp.getT()), Long.class);
+			Set<Long> jobs = new HashSet<>(ts);
 			ClusterPeerNodes.getSingleton().upgradeFollowerSchedulerJobs(cp.getNid(), jobs);
 			break;
 		case LeaderNode.FOLLOWERINFO:
 			// follower的数据信息
 			// 主要是follower向leader提交另一个follower的调度同步
-			LeaderInfo leaderInfo = (LeaderInfo) cp.getT();
+            log.info("leader receive follower info!");
+			LeaderInfo leaderInfo = JSON.toJavaObject((JSONObject) cp.getT(), LeaderInfo.class);
 			try {
 				// 判断当前需要调度的任务是否为本leader任务
 				if(ClusterPeerNodes.getSingleton().getSchedulerJobsView().contains(leaderInfo.getJobId())) {
@@ -177,7 +185,6 @@ public class FollowerHandler extends Thread {
 					packet.setUxid(cp.getUxid());
 					// 加入确认消息队列
 					leader.confirmQueue.addConfirmPacket(packet);
-					leader.queueFollowerPacket(packet);
 				}
 				ClusterPacket<Boolean> confirmPacket = new ClusterPacket<>(LeaderNode.COMMIT, leader.self.getMyId(),
 				        ClusterPeerNodes.getSingleton().getSchedulerJobCount(), true);
@@ -189,13 +196,16 @@ public class FollowerHandler extends Thread {
 				confirmPacket.setUxid(cp.getUxid());
 				queuePacket(confirmPacket);
 			}
+            log.info("leader receive follower info complete!");
 			break;
 		case LeaderNode.COMMIT:
+            log.info("leader receive commit!");
 			// follower的数据确认信息
 			Boolean bool = Boolean.valueOf(cp.getT().toString());
 			if(bool) {
 				leader.confirmQueue.removeConfirmPacket(cp.getUxid());
 			}
+            log.info("leader receive commit complete!");
 			break;
 		default:
 			break;

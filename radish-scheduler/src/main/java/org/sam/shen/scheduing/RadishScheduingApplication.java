@@ -64,7 +64,6 @@ public class RadishScheduingApplication implements ApplicationRunner {
 			// 初始化配置
 			clusterPeerConfig = clusterPeerConfig.init();
 			// 启动集群服务
-            clusterPeer = new ClusterPeer();
 			clusterPeer.setMyId(clusterPeerConfig.getNid());
 			clusterPeer.setInitLimit(clusterPeerConfig.getInitLimit());
 			clusterPeer.setTickTime(clusterPeerConfig.getTickTime());

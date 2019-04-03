@@ -8,6 +8,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.List;
 
+import com.alibaba.fastjson.JSONObject;
 import org.quartz.SchedulerException;
 import org.sam.shen.scheduing.cluster.ClusterPeer.ClusterServer;
 import org.sam.shen.scheduing.scheduler.RadishDynamicScheduler;
@@ -70,7 +71,9 @@ public class FollowerNode {
 			
 			while (self.isRunning()) {
 				ClusterPacket<?> packet = readPacket();
-				processPacket(packet);
+				if (packet != null) {
+                    processPacket(packet);
+                }
 			}
 		} catch (IOException | InterruptedException e) {
 			log.warn("Exception when following the leader", e);
@@ -142,7 +145,9 @@ public class FollowerNode {
                 leaderBufferOs.writeInt(bytes.length);
                 leaderBufferOs.write(bytes);
                 leaderBufferOs.flush();
-                log.info("send follower packet success.");
+                if (cp.getType() == LeaderNode.FOLLOWERINFO) {
+                    log.info("follower send message: {}", JSON.toJSONString(cp, SerializerFeature.WriteNullListAsEmpty));
+                }
 			}
 			if (flush) {
 				leaderBufferOs.flush();
@@ -190,9 +195,10 @@ public class FollowerNode {
 			syncWithLeader();
 			break;
 		case LeaderNode.LEADERINFO:
+            log.info("follower receive leader info!");
 			try {
 				// 处理leader的信息
-				LeaderInfo leaderInfo = (LeaderInfo) cp.getT();
+				LeaderInfo leaderInfo = JSON.toJavaObject((JSONObject) cp.getT(), LeaderInfo.class);
 				List<Long> jobIds = ClusterPeerNodes.getSingleton().getSchedulerJobsView();
 				boolean ret;
 				if(jobIds.contains(leaderInfo.getJobId())) {
@@ -211,12 +217,15 @@ public class FollowerNode {
 						ClusterPeerNodes.getSingleton().getSchedulerJobCount(), false);
 				writePacket(commitPacket, true);
 			}
+            log.info("follower receive leader info complete!");
 			break;
 		case LeaderNode.COMMIT:
+            log.info("follower receive commit!");
 			Boolean bool = Boolean.valueOf(cp.getT().toString());
 			if(bool) {
 				confirmQueue.removeConfirmPacket(cp.getUxid());
 			}
+            log.info("follower receive commit complete!");
 			break;
 		default:
 		}

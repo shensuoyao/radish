@@ -282,7 +282,7 @@ public class LeaderNode {
 		// 寻找当前job所在的节点服务器
 		Integer targetNid = ClusterPeerNodes.getSingleton().findFollowerNidByJob(packet.getT().getJobId());
 		for (FollowerHandler f : getFollowers()) {
-			if(f.getNid() == targetNid) {
+			if(f.getNid().equals(targetNid)) {
 				packet.setType(LeaderNode.LEADERINFO);
 				packet.setNid(self.getMyId());
 				packet.setRhid(ClusterPeerNodes.getSingleton().getSchedulerJobCount());
