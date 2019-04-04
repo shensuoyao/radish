@@ -28,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ClusterCnxManager {
 
-	private ClusterPeer self = null;
+	private ClusterPeer self;
 	
 	/*
 	 * Listener thread
@@ -66,10 +66,10 @@ public class ClusterCnxManager {
 	private AtomicInteger threadCnt = new AtomicInteger(0);
 	
 	public ClusterCnxManager(ClusterPeer self) {
-		recvQueue = new ArrayBlockingQueue<Message>(RECV_CAPACITY);
-		this.queueSendMap = new ConcurrentHashMap<Integer, ArrayBlockingQueue<ByteBuffer>>();
-		this.senderWorkerMap = new ConcurrentHashMap<Integer, SendWorker>();
-		this.lastMessageSent = new ConcurrentHashMap<Integer, ByteBuffer>();
+		recvQueue = new ArrayBlockingQueue<>(RECV_CAPACITY);
+		this.queueSendMap = new ConcurrentHashMap<>();
+		this.senderWorkerMap = new ConcurrentHashMap<>();
+		this.lastMessageSent = new ConcurrentHashMap<>();
 		if(self.getCnxTimeout() <= 0) {
 			this.cnxTO = 5000;
 		}
@@ -268,7 +268,7 @@ public class ClusterCnxManager {
 			senderWorkerMap.put(nid, sw);
 
 			if (!queueSendMap.containsKey(nid)) {
-				queueSendMap.put(nid, new ArrayBlockingQueue<ByteBuffer>(SEND_CAPACITY));
+				queueSendMap.put(nid, new ArrayBlockingQueue<>(SEND_CAPACITY));
 			}
 
 			sw.start();
@@ -294,7 +294,7 @@ public class ClusterCnxManager {
 			 * Start a new connection if doesn't have one already.
 			 */
 			if (!queueSendMap.containsKey(nid)) {
-				ArrayBlockingQueue<ByteBuffer> bq = new ArrayBlockingQueue<ByteBuffer>(SEND_CAPACITY);
+				ArrayBlockingQueue<ByteBuffer> bq = new ArrayBlockingQueue<>(SEND_CAPACITY);
 				queueSendMap.put(nid, bq);
 				addToSendQueue(bq, b);
 
@@ -369,7 +369,7 @@ public class ClusterCnxManager {
 	 * @return
 	 */
 	public boolean initiateConnection(Socket sock, Integer nid) {
-		DataOutputStream dout = null;
+		DataOutputStream dout;
 		try {
 			// Sending nid and challenge
 			dout = new DataOutputStream(sock.getOutputStream());
@@ -400,7 +400,7 @@ public class ClusterCnxManager {
 
 			senderWorkerMap.put(nid, sw);
 			if (!queueSendMap.containsKey(nid)) {
-				queueSendMap.put(nid, new ArrayBlockingQueue<ByteBuffer>(SEND_CAPACITY));
+				queueSendMap.put(nid, new ArrayBlockingQueue<>(SEND_CAPACITY));
 			}
 
 			sw.start();
@@ -469,6 +469,7 @@ public class ClusterCnxManager {
 			}
 			senderWorkerMap.remove(nid, this);
 			threadCnt.decrementAndGet();
+			self.clusterServers.remove(nid);
 			return running;
 		}
 		

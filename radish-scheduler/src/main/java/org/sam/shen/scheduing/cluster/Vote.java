@@ -65,7 +65,7 @@ public class Vote {
 		if ((state == NodeState.LOOKING) || (other.state == NodeState.LOOKING)) {
 			return (nid == other.nid && rhid == other.rhid && electionEpoch == other.electionEpoch);
 		} else {
-			return false;
+            return (nid == other.nid && electionEpoch == other.electionEpoch);
 		}
 	}
 	

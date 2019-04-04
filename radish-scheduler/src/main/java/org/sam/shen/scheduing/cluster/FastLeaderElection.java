@@ -51,8 +51,8 @@ public class FastLeaderElection implements Election {
 		proposedLeader = -1;
 		proposedRhid = -1;
 
-		sendqueue = new LinkedBlockingQueue<ToSend>();
-		recvqueue = new LinkedBlockingQueue<Notification>();
+		sendqueue = new LinkedBlockingQueue<>();
+		recvqueue = new LinkedBlockingQueue<>();
 		this.messenger = new Messenger(manager);
 	}
 
@@ -210,7 +210,7 @@ public class FastLeaderElection implements Election {
 							Notification n = new Notification();
 
 							// State of peer that sent this message
-							ClusterPeer.NodeState ackstate = ClusterPeer.NodeState.LOOKING;
+							ClusterPeer.NodeState ackstate;
 							switch (response.buffer.getInt()) {
 							case 0:
 								ackstate = ClusterPeer.NodeState.LOOKING;
@@ -429,7 +429,7 @@ public class FastLeaderElection implements Election {
 	 * @return
 	 */
 	protected boolean termPredicate(HashMap<Integer, Vote> votes, Vote vote) {
-		HashSet<Integer> set = new HashSet<Integer>();
+		HashSet<Integer> set = new HashSet<>();
 		for (Map.Entry<Integer, Vote> entry : votes.entrySet()) {
 			if (vote.equals(entry.getValue())) {
 				set.add(entry.getKey());
@@ -487,9 +487,9 @@ public class FastLeaderElection implements Election {
 		}
 		
 		// 收到的投票集
-		HashMap<Integer, Vote> recvset = new HashMap<Integer, Vote>();
+		HashMap<Integer, Vote> recvset = new HashMap<>();
 
-		HashMap<Integer, Vote> outofelection = new HashMap<Integer, Vote>();
+		HashMap<Integer, Vote> outofelection = new HashMap<>();
 
 		int notTimeout = finalizeWait;
 
