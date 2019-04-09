@@ -34,12 +34,15 @@ public class FollowerHandler extends Thread {
 	 * 下一个心跳的截止时间，一旦超过这个截止时间，就认为follower不再与leader同步了
 	 */
 	// volatile long tickOfNextAckDeadline;
+
+    // follower同步数据时间
+    private long syncDeadline;
 	
 	private DataInputStream is;
 	private DataOutputStream os;
 	
 	// 此packet为死亡数据，如果该packet数据在发送队列中，则表示需要退出发送线程
-	final ClusterPacket<?> packetOfDeath = new ClusterPacket<Object>(-1, -1, -1, null);
+	final ClusterPacket<?> packetOfDeath = new ClusterPacket<>(-1, -1, -1, null);
 	
 	/*
 	 * 此队列是发送给follower的packet信息
@@ -69,6 +72,7 @@ public class FollowerHandler extends Thread {
 					}
 				}
 			}.start();
+			this.syncDeadline = getSyncDeadLine();
 			// 处理接收到的信息
 			while(true) {
 				ClusterPacket<?> packet = readPacket();
@@ -167,6 +171,8 @@ public class FollowerHandler extends Thread {
             List<Long> ts = JSONArray.parseArray(JSON.toJSONString(cp.getT()), Long.class);
 			Set<Long> jobs = new HashSet<>(ts);
 			ClusterPeerNodes.getSingleton().upgradeFollowerSchedulerJobs(cp.getNid(), jobs);
+			// 刷新同步超时时间点
+            this.syncDeadline = getSyncDeadLine();
 			break;
 		case LeaderNode.FOLLOWERINFO:
 			// follower的数据信息
@@ -238,11 +244,15 @@ public class FollowerHandler extends Thread {
 		this.interrupt();
 		leader.removeFollowerHandler(this);
 	}
+
+	private long getSyncDeadLine() {
+	    return System.currentTimeMillis() + leader.self.tickTime * 20;
+    }
 	
 	// 是否已经同步
-	/*public boolean acked() {
+	public boolean synced() {
 		// 当前线程状态为存活，并且心跳截止时间大于当前节点的同步次数
-		return isAlive() && leader.self.tick <= tickOfNextAckDeadline;
-	}*/
+		return isAlive() && System.currentTimeMillis() < this.syncDeadline;
+	}
 
 }

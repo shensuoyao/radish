@@ -4,10 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -169,35 +166,25 @@ public class LeaderNode {
 			 */
 			waitForFollowerAck(self.getMyId());
 			// 向follower发送心跳
-			 // self.tick = 0;
-			 // boolean tickSkip = true;
 			while (true) {
 				Thread.sleep(self.tickTime / 2);
-				/*if (!tickSkip) {
-					self.tick++;
-				}*/
-				
-				// 已经返回ack确认的follower
-				// HashSet<Integer> ackedSet = new HashSet<Integer>();
 
+                // 检查是否有超过半数的从节点已发送同步数据
+                Set<Integer> syncedSet = new HashSet<>();
+                for (FollowerHandler f : getFollowers()) {
+                    if (f.synced()) {
+                        syncedSet.add(f.getNid());
+                    }
+                }
+                int half = followers.size() / 2;
+                if (syncedSet.size() <= half) {
+                    return;
+                }
+
+                // 像follower节点发送心跳
 				for (FollowerHandler f : getFollowers()) {
-					// acked set is used to check we have a supporting cluster, so only
-					/*if (f.acked()) {
-						ackedSet.add(f.getNid());
-					}*/
 					f.ping();
 				}
-				/*int half = self.getVotingView().size() / 2;
-				if (!tickSkip && ackedSet.size() <= half) {
-					// if (!tickSkip && syncedCount < self.clusterPeers.size() / 2) {
-					// Lost quorum, shutdown
-					shutdown("Not sufficient followers acked, only acked with sids: [ " + Joiner.on(",").join(ackedSet)
-					        + " ]");
-					// make sure the order is the same!
-					// the leader goes to looking
-					return;
-				}
-				tickSkip = !tickSkip;*/
 			}
 			
 			// 加载需要调度的任务
@@ -209,7 +196,7 @@ public class LeaderNode {
 		}
 	}
 	
-	private HashSet<Integer> electingFollowers = new HashSet<Integer>();
+	private HashSet<Integer> electingFollowers = new HashSet<>();
 	private boolean electionFinished = false;
 
 	/**
@@ -228,7 +215,7 @@ public class LeaderNode {
 				// 不能把自己加入到followers列表中
 				electingFollowers.add(nid);
 			}
-			int half = self.getVotingView().size() / 2;
+			int half = followers.size() / 2;
 			if (!electingFollowers.contains(self.getMyId()) && electingFollowers.size() > half) {
 				electionFinished = true;
 				electingFollowers.notifyAll();

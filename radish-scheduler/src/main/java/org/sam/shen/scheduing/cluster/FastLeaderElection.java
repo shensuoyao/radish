@@ -377,11 +377,11 @@ public class FastLeaderElection implements Election {
 	 * 将自己的投票发送给所有的节点服务器
 	 */
 	private void sendNotifications() {
-		for (ClusterServer server : self.getVotingView().values()) {
+		for (ClusterServer server : self.getView().values()) {
 			int nid = server.nid;
-			if(self.getMyId() == nid) {
-				continue;
-			}
+//			if(self.getMyId() == nid) {
+//				continue;
+//			}
 
 			ToSend notmsg = new ToSend(ToSend.mType.notification, proposedLeader, proposedRhid, logicalclock,
 			        ClusterPeer.NodeState.LOOKING, nid);
@@ -435,7 +435,7 @@ public class FastLeaderElection implements Election {
 				set.add(entry.getKey());
 			}
 		}
-		int half = self.getVotingView().size() / 2;
+		int half = self.getView().size() / 2;
 		return set.size() > half;
 	}
 
@@ -524,7 +524,7 @@ public class FastLeaderElection implements Election {
 				int tmpTimeOut = notTimeout * 2;
 				notTimeout = (tmpTimeOut < maxNotificationInterval ? tmpTimeOut : maxNotificationInterval);
 				log.info("Notification time out: " + notTimeout);
-			} else if (self.getVotingView().containsKey(n.nid)) {
+			} else if (self.getView().containsKey(n.nid)) {
 				/*
 				 * 只处理投票副本视图中的节点服务器发来的通知
 				 */

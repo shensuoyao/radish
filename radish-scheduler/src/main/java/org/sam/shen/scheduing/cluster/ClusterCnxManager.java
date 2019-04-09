@@ -469,7 +469,6 @@ public class ClusterCnxManager {
 			}
 			senderWorkerMap.remove(nid, this);
 			threadCnt.decrementAndGet();
-			self.clusterServers.remove(nid);
 			return running;
 		}
 		
@@ -571,17 +570,19 @@ public class ClusterCnxManager {
 					/**
 					 * 读取信息的确定长度
 					 */
-					int length = din.readInt();
-					if (length <= 0 || length > PACKETMAXSIZE) {
-						throw new IOException("Received packet with invalid packet: " + length);
+					if (din.available() > 0) {
+						int length = din.readInt();
+						if (length <= 0 || length > PACKETMAXSIZE) {
+							throw new IOException("Received packet with invalid packet: " + length);
+						}
+						/**
+						 * Allocates a new ByteBuffer to receive the message
+						 */
+						byte[] msgArray = new byte[length];
+						din.readFully(msgArray, 0, length);
+						ByteBuffer message = ByteBuffer.wrap(msgArray);
+						addToRecvQueue(new Message(message.duplicate(), nid));
 					}
-					/**
-					 * Allocates a new ByteBuffer to receive the message
-					 */
-					byte[] msgArray = new byte[length];
-					din.readFully(msgArray, 0, length);
-					ByteBuffer message = ByteBuffer.wrap(msgArray);
-					addToRecvQueue(new Message(message.duplicate(), nid));
 				}
 			} catch (Exception e) {
 				log.warn("Connection broken for id " + nid + ", my id = " + self.getMyId() + ", error = ", e);
