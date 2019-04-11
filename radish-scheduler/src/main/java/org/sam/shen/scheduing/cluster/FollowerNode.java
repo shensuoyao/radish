@@ -6,8 +6,10 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.quartz.SchedulerException;
 import org.sam.shen.scheduing.cluster.ClusterPeer.ClusterServer;
@@ -17,6 +19,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 import lombok.extern.slf4j.Slf4j;
+import org.sam.shen.scheduing.vo.JobSchedulerVo;
 
 /**
  * follower 节点
@@ -203,7 +206,6 @@ public class FollowerNode {
             this.beatTime = System.currentTimeMillis();
 			break;
 		case LeaderNode.LEADERINFO:
-            log.info("follower receive leader info!");
 			try {
 				// 处理leader的信息
 				LeaderInfo leaderInfo = JSON.toJavaObject((JSONObject) cp.getT(), LeaderInfo.class);
@@ -225,16 +227,27 @@ public class FollowerNode {
 						ClusterPeerNodes.getSingleton().getSchedulerJobCount(), false);
 				writePacket(commitPacket, true);
 			}
-            log.info("follower receive leader info complete!");
 			break;
 		case LeaderNode.COMMIT:
-            log.info("follower receive commit!");
 			Boolean bool = Boolean.valueOf(cp.getT().toString());
 			if(bool) {
 				confirmQueue.removeConfirmPacket(cp.getUxid());
 			}
-            log.info("follower receive commit complete!");
 			break;
+		case LeaderNode.LOAD:
+		    // 加载leader节点分配的任务
+		    List<JobSchedulerVo> jobs = JSONArray.parseArray(JSON.toJSONString(cp.getT()), JobSchedulerVo.class);
+		    List<JobSchedulerVo> errorJobs = new ArrayList<>();
+		    for (JobSchedulerVo job : jobs) {
+		        try {
+		            RadishDynamicScheduler.addJob(job.getJobId(), job.getJobName(), job.getCrontab());
+                } catch (Exception e) {
+		            errorJobs.add(job);
+                }
+            }
+            ClusterPacket<List<JobSchedulerVo>> loadedPacket = new ClusterPacket<>(LeaderNode.LOADED, self.getMyId(), self.getRhid(), errorJobs);
+		    writePacket(loadedPacket, true);
+		    break;
 		default:
 		}
 	}

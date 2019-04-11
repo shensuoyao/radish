@@ -5,8 +5,11 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
+import org.sam.shen.scheduing.entity.JobScheduler;
+import org.sam.shen.scheduing.vo.JobSchedulerVo;
 
 /**
  * leader节点
@@ -49,17 +52,25 @@ public class LeaderNode {
 	 *  follower向leader确认事务已经被执行
 	 */
 	final static int COMMIT = 6;
+
+	// leader发送给follower初始加载任务的标志
+	final static int LOAD = 7;
+
+	// follower发送给leader任务已加载的标志
+	final static int LOADED = 8;
 	
 	FollowerCnxAcceptor cnxAcceptor;
 	
-	private final HashSet<FollowerHandler> followers = new HashSet<FollowerHandler>();
+	private final HashSet<FollowerHandler> followers = new HashSet<>();
 	
 	protected ConfirmPacketQueue confirmQueue;
+
+	protected LoadPacket loadPacket;
 	
 	// 返回当前follower的副本快照
 	public List<FollowerHandler> getFollowers() {
         synchronized (followers) {
-            return new ArrayList<FollowerHandler>(followers);
+            return new ArrayList<>(followers);
         }
     }
 	
@@ -71,6 +82,7 @@ public class LeaderNode {
 	
 	public LeaderNode(ClusterPeer clusterPeer) throws IOException {
 		this.confirmQueue = new ConfirmPacketQueue();
+		this.loadPacket = new LoadPacket();
 		this.self = clusterPeer;
 		try {
 			if (self.isClusterListenOnAllIPs()) {
@@ -142,29 +154,56 @@ public class LeaderNode {
 			cnxAcceptor.start();
 			
 			// 启动确认数据包队列发送线程
-			new Thread() {
-				public void run() {
-					Thread.currentThread().setName("Leader-" + ss.getLocalSocketAddress());
-					try {
-						while (true) {
-							ClusterPacket<LeaderInfo> confirmPacket = confirmQueue.pollConfirmPacket();
-							if (null == confirmPacket) {
-								confirmPacket = confirmQueue.takeConfirmPacket();
-							}
-							queueFollowerPacket(confirmPacket);
-							// leaderBufferOs.write(JSON.toJSONBytes(confirmPacket, SerializerFeature.WriteNullListAsEmpty));
-						}
-					} catch (InterruptedException e) {
-						log.warn("Unexpected interruption", e);
-					}
-				}
-			}.start();
+			new Thread(() -> {
+                Thread.currentThread().setName("Leader-" + ss.getLocalSocketAddress());
+                try {
+                    while (true) {
+                        ClusterPacket<LeaderInfo> confirmPacket = confirmQueue.pollConfirmPacket();
+                        if (null == confirmPacket) {
+                            confirmPacket = confirmQueue.takeConfirmPacket();
+                        }
+                        queueFollowerPacket(confirmPacket);
+                        // leaderBufferOs.write(JSON.toJSONBytes(confirmPacket, SerializerFeature.WriteNullListAsEmpty));
+                    }
+                } catch (InterruptedException e) {
+                    log.warn("Unexpected interruption", e);
+                }
+            }).start();
 			
 			/*
 			 * 调用该方法是为了让当前线程等待
 			* 等待超过一般的follower确认ACK之后开始建立心跳
 			 */
 			waitForFollowerAck(self.getMyId());
+
+			new Thread(() -> {
+			    Thread.currentThread().setName("Leader-Load Scheduler");
+                // 加载需要调度的任务
+                List<JobSchedulerVo> total = self.loadJobsFirst();
+                // 如果任务没有分配完成，则重新分配
+                while (!loadPacket.isEmpty()) {
+                    List<JobSchedulerVo> jobs = new ArrayList<>();
+                    for (List<JobSchedulerVo> l : loadPacket.getToLoadJobMap().values()) {
+                        jobs.addAll(l);
+                    }
+                    for (List<JobSchedulerVo> l : loadPacket.getLoadingJobMap().values()) {
+                        jobs.addAll(l);
+                    }
+                    List<Integer> nidArr = new ArrayList<>(self.getClusterServers().keySet());
+                    nidArr.removeAll(loadPacket.getToLoadJobMap().keySet());
+                    nidArr.removeAll(loadPacket.getLoadingJobMap().keySet());
+                    loadPacket.clear();
+                    self.loadJobs(jobs, nidArr);
+                }
+                List<JobSchedulerVo> errors = loadPacket.getErrorJobs();
+                List<Long> errorIds = errors.stream().map(JobScheduler::getJobId).collect(Collectors.toList());
+                List<Long> successIds = total.stream().filter(job -> !errorIds.contains(job.getJobId()))
+                        .map(JobSchedulerVo::getJobId).collect(Collectors.toList());
+                log.info("Load result: {} schedulers{} have loaded, {} schedulers{} have failed",
+                        successIds.size(), successIds.toString(), errorIds.size(), errorIds.toString());
+            }).start();
+
+
 			// 向follower发送心跳
 			while (true) {
 				Thread.sleep(self.tickTime / 2);
@@ -186,11 +225,6 @@ public class LeaderNode {
 					f.ping();
 				}
 			}
-			
-			// 加载需要调度的任务
-			// TODO
-			// self.loadJobs();
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

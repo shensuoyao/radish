@@ -38,6 +38,12 @@
         </if>
     </select>
     
+    <select id="queryAllScheduler" resultMap="JobSchedulerVoMap">
+        SELECT js.id, js.job_id, ji.job_name, ji.crontab, js.running_status, js.nid, js.prev_fire_time, js.next_fire_time
+        FROM job_scheduler js, job_info ji
+        WHERE js.job_id = ji.id
+    </select>
+    
     <delete id="delete" parameterType="java.lang.Long">
         DELETE FROM job_scheduler WHERE job_id = #{jobId}
     </delete>

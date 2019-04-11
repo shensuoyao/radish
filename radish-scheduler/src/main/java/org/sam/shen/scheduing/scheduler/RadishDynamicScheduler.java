@@ -24,7 +24,6 @@ import org.quartz.TriggerKey;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.sam.shen.core.constants.Constant;
 import org.sam.shen.core.constants.EventStatus;
-import org.sam.shen.scheduing.cluster.ClusterPeer;
 import org.sam.shen.scheduing.cluster.ClusterPeerConfig;
 import org.sam.shen.scheduing.cluster.ClusterPeerNodes;
 import org.sam.shen.scheduing.entity.JobEvent;
@@ -144,6 +143,7 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 
 		// save job scheduler
         Integer nid = applicationContext.getBean(ClusterPeerConfig.class).getNid();
+        jobSchedulerMapper.delete(jobId);
         jobSchedulerMapper.insert(new JobScheduler(jobId, nid, JobScheduler.RunningStatus.RUNNING, cronTrigger.getPreviousFireTime(), cronTrigger.getNextFireTime()));
         // add scheduler to cluster peer nodes
         ClusterPeerNodes.getSingleton().addSchedulerJob(jobId);

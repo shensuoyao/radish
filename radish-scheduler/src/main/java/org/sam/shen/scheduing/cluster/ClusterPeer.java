@@ -2,17 +2,15 @@ package org.sam.shen.scheduing.cluster;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.annotation.Resource;
 
 import org.quartz.SchedulerException;
-import org.sam.shen.scheduing.entity.JobInfo;
 import org.sam.shen.scheduing.mapper.JobInfoMapper;
+import org.sam.shen.scheduing.mapper.JobSchedulerMapper;
 import org.sam.shen.scheduing.scheduler.RadishDynamicScheduler;
+import org.sam.shen.scheduing.vo.JobSchedulerVo;
 import org.springframework.stereotype.Component;
 
 import lombok.Getter;
@@ -32,7 +30,10 @@ import lombok.extern.slf4j.Slf4j;
 public class ClusterPeer extends Thread {
 	
 	@Resource
-	private JobInfoMapper jobInfoMappper;
+	private JobInfoMapper jobInfoMapper;
+
+	@Resource
+	private JobSchedulerMapper jobSchedulerMapper;
 	
 	// 当前节点服务器的node ID
 	private Integer myId;
@@ -269,24 +270,61 @@ public class ClusterPeer extends Thread {
 			 this.electionAlg = new FastLeaderElection(this, ccm);
 		}
 	}
-	
+
 	/**
-	 *  从数据库加载需要调度的job
+	 * 从数据库加载需要调度的job
 	 * @author suoyao
 	 * @date 下午5:23:24
 	 */
-	public void loadJobs() {
+	public void loadJobs(List<JobSchedulerVo> jobs, List<Integer> nids) {
 		// 从数据库加载jobinfo生成任务集合
-		List<JobInfo> enableJobInfo = jobInfoMappper.queryLoadedJobs();
-		if (null != enableJobInfo && enableJobInfo.size() > 0) {
-			enableJobInfo.forEach(jobInfo -> {
-				try {
-					RadishDynamicScheduler.addJob(jobInfo.getId(), jobInfo.getJobName(), jobInfo.getCrontab());
-				} catch (SchedulerException e) {
-					log.error("init add jobInfo failed. {}", jobInfo.getJobName());
-				}
-			});
+		if (null != jobs && jobs.size() > 0) {
+            // 将待加载的任务平均分配到分布式集群中
+            Map<Integer, List<JobSchedulerVo>> jobMap = new HashMap<>();
+            nids.remove(myId);
+            nids.add(0, myId);
+            for (int i = 0; i < jobs.size(); i++) {
+                Integer nid = nids.get(i % nids.size());
+                jobMap.computeIfAbsent(nid, k -> new ArrayList<>());
+                jobMap.get(nid).add(jobs.get(i));
+            }
+            // 给当前节点加载调度任务
+            List<JobSchedulerVo> currentJobs = jobMap.get(myId);
+            for (JobSchedulerVo job : currentJobs) {
+                try {
+                    RadishDynamicScheduler.addJob(job.getJobId(), job.getJobName(), job.getCrontab());
+                } catch (Exception e) {
+                    leaderNode.loadPacket.addErrorJob(job);
+                }
+            }
+            jobMap.remove(myId);
+            // 分配给其他节点加载任务
+            leaderNode.loadPacket.setToLoadJobMap(jobMap);
+            long startTime = System.currentTimeMillis();
+            while (System.currentTimeMillis() - startTime <= tickTime * 5 && !leaderNode.loadPacket.isEmpty()) {
+                for (FollowerHandler f : leaderNode.getFollowers()) { // 循环防止有些follower还没建立连接
+                    List<JobSchedulerVo> loadJobs = leaderNode.loadPacket.getToLoadJobs(f.getNid());
+                    if (loadJobs != null && loadJobs.size() > 0) {
+                        ClusterPacket<List<JobSchedulerVo>> clusterPacket = new ClusterPacket<>(LeaderNode.LOAD, myId, rhid, loadJobs);
+                        f.queuePacket(clusterPacket);
+                        leaderNode.loadPacket.loadJob(f.getNid());
+                    }
+                }
+            }
 		}
 	}
+
+    /**
+     * 第一次加载全部调度任务
+     * @author clock
+     * @date 2019/4/11 上午10:18
+     * @return 所有待加载的调度任务
+     */
+	public List<JobSchedulerVo> loadJobsFirst() {
+        List<JobSchedulerVo> jobs = jobSchedulerMapper.queryAllScheduler();
+        List<Integer> nidArr = new ArrayList<>(clusterServers.keySet());
+        loadJobs(jobs, nidArr);
+        return jobs;
+    }
 	
 }

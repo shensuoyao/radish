@@ -19,6 +19,7 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.sam.shen.scheduing.vo.JobSchedulerVo;
 
 @Slf4j
 @Getter
@@ -134,7 +135,7 @@ public class FollowerHandler extends Thread {
 		}
 	}
 
-    ClusterPacket<?> readPacket() throws IOException {
+    private ClusterPacket<?> readPacket() throws IOException {
 	    if (is.available() > 0) {
             int packetLength = is.readInt();
             byte[] packetBytes = new byte[packetLength];
@@ -156,65 +157,68 @@ public class FollowerHandler extends Thread {
 	 * @throws SchedulerException 
 	 */
 	@SuppressWarnings("unchecked") 
-	void processPacket(ClusterPacket<?> cp) throws IOException, InterruptedException {
+	private void processPacket(ClusterPacket<?> cp) throws IOException, InterruptedException {
 	    if (cp.getType() == null) {
 	        return;
         }
 		switch (cp.getType()) {
-		case LeaderNode.ACK:
-			// 确认leader
-			this.nid = cp.getNid();
-			leader.waitForFollowerAck(this.nid);
-			break;
-		case LeaderNode.SYNC:
-			// follower的同步信息
-            List<Long> ts = JSONArray.parseArray(JSON.toJSONString(cp.getT()), Long.class);
-			Set<Long> jobs = new HashSet<>(ts);
-			ClusterPeerNodes.getSingleton().upgradeFollowerSchedulerJobs(cp.getNid(), jobs);
-			// 刷新同步超时时间点
-            this.syncDeadline = getSyncDeadLine();
-			break;
-		case LeaderNode.FOLLOWERINFO:
-			// follower的数据信息
-			// 主要是follower向leader提交另一个follower的调度同步
-            log.info("leader receive follower info!");
-			LeaderInfo leaderInfo = JSON.toJavaObject((JSONObject) cp.getT(), LeaderInfo.class);
-			try {
-				// 判断当前需要调度的任务是否为本leader任务
-				if(ClusterPeerNodes.getSingleton().getSchedulerJobsView().contains(leaderInfo.getJobId())) {
-					// leader自己调度该任务
-					// 更新本机的调度服务
-                    RadishDynamicScheduler.UpgradeScheduleJob(leaderInfo.getJobId(), leaderInfo.getJobName(), leaderInfo.getCrontab());
-				} else {
-					ClusterPacket<LeaderInfo> packet = new ClusterPacket<LeaderInfo>(LeaderNode.LEADERINFO,
-							leader.self.getMyId(), ClusterPeerNodes.getSingleton().getSchedulerJobCount(), leaderInfo);
-					packet.setUxid(cp.getUxid());
-					// 加入确认消息队列
-					leader.confirmQueue.addConfirmPacket(packet);
+			case LeaderNode.ACK:
+				// 确认leader
+				this.nid = cp.getNid();
+				leader.waitForFollowerAck(this.nid);
+				break;
+			case LeaderNode.SYNC:
+				// follower的同步信息
+				List<Long> ts = JSONArray.parseArray(JSON.toJSONString(cp.getT()), Long.class);
+				Set<Long> jobs = new HashSet<>(ts);
+				ClusterPeerNodes.getSingleton().upgradeFollowerSchedulerJobs(cp.getNid(), jobs);
+				// 刷新同步超时时间点
+				this.syncDeadline = getSyncDeadLine();
+				break;
+			case LeaderNode.FOLLOWERINFO:
+				// follower的数据信息
+				// 主要是follower向leader提交另一个follower的调度同步
+				LeaderInfo leaderInfo = JSON.toJavaObject((JSONObject) cp.getT(), LeaderInfo.class);
+				try {
+					// 判断当前需要调度的任务是否为本leader任务
+					if(ClusterPeerNodes.getSingleton().getSchedulerJobsView().contains(leaderInfo.getJobId())) {
+						// leader自己调度该任务
+						// 更新本机的调度服务
+						RadishDynamicScheduler.UpgradeScheduleJob(leaderInfo.getJobId(), leaderInfo.getJobName(), leaderInfo.getCrontab());
+					} else {
+						ClusterPacket<LeaderInfo> packet = new ClusterPacket<LeaderInfo>(LeaderNode.LEADERINFO,
+								leader.self.getMyId(), ClusterPeerNodes.getSingleton().getSchedulerJobCount(), leaderInfo);
+						packet.setUxid(cp.getUxid());
+						// 加入确认消息队列
+						leader.confirmQueue.addConfirmPacket(packet);
+					}
+					ClusterPacket<Boolean> confirmPacket = new ClusterPacket<>(LeaderNode.COMMIT, leader.self.getMyId(),
+							ClusterPeerNodes.getSingleton().getSchedulerJobCount(), true);
+					confirmPacket.setUxid(cp.getUxid());
+					queuePacket(confirmPacket);
+				} catch (SchedulerException e) {
+					ClusterPacket<Boolean> confirmPacket = new ClusterPacket<>(LeaderNode.COMMIT, leader.self.getMyId(),
+							ClusterPeerNodes.getSingleton().getSchedulerJobCount(), false);
+					confirmPacket.setUxid(cp.getUxid());
+					queuePacket(confirmPacket);
 				}
-				ClusterPacket<Boolean> confirmPacket = new ClusterPacket<>(LeaderNode.COMMIT, leader.self.getMyId(),
-				        ClusterPeerNodes.getSingleton().getSchedulerJobCount(), true);
-				confirmPacket.setUxid(cp.getUxid());
-				queuePacket(confirmPacket);
-			} catch (SchedulerException e) {
-				ClusterPacket<Boolean> confirmPacket = new ClusterPacket<>(LeaderNode.COMMIT, leader.self.getMyId(),
-				        ClusterPeerNodes.getSingleton().getSchedulerJobCount(), false);
-				confirmPacket.setUxid(cp.getUxid());
-				queuePacket(confirmPacket);
-			}
-            log.info("leader receive follower info complete!");
-			break;
-		case LeaderNode.COMMIT:
-            log.info("leader receive commit!");
-			// follower的数据确认信息
-			Boolean bool = Boolean.valueOf(cp.getT().toString());
-			if(bool) {
-				leader.confirmQueue.removeConfirmPacket(cp.getUxid());
-			}
-            log.info("leader receive commit complete!");
-			break;
-		default:
-			break;
+				break;
+			case LeaderNode.COMMIT:
+				// follower的数据确认信息
+				Boolean bool = Boolean.valueOf(cp.getT().toString());
+				if(bool) {
+					leader.confirmQueue.removeConfirmPacket(cp.getUxid());
+				}
+				break;
+			case LeaderNode.LOADED:
+			    // 确认follower节点任务已经加载完毕
+                List<JobSchedulerVo> errorJobs = JSONArray.parseArray(JSON.toJSONString(cp.getT()), JobSchedulerVo.class);
+                leader.loadPacket.addErrorJobs(errorJobs);
+
+                leader.loadPacket.removeLoadedJobs(cp.getNid());
+				break;
+			default:
+				break;
 		}
 	}
 	

@@ -20,6 +20,8 @@ public interface JobSchedulerMapper {
 
     List<JobSchedulerVo> queryJobScheduler(@Param("runningStatus") JobScheduler.RunningStatus status, @Param("userId") Long userId);
 
+    List<JobSchedulerVo> queryAllScheduler();
+
     int delete(Long jobId);
 
 }
