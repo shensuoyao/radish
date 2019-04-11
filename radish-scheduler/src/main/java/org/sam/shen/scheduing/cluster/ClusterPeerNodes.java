@@ -76,14 +76,21 @@ public class ClusterPeerNodes {
 	}
 	
 	// 存放所有followers调度的job
-	private ConcurrentHashMap<Integer, Set<Long>> followerSchedulerJobs = new ConcurrentHashMap<>();
+	private volatile ConcurrentHashMap<Integer, Set<Long>> followerSchedulerJobs = new ConcurrentHashMap<>();
 	
 	public void upgradeFollowerSchedulerJobs(Integer nid, Set<Long> jobs) {
 		synchronized (followerSchedulerJobs) {
 			followerSchedulerJobs.put(nid, jobs);
 		}
 	}
-	
+
+    // 移除某个follower节点上调度的任务
+    public Set<Long> removeFollowerSchedulerJobs(Integer nid) {
+	    synchronized (followerSchedulerJobs) {
+            return followerSchedulerJobs.remove(nid);
+        }
+    }
+
 	/*
 	 * 从follower调度任务表中删除调度的任务
 	 */

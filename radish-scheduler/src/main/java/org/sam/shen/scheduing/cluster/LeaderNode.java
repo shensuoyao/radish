@@ -21,9 +21,9 @@ import org.sam.shen.scheduing.vo.JobSchedulerVo;
 public class LeaderNode {
 
 	final ClusterPeer self;
-	ServerSocket ss;
+	private ServerSocket ss;
 	
-	boolean isShutdown;
+	private boolean isShutdown;
 	
 	/*
 	 * follower和leader的确认标志
@@ -59,7 +59,7 @@ public class LeaderNode {
 	// follower发送给leader任务已加载的标志
 	final static int LOADED = 8;
 	
-	FollowerCnxAcceptor cnxAcceptor;
+	private FollowerCnxAcceptor cnxAcceptor;
 	
 	private final HashSet<FollowerHandler> followers = new HashSet<>();
 	
@@ -192,7 +192,7 @@ public class LeaderNode {
                     List<Integer> nidArr = new ArrayList<>(self.getClusterServers().keySet());
                     nidArr.removeAll(loadPacket.getToLoadJobMap().keySet());
                     nidArr.removeAll(loadPacket.getLoadingJobMap().keySet());
-                    loadPacket.clear();
+                    loadPacket.clearLoadMap();
                     self.loadJobs(jobs, nidArr);
                 }
                 List<JobSchedulerVo> errors = loadPacket.getErrorJobs();
@@ -271,6 +271,9 @@ public class LeaderNode {
 	void removeFollowerHandler(FollowerHandler follower) {
 		synchronized (followers) {
 			followers.remove(follower);
+			// 当有一个从节点挂掉之后需要将从节点运行的任务重新分配到当前运行中的节点
+            ClusterPeerNodes.getSingleton().removeFollowerSchedulerJobs(follower.getNid());
+            new Thread(() -> self.loadFollowerJobs(follower.getNid()));
 		}
 	}
 	

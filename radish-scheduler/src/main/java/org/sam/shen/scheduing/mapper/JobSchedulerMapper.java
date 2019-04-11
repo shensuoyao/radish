@@ -22,6 +22,8 @@ public interface JobSchedulerMapper {
 
     List<JobSchedulerVo> queryAllScheduler();
 
+    List<JobSchedulerVo> querySchedulerByNid(Integer nid);
+
     int delete(Long jobId);
 
 }

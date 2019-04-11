@@ -70,8 +70,14 @@ public class LoadPacket {
         return errorJobs;
     }
 
-    public void clear() {
+    public void clearLoadMap() {
         toLoadJobMap.clear();
         loadingJobMap.clear();
+    }
+
+    public void clearAll() {
+        toLoadJobMap.clear();
+        loadingJobMap.clear();
+        errorJobs.clear();
     }
 }

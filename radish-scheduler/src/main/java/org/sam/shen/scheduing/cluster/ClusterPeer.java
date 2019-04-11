@@ -3,6 +3,7 @@ package org.sam.shen.scheduing.cluster;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
@@ -325,6 +326,29 @@ public class ClusterPeer extends Thread {
         List<Integer> nidArr = new ArrayList<>(clusterServers.keySet());
         loadJobs(jobs, nidArr);
         return jobs;
+    }
+
+    public void loadFollowerJobs(Integer nid) {
+        leaderNode.loadPacket.clearAll();
+	    List<JobSchedulerVo> followerJobs = jobSchedulerMapper.querySchedulerByNid(nid);
+        List<Integer> nids = leaderNode.getFollowers().stream().map(FollowerHandler::getNid).collect(Collectors.toList());
+        nids.add(0, myId);
+        do {
+            leaderNode.loadPacket.clearLoadMap();
+            loadJobs(followerJobs, nids);
+            List<JobSchedulerVo> jobs = new ArrayList<>();
+            for (List<JobSchedulerVo> l : leaderNode.loadPacket.getToLoadJobMap().values()) {
+                jobs.addAll(l);
+            }
+            for (List<JobSchedulerVo> l : leaderNode.loadPacket.getLoadingJobMap().values()) {
+                jobs.addAll(l);
+            }
+            List<Integer> nidArr = new ArrayList<>(this.clusterServers.keySet());
+            nidArr.removeAll(leaderNode.loadPacket.getToLoadJobMap().keySet());
+            nidArr.removeAll(leaderNode.loadPacket.getLoadingJobMap().keySet());
+            followerJobs = jobs;
+            nids = nidArr;
+        } while (!leaderNode.loadPacket.isEmpty());
     }
 	
 }
