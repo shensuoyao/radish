@@ -110,8 +110,9 @@ public class ClusterPeer extends Thread {
 			case LOOKING:
 				log.info("Cluster peer LOOKING.");
 				try {
+				    RadishDynamicScheduler.removeAllJobs();
 					setCurrentVote(this.electionAlg.lookForLeader());
-				} catch (InterruptedException e) {
+				} catch (InterruptedException | SchedulerException e) {
 					log.warn("Unexpected exception", e);
 					setPeerState(NodeState.LOOKING);
 				}
@@ -201,7 +202,7 @@ public class ClusterPeer extends Thread {
 	 * @return
 	 */
 	public Map<Integer, ClusterPeer.ClusterServer> getVotingView() {
-		Map<Integer, ClusterPeer.ClusterServer> ret = new HashMap<Integer, ClusterPeer.ClusterServer>();
+		Map<Integer, ClusterPeer.ClusterServer> ret = new HashMap<>();
 		Map<Integer, ClusterPeer.ClusterServer> view = getView();
 		for (ClusterServer cs : view.values()) {
 			if (cs.nid != this.getMyId()) {

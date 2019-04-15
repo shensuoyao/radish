@@ -56,6 +56,11 @@ public class ClusterPeerNodes {
 	    nodeSchedulerJobs.remove(jobId);
     }
 
+	public void clear() {
+		nodeSchedulerJobs.clear();
+		followerSchedulerJobs.clear();
+	}
+
 	/*
 	 * 集群间通信的数据包队列
 	 * 1. follower向leader发送 followerinfo

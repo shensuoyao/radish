@@ -499,4 +499,13 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
         return jobInfo != null && addJobEvent(jobInfo);
     }
 
+    /**
+     * Remove all jobs
+     * @throws SchedulerException
+     */
+    public static void removeAllJobs() throws SchedulerException {
+	    scheduler.clear();
+	    ClusterPeerNodes.getSingleton().clear();
+    }
+
 }

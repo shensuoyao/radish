@@ -249,8 +249,8 @@ public class LeaderNode {
 				// 不能把自己加入到followers列表中
 				electingFollowers.add(nid);
 			}
-			int half = followers.size() / 2;
-			if (!electingFollowers.contains(self.getMyId()) && electingFollowers.size() > half) {
+			int half = self.getClusterServers().size() / 2;
+			if (!electingFollowers.contains(self.getMyId()) && electingFollowers.size() >= half) {
 				electionFinished = true;
 				electingFollowers.notifyAll();
 			} else {
