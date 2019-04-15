@@ -273,7 +273,7 @@ public class LeaderNode {
 			followers.remove(follower);
 			// 当有一个从节点挂掉之后需要将从节点运行的任务重新分配到当前运行中的节点
             ClusterPeerNodes.getSingleton().removeFollowerSchedulerJobs(follower.getNid());
-            new Thread(() -> self.loadFollowerJobs(follower.getNid()));
+            new Thread(() -> self.loadFollowerJobs(follower.getNid())).start();
 		}
 	}
 	
