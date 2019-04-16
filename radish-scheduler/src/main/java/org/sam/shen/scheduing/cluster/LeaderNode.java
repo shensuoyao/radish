@@ -58,6 +58,9 @@ public class LeaderNode {
 
 	// follower发送给leader任务已加载的标志
 	final static int LOADED = 8;
+
+	// 用于同步ClusterServer信息
+	final static int CLUSTERSERVER = 9;
 	
 	private FollowerCnxAcceptor cnxAcceptor;
 	
@@ -206,7 +209,7 @@ public class LeaderNode {
 
 			// 向follower发送心跳
 			while (true) {
-				Thread.sleep(self.tickTime / 2);
+				Thread.sleep(self.tickTime);
 
                 // 检查是否有超过半数的从节点已发送同步数据
                 Set<Integer> syncedSet = new HashSet<>();
@@ -314,5 +317,17 @@ public class LeaderNode {
 			}
 		}
 	}
+
+    /**
+     * 广播通信数据包
+     * @param packet 通信包
+     */
+	public void broadcastPacket(ClusterPacket<?> packet) {
+	    for (FollowerHandler f : getFollowers()) {
+	        if (!f.getNid().equals(self.getMyId())) {
+	            f.queuePacket(packet);
+            }
+        }
+    }
 	
 }

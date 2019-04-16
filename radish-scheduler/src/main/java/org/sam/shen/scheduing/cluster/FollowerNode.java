@@ -30,16 +30,16 @@ import org.sam.shen.scheduing.vo.JobSchedulerVo;
 @Slf4j
 public class FollowerNode {
 
-	final ClusterPeer self;
-	protected DataInputStream leaderIs;
-	protected DataOutputStream leaderBufferOs;
+	private final ClusterPeer self;
+    private DataInputStream leaderIs;
+    private DataOutputStream leaderBufferOs;
 
-	protected Socket sock;
-	protected ConfirmPacketQueue confirmQueue;
+    private Socket sock;
+    private ConfirmPacketQueue confirmQueue;
 
-	protected long beatTime;
+    private long beatTime;
 	
-	public FollowerNode(ClusterPeer clusterPeer) {
+	FollowerNode(ClusterPeer clusterPeer) {
 		this.self = clusterPeer;
 		this.confirmQueue = new ConfirmPacketQueue();
 	}
@@ -54,6 +54,8 @@ public class FollowerNode {
 			connectToLeader(addr);
 			// 与leader服务器确认follower关系
 			ackWithLeader();
+			// 确认关系后向leader节点发送ClusterServer信息
+            sendClusterServer();
 			// 启动确认数据包队列发送线程
 			new Thread() {
 				public void run() {
@@ -95,7 +97,7 @@ public class FollowerNode {
 		}
 	}
 	
-	protected InetSocketAddress findLeader() {
+	private InetSocketAddress findLeader() {
 		InetSocketAddress addr = null;
 		// Find the leader by nid
 		Vote current = self.getCurrentVote();
@@ -121,7 +123,7 @@ public class FollowerNode {
 	 * @throws ConnectException
 	 * @throws InterruptedException
 	 */
-	protected void connectToLeader(InetSocketAddress addr) throws IOException, ConnectException, InterruptedException {
+	private void connectToLeader(InetSocketAddress addr) throws IOException, ConnectException, InterruptedException {
 		sock = new Socket();
 		sock.setSoTimeout(self.tickTime * self.initLimit);
 		for (int tries = 0; tries < 5; tries++) {
@@ -148,7 +150,7 @@ public class FollowerNode {
 		log.info("shutdown called", new Exception("shutdown Follower"));
 	}
 	
-	void writePacket(ClusterPacket<?> cp, boolean flush) throws IOException {
+	private void writePacket(ClusterPacket<?> cp, boolean flush) throws IOException {
 		synchronized (leaderBufferOs) {
 			if (cp != null) {
                 byte[] bytes = JSON.toJSONBytes(cp, SerializerFeature.WriteNullListAsEmpty);
@@ -165,7 +167,7 @@ public class FollowerNode {
 		}
 	}
 
-    ClusterPacket<?> readPacket() throws IOException {
+    private ClusterPacket<?> readPacket() throws IOException {
 		synchronized (leaderIs) {
             if (leaderIs.available() > 0) {
                 int packetLength = leaderIs.readInt();
@@ -177,12 +179,19 @@ public class FollowerNode {
 		return null;
 	}
 	
-	public void ackWithLeader() throws IOException {
-		ClusterPacket<String> packet = new ClusterPacket<String>(LeaderNode.ACK, self.getMyId());
+	private void ackWithLeader() throws IOException {
+		ClusterPacket<String> packet = new ClusterPacket<>(LeaderNode.ACK, self.getMyId());
 		writePacket(packet, true);
 	}
-	
-	public void syncWithLeader() throws IOException {
+
+	private void sendClusterServer() throws IOException {
+	    ClusterPacket<ClusterServer> packet = new ClusterPacket<>(LeaderNode.CLUSTERSERVER, self.getMyId(),
+                ClusterPeerNodes.getSingleton().getSchedulerJobCount(),
+                self.getClusterServers().get(self.getMyId()));
+	    writePacket(packet, true);
+    }
+
+    private void syncWithLeader() throws IOException {
 		ClusterPacket<List<Long>> packet = new ClusterPacket<>(LeaderNode.SYNC, self.getMyId(),
 		        ClusterPeerNodes.getSingleton().getSchedulerJobCount());
 		packet.setT(ClusterPeerNodes.getSingleton().getSchedulerJobsView());
@@ -195,8 +204,8 @@ public class FollowerNode {
         packet.setT(leaderInfo);
         writePacket(packet, true);
     }
-	
-	protected void processPacket(ClusterPacket<?> cp) throws IOException {
+
+    private void processPacket(ClusterPacket<?> cp) throws IOException {
 	    if (cp.getType() == null) {
 	        return;
         }
@@ -248,6 +257,14 @@ public class FollowerNode {
             ClusterPacket<List<JobSchedulerVo>> loadedPacket = new ClusterPacket<>(LeaderNode.LOADED, self.getMyId(), self.getRhid(), errorJobs);
 		    writePacket(loadedPacket, true);
 		    break;
+        case LeaderNode.CLUSTERSERVER:
+            ClusterPeer.ClusterServer server = JSON.toJavaObject((JSONObject) cp.getT(), ClusterPeer.ClusterServer.class);
+            // 如果新加入的节点不在cluster中，则添加该节点
+            if (!self.getClusterServers().containsKey(server.nid)) {
+                // 给当前节点添加ClusterServer
+                self.getClusterServers().put(server.nid, server);
+            }
+            break;
 		default:
 		}
 	}

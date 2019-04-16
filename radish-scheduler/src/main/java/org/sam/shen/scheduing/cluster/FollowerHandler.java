@@ -217,6 +217,18 @@ public class FollowerHandler extends Thread {
 
                 leader.loadPacket.removeLoadedJobs(cp.getNid());
 				break;
+            case LeaderNode.CLUSTERSERVER:
+                ClusterPeer.ClusterServer server = JSON.toJavaObject((JSONObject) cp.getT(), ClusterPeer.ClusterServer.class);
+                // 如果新加入的节点不在cluster中，则添加该节点，并广播给其他从节点
+                if (!leader.self.getClusterServers().containsKey(server.nid)) {
+                    // 给当前节点添加ClusterServer
+                    leader.self.getClusterServers().put(server.nid, server);
+                    // 广播给其他子节点
+                    ClusterPacket<ClusterPeer.ClusterServer> packet = new ClusterPacket<>(LeaderNode.CLUSTERSERVER,
+                            leader.self.getMyId(), ClusterPeerNodes.getSingleton().getSchedulerJobCount(), server);
+                    leader.broadcastPacket(packet);
+                }
+                break;
 			default:
 				break;
 		}
