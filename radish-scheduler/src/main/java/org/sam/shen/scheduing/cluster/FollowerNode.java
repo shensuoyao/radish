@@ -11,6 +11,7 @@ import java.util.List;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import org.quartz.SchedulerException;
 import org.sam.shen.scheduing.cluster.ClusterPeer.ClusterServer;
 import org.sam.shen.scheduing.scheduler.RadishDynamicScheduler;
@@ -258,7 +259,7 @@ public class FollowerNode {
 		    writePacket(loadedPacket, true);
 		    break;
         case LeaderNode.CLUSTERSERVER:
-            ClusterPeer.ClusterServer server = JSON.toJavaObject((JSONObject) cp.getT(), ClusterPeer.ClusterServer.class);
+            ClusterPeer.ClusterServer server = JSON.parseObject(JSON.toJSONString(cp.getT()), ClusterPeer.ClusterServer.class);
             // 如果新加入的节点不在cluster中，则添加该节点
             if (!self.getClusterServers().containsKey(server.nid)) {
                 // 给当前节点添加ClusterServer

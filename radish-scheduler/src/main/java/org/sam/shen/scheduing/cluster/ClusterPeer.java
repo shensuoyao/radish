@@ -145,8 +145,8 @@ public class ClusterPeer extends Thread {
 				} finally {
 					if (leaderNode != null) {
 						leaderNode.shutdown("Forcing shutdown");
-						setLeaderNode(null);
 					}
+                    setLeaderNode(null);
 					setPeerState(NodeState.LOOKING);
 				}
 				break;
