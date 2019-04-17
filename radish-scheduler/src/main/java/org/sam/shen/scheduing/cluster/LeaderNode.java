@@ -80,6 +80,7 @@ public class LeaderNode {
 	void addFollowerHandler(FollowerHandler follower) {
         synchronized (followers) {
             followers.add(follower);
+            log.info("FollowerHandler[nid=" + follower.getNid() + "] created");
         }
     }
 	
@@ -274,6 +275,7 @@ public class LeaderNode {
 	void removeFollowerHandler(FollowerHandler follower) {
 		synchronized (followers) {
 			followers.remove(follower);
+			log.info("FollowerHandler[nid=" + follower.getNid() + "] removed");
 			// 当有一个从节点挂掉之后需要将从节点运行的任务重新分配到当前运行中的节点
             ClusterPeerNodes.getSingleton().removeFollowerSchedulerJobs(follower.getNid());
             new Thread(() -> self.loadFollowerJobs(follower.getNid())).start();

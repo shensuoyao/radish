@@ -11,7 +11,6 @@ import java.util.List;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.TypeReference;
 import org.quartz.SchedulerException;
 import org.sam.shen.scheduing.cluster.ClusterPeer.ClusterServer;
 import org.sam.shen.scheduing.scheduler.RadishDynamicScheduler;
@@ -81,7 +80,7 @@ public class FollowerNode {
 			while (self.isRunning()) {
 			    // check whether server socket is closed
                 if (System.currentTimeMillis() - beatTime > self.tickTime * 20) {
-                    throw new IOException();
+                    throw new IOException("Heart beat of leader is timeout");
                 }
 				ClusterPacket<?> packet = readPacket();
 				if (packet != null) {

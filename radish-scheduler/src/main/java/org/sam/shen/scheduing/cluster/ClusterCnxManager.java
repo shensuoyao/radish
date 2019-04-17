@@ -274,6 +274,8 @@ public class ClusterCnxManager {
 			sw.start();
 			rw.start();
 
+			log.info("SenderWorker[nid=" + nid + "] start");
+
 			return true;
 		}
 		return false;
@@ -405,6 +407,8 @@ public class ClusterCnxManager {
 
 			sw.start();
 			rw.start();
+
+            log.info("SenderWorker[nid=" + nid + "] start");
 
 			return true;
 		}

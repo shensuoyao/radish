@@ -184,7 +184,7 @@ public class FastLeaderElection implements Election {
 			}
 
 			public void run() {
-
+			    log.info("WorkerReceiver start");
 				Message response;
 				while (!stop) {
 					// Sleeps on receive
@@ -292,6 +292,7 @@ public class FastLeaderElection implements Election {
 			}
 
 			public void run() {
+				log.info("WorkerSender start");
 				while (!stop) {
 					try {
 						ToSend m = sendqueue.poll(3000, TimeUnit.MILLISECONDS);
@@ -421,7 +422,7 @@ public class FastLeaderElection implements Election {
 
 	/**
 	 * 判断投票是否超过半数
-	 * 
+	 *
 	 * @author suoyao
 	 * @date 下午5:07:09
 	 * @param votes
@@ -529,87 +530,87 @@ public class FastLeaderElection implements Election {
 				 * 只处理投票副本视图中的节点服务器发来的通知
 				 */
 				switch (n.state) {
-				case LOOKING:
-					// If notification > current, replace and send messages out
-					if (n.electionEpoch > logicalclock) {
-						logicalclock = n.electionEpoch;
-						recvset.clear();
-						if (totalOrderPredicate(n.leader, n.rhid, n.electionEpoch, proposedLeader, proposedRhid,
-						        logicalclock)) {
-							// 更新成通知的投票信息
-							updateProposal(n.leader, n.rhid, n.electionEpoch);
-						} else {
-							updateProposal(self.getMyId(), self.updateRhid(), logicalclock);
-						}
-						sendNotifications();
-					} else if (n.electionEpoch < logicalclock) {
-						// 接收到的推荐轮次小于当前节点服务器的选举轮次，则不做处理.
-						break;
-					} else if (totalOrderPredicate(n.leader, n.rhid, n.electionEpoch, proposedLeader, proposedRhid,
-					        proposedEpoch)) {
-						updateProposal(n.leader, n.rhid, n.electionEpoch);
-						sendNotifications();
-					}
-					// 将投票加入到接收选票集中
-					recvset.put(n.nid, new Vote(n.leader, n.rhid, n.electionEpoch));
+                    case LOOKING:
+                        // If notification > current, replace and send messages out
+                        if (n.electionEpoch > logicalclock) {
+                            logicalclock = n.electionEpoch;
+                            recvset.clear();
+                            if (totalOrderPredicate(n.leader, n.rhid, n.electionEpoch, proposedLeader, proposedRhid,
+                                    logicalclock)) {
+                                // 更新成通知的投票信息
+                                updateProposal(n.leader, n.rhid, n.electionEpoch);
+                            } else {
+                                updateProposal(self.getMyId(), self.updateRhid(), logicalclock);
+                            }
+                            sendNotifications();
+                        } else if (n.electionEpoch < logicalclock) {
+                            // 接收到的推荐轮次小于当前节点服务器的选举轮次，则不做处理.
+                            break;
+                        } else if (totalOrderPredicate(n.leader, n.rhid, n.electionEpoch, proposedLeader, proposedRhid,
+                                proposedEpoch)) {
+                            updateProposal(n.leader, n.rhid, n.electionEpoch);
+                            sendNotifications();
+                        }
+                        // 将投票加入到接收选票集中
+                        recvset.put(n.nid, new Vote(n.leader, n.rhid, n.electionEpoch));
 
-					if (termPredicate(recvset, new Vote(proposedLeader, proposedRhid, logicalclock))) {
-						// 验证推荐的leader是否有新的变化
-						while ((n = recvqueue.poll(finalizeWait, TimeUnit.MILLISECONDS)) != null) {
-							if (totalOrderPredicate(n.leader, n.nid, n.electionEpoch, proposedLeader, proposedRhid,
-							        proposedEpoch)) {
-								recvqueue.put(n);
-								break;
-							}
-						}
+                        if (termPredicate(recvset, new Vote(proposedLeader, proposedRhid, logicalclock))) {
+                            // 验证推荐的leader是否有新的变化
+                            while ((n = recvqueue.poll(finalizeWait, TimeUnit.MILLISECONDS)) != null) {
+                                if (totalOrderPredicate(n.leader, n.nid, n.electionEpoch, proposedLeader, proposedRhid,
+                                        proposedEpoch)) {
+                                    recvqueue.put(n);
+                                    break;
+                                }
+                            }
 
-						// 没有任何改变的通知
-						if (n == null) {
-							self.setNodeState(
-							        (proposedLeader == self.getMyId()) ? NodeState.LEADING : NodeState.FOLLOWING);
+                            // 没有任何改变的通知
+                            if (n == null) {
+                                self.setNodeState(
+                                        (proposedLeader == self.getMyId()) ? NodeState.LEADING : NodeState.FOLLOWING);
 
-							Vote endVote = new Vote(proposedLeader, proposedRhid, proposedEpoch);
-							leaveInstance(endVote);
-							return endVote;
-						}
-					}
-					break;
-				case OBSERVING:
-					log.debug("Notification from observer: " + n.nid);
-					break;
-				case FOLLOWING:
-				case LEADING:
-					// 比较投票轮次是否一致
-					if (n.electionEpoch == logicalclock) {
-						recvset.put(n.nid, new Vote(n.leader, n.rhid, n.electionEpoch));
+                                Vote endVote = new Vote(proposedLeader, proposedRhid, proposedEpoch);
+                                leaveInstance(endVote);
+                                return endVote;
+                            }
+                        }
+                        break;
+                    case OBSERVING:
+                        log.debug("Notification from observer: " + n.nid);
+                        break;
+                    case FOLLOWING:
+                    case LEADING:
+                        // 比较投票轮次是否一致
+                        if (n.electionEpoch == logicalclock) {
+                            recvset.put(n.nid, new Vote(n.leader, n.rhid, n.electionEpoch));
 
-						if (ooePredicate(recvset, outofelection, n)) {
-							self.setNodeState((n.leader == self.getMyId()) ? NodeState.LEADING : NodeState.FOLLOWING);
+                            if (ooePredicate(recvset, outofelection, n)) {
+                                self.setNodeState((n.leader == self.getMyId()) ? NodeState.LEADING : NodeState.FOLLOWING);
 
-							Vote endVote = new Vote(n.leader, n.rhid, n.electionEpoch);
-							leaveInstance(endVote);
-							return endVote;
-						}
-					}
+                                Vote endVote = new Vote(n.leader, n.rhid, n.electionEpoch);
+                                leaveInstance(endVote);
+                                return endVote;
+                            }
+                        }
 
-					/*
-					 * 加入集群leader之前，先检查是否有超过一半的节点服务器跟随当前的leader
-					 */
-					outofelection.put(n.nid, new Vote(n.leader, n.rhid, n.electionEpoch, n.state));
+                        /*
+                         * 加入集群leader之前，先检查是否有超过一半的节点服务器跟随当前的leader
+                         */
+                        outofelection.put(n.nid, new Vote(n.leader, n.rhid, n.electionEpoch, n.state));
 
-					if (ooePredicate(outofelection, outofelection, n)) {
-						synchronized (this) {
-							logicalclock = n.electionEpoch;
-							self.setNodeState((n.leader == self.getMyId()) ? NodeState.LEADING : NodeState.FOLLOWING);
-						}
-						Vote endVote = new Vote(n.leader, n.rhid, n.electionEpoch);
-						leaveInstance(endVote);
-						return endVote;
-					}
-					break;
-				default:
-					log.warn("Notification state unrecognized: {} (n.state), {} (n.sid)", n.state, n.nid);
-					break;
+                        if (ooePredicate(outofelection, outofelection, n)) {
+                            synchronized (this) {
+                                logicalclock = n.electionEpoch;
+                                self.setNodeState((n.leader == self.getMyId()) ? NodeState.LEADING : NodeState.FOLLOWING);
+                            }
+                            Vote endVote = new Vote(n.leader, n.rhid, n.electionEpoch);
+                            leaveInstance(endVote);
+                            return endVote;
+                        }
+                        break;
+                    default:
+                        log.warn("Notification state unrecognized: {} (n.state), {} (n.sid)", n.state, n.nid);
+                        break;
 				}
 			} else {
 				log.warn("Ignoring notification from non-cluster member " + n.nid);

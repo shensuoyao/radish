@@ -138,6 +138,7 @@ public class FollowerHandler extends Thread {
     private ClusterPacket<?> readPacket() throws IOException {
 	    if (is.available() > 0) {
             int packetLength = is.readInt();
+            log.info("Read packet length: " + packetLength);
             byte[] packetBytes = new byte[packetLength];
             if (is.available() >= packetLength) {
                 is.readFully(packetBytes, 0, packetLength);
@@ -165,6 +166,7 @@ public class FollowerHandler extends Thread {
 			case LeaderNode.ACK:
 				// 确认leader
 				this.nid = cp.getNid();
+                this.setName("FollowerHandler[" + leader.self.getMyId() + " -> " + this.getNid() + "]");
 				leader.waitForFollowerAck(this.nid);
 				break;
 			case LeaderNode.SYNC:
