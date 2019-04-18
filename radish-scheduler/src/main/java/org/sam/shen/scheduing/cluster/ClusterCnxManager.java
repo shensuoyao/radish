@@ -285,7 +285,7 @@ public class ClusterCnxManager {
 		/*
 		 * If sending message to myself, then simply enqueue it (loopback).
 		 */
-		if (self.getId() == nid) {
+		if (self.getMyId().equals(nid)) {
 			b.position(0);
 			addToRecvQueue(new Message(b.duplicate(), nid));
 			/*

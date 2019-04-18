@@ -12,6 +12,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.quartz.SchedulerException;
+import org.sam.shen.scheduing.cluster.utils.ByteUtils;
 import org.sam.shen.scheduing.scheduler.RadishDynamicScheduler;
 
 import com.alibaba.fastjson.JSON;
@@ -114,8 +115,9 @@ public class FollowerHandler extends Thread {
 					// 关闭线程
 					break;
 				}
-				byte[] bytes = JSON.toJSONBytes(p, SerializerFeature.WriteNullListAsEmpty);
-				os.writeInt(bytes.length);
+				byte[] body = JSON.toJSONBytes(p, SerializerFeature.WriteNullListAsEmpty);
+				byte[] header = ByteUtils.intToByteArray(body.length);
+				byte[] bytes = ByteUtils.mergeByteArray(header, body);
 				os.write(bytes);
 				os.flush();
 				if (p.getType() == LeaderNode.LEADERINFO) {
@@ -136,14 +138,15 @@ public class FollowerHandler extends Thread {
 	}
 
     private ClusterPacket<?> readPacket() throws IOException {
-	    if (is.available() > 0) {
-            int packetLength = is.readInt();
-            log.info("Read packet length: " + packetLength);
-            byte[] packetBytes = new byte[packetLength];
-            if (is.available() >= packetLength) {
-                is.readFully(packetBytes, 0, packetLength);
-                return JSON.parseObject(packetBytes, ClusterPacket.class);
-            }
+	    if (is.available() >= 4) {
+            byte[] header = new byte[4];
+            is.readFully(header, 0, header.length);
+            int bodyLength = ByteUtils.byteArrayToInt(header);
+            log.info("Read packet length: " + bodyLength);
+
+            byte[] body = new byte[bodyLength];
+            is.readFully(body, 0, bodyLength);
+            return JSON.parseObject(body, ClusterPacket.class);
         }
         return null;
 	}
@@ -166,8 +169,9 @@ public class FollowerHandler extends Thread {
 			case LeaderNode.ACK:
 				// 确认leader
 				this.nid = cp.getNid();
-                this.setName("FollowerHandler[" + leader.self.getMyId() + " -> " + this.getNid() + "]");
+                this.setName("FollowerHandler[" + leader.self.getMyId() + " <-> " + this.getNid() + "]");
 				leader.waitForFollowerAck(this.nid);
+                log.info("FollowerHandler start running");
 				break;
 			case LeaderNode.SYNC:
 				// follower的同步信息

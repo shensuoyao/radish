@@ -80,7 +80,6 @@ public class LeaderNode {
 	void addFollowerHandler(FollowerHandler follower) {
         synchronized (followers) {
             followers.add(follower);
-            log.info("FollowerHandler[nid=" + follower.getNid() + "] created");
         }
     }
 	

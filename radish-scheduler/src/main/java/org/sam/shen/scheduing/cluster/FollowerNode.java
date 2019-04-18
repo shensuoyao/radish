@@ -13,6 +13,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.quartz.SchedulerException;
 import org.sam.shen.scheduing.cluster.ClusterPeer.ClusterServer;
+import org.sam.shen.scheduing.cluster.utils.ByteUtils;
 import org.sam.shen.scheduing.scheduler.RadishDynamicScheduler;
 
 import com.alibaba.fastjson.JSON;
@@ -153,8 +154,9 @@ public class FollowerNode {
 	private void writePacket(ClusterPacket<?> cp, boolean flush) throws IOException {
 		synchronized (leaderBufferOs) {
 			if (cp != null) {
-                byte[] bytes = JSON.toJSONBytes(cp, SerializerFeature.WriteNullListAsEmpty);
-                leaderBufferOs.writeInt(bytes.length);
+                byte[] body = JSON.toJSONBytes(cp, SerializerFeature.WriteNullListAsEmpty);
+                byte[] header = ByteUtils.intToByteArray(body.length);
+                byte[] bytes = ByteUtils.mergeByteArray(header, body);
                 leaderBufferOs.write(bytes);
                 leaderBufferOs.flush();
                 if (cp.getType() == LeaderNode.FOLLOWERINFO) {
@@ -169,11 +171,15 @@ public class FollowerNode {
 
     private ClusterPacket<?> readPacket() throws IOException {
 		synchronized (leaderIs) {
-            if (leaderIs.available() > 0) {
-                int packetLength = leaderIs.readInt();
-                byte[] packetBytes = new byte[packetLength];
-                leaderIs.readFully(packetBytes, 0, packetLength);
-                return JSON.parseObject(packetBytes, ClusterPacket.class);
+            if (leaderIs.available() >= 4) { // header存储每个数据包的长度，为4个字节，确保能读出来
+                byte[] header = new byte[4];
+                leaderIs.readFully(header, 0, header.length);
+                int bodyLength = ByteUtils.byteArrayToInt(header);
+
+                byte[] body = new byte[bodyLength];
+                while (leaderIs.available() < bodyLength);
+                leaderIs.readFully(body, 0, bodyLength);
+                return JSON.parseObject(body, ClusterPacket.class);
             }
 		}
 		return null;
