@@ -206,12 +206,12 @@ CREATE TABLE `app_kind_handler` (
 -- ----------------------------
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `uname` varchar(32) DEFAULT NULL,
-  `password` varchar(32) DEFAULT NULL,
-  `enable` int(1) DEFAULT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `uname` varchar(32) DEFAULT NULL COMMENT '用户名',
+  `password` varchar(32) DEFAULT NULL COMMENT '密码',
+  `enable` int(1) DEFAULT NULL COMMENT '是否可用',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8;
 
 
 -- ----------------------------
@@ -219,12 +219,25 @@ CREATE TABLE `user` (
 -- ----------------------------
 DROP TABLE IF EXISTS `user_agent_group`;
 CREATE TABLE `user_agent_group` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) DEFAULT NULL,
-  `group_id` int(11) DEFAULT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `user_id` int(11) DEFAULT NULL COMMENT '用户ID',
+  `group_id` int(11) DEFAULT NULL COMMENT '机组ID',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8;
 
+-- ----------------------------
+--  Table structure for `job_scheduler`
+-- ----------------------------
+DROP TABLE IF EXISTS `job_scheduler`;
+CREATE TABLE `job_scheduler` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `job_id` int(11) DEFAULT NULL COMMENT '任务ID',
+  `nid` int(11) DEFAULT NULL COMMENT '任务运行的节点ID',
+  `running_status` varchar(10) DEFAULT NULL COMMENT '任务运行状态',
+  `prev_fire_time` datetime DEFAULT NULL COMMENT '上次执行时间',
+  `next_fire_time` datetime DEFAULT NULL COMMENT '下次执行时间',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8;
 
 -- Initialize administrator
 INSERT INTO user(id, uname, password, enable) VALUES (1, 'admin', 'admin', 1);
