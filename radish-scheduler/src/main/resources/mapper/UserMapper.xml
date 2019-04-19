@@ -35,11 +35,11 @@
     </delete>
 
     <update id="modifyPassword">
-        UPDATE user SET password = #{password} WHERE uname = #{uname}
+        UPDATE `user` SET password = #{password} WHERE uname = #{uname}
     </update>
     
     <update id="enableUser">
-        UPDATE user SET enable = #{enable} WHERE id = #{id}
+        UPDATE `user` SET enable = #{enable} WHERE id = #{id}
     </update>
     
     <select id="selectUserAndGroup" parameterType="java.lang.String" resultMap="UserAgentGroupVo">
@@ -51,7 +51,7 @@
             GROUP_CONCAT(d.`group`) AS groups,
             GROUP_CONCAT(d.group_id) AS group_ids
         FROM
-            USER a
+            `user` a
         LEFT JOIN(
             SELECT
                 concat_ws('-' , c.id , c.group_name) AS `group`,
@@ -80,7 +80,7 @@
             GROUP_CONCAT(d.`group`) AS groups,
             GROUP_CONCAT(d.group_id) AS group_ids
         FROM
-            USER a
+            `user` a
         LEFT JOIN(
             SELECT
                 concat_ws('-' , c.id , c.group_name) AS `group`,
