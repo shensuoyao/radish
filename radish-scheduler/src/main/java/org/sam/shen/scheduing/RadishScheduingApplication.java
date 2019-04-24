@@ -16,12 +16,14 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 /**
  * @author suoyao
  * @date 2018年8月6日 上午8:39:59
  *  Radish Scheduing Start Application
  */
+@EnableRedisHttpSession
 @SpringBootApplication
 public class RadishScheduingApplication implements ApplicationRunner {
 	

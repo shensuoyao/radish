@@ -52,7 +52,7 @@ public class ScriptHandler extends AbsHandler {
 		super.destroy();
 		try {
 			FileUtils.forceDelete(new File(scriptFileName));
-		} catch (IOException e) {
+		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		} finally {
 			scriptFileName = null;
