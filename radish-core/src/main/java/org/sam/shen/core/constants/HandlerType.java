@@ -10,7 +10,7 @@ public enum HandlerType {
 	H_JAVA("Java", null, null),
 	H_SHELL("Shell", "bash", ".sh"),
 	H_PYTHON("Python", "python", ".py"),
-	H_JAVASCRIPT("Javascript", "javascript", ".js");
+	H_JAVASCRIPT("Javascript", "node", ".js");
 	
 	private String desc;
 	private String cmd;
