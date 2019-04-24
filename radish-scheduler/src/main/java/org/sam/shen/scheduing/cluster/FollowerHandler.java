@@ -142,7 +142,6 @@ public class FollowerHandler extends Thread {
             byte[] header = new byte[4];
             is.readFully(header, 0, header.length);
             int bodyLength = ByteUtils.byteArrayToInt(header);
-            log.info("Read packet length: " + bodyLength);
 
             byte[] body = new byte[bodyLength];
             is.readFully(body, 0, bodyLength);

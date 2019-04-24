@@ -16,6 +16,9 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.session.data.redis.config.ConfigureRedisAction;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 /**
@@ -23,6 +26,7 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
  * @date 2018年8月6日 上午8:39:59
  *  Radish Scheduing Start Application
  */
+@Configuration
 @EnableRedisHttpSession
 @SpringBootApplication
 public class RadishScheduingApplication implements ApplicationRunner {
@@ -77,5 +81,10 @@ public class RadishScheduingApplication implements ApplicationRunner {
 		}
 		
 	}
+
+	@Bean
+    public ConfigureRedisAction configureRedisAction() {
+        return ConfigureRedisAction.NO_OP;
+    }
 	
 }
