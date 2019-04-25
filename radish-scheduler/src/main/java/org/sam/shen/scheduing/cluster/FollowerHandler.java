@@ -138,7 +138,7 @@ public class FollowerHandler extends Thread {
 	}
 
     private ClusterPacket<?> readPacket() throws IOException {
-	    if (is.available() >= 4) {
+//	    if (is.available() >= 4) {
             byte[] header = new byte[4];
             is.readFully(header, 0, header.length);
             int bodyLength = ByteUtils.byteArrayToInt(header);
@@ -146,8 +146,8 @@ public class FollowerHandler extends Thread {
             byte[] body = new byte[bodyLength];
             is.readFully(body, 0, bodyLength);
             return JSON.parseObject(body, ClusterPacket.class);
-        }
-        return null;
+//        }
+//        return null;
 	}
 	
 	/**

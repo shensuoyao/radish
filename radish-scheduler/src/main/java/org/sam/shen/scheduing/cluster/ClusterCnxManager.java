@@ -574,7 +574,7 @@ public class ClusterCnxManager {
 					/**
 					 * 读取信息的确定长度
 					 */
-					if (din.available() > 0) {
+//					if (din.available() > 0) {
 						int length = din.readInt();
 						if (length <= 0 || length > PACKETMAXSIZE) {
 							throw new IOException("Received packet with invalid packet: " + length);
@@ -586,7 +586,7 @@ public class ClusterCnxManager {
 						din.readFully(msgArray, 0, length);
 						ByteBuffer message = ByteBuffer.wrap(msgArray);
 						addToRecvQueue(new Message(message.duplicate(), nid));
-					}
+//					}
 				}
 			} catch (Exception e) {
 				log.warn("Connection broken for id " + nid + ", my id = " + self.getMyId() + ", error = ", e);

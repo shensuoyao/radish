@@ -171,18 +171,18 @@ public class FollowerNode {
 
     private ClusterPacket<?> readPacket() throws IOException {
 		synchronized (leaderIs) {
-            if (leaderIs.available() >= 4) { // header存储每个数据包的长度，为4个字节，确保能读出来
+//            if (leaderIs.available() >= 4) { // header存储每个数据包的长度，为4个字节，确保能读出来
                 byte[] header = new byte[4];
                 leaderIs.readFully(header, 0, header.length);
                 int bodyLength = ByteUtils.byteArrayToInt(header);
 
                 byte[] body = new byte[bodyLength];
-                while (leaderIs.available() < bodyLength);
+//                while (leaderIs.available() < bodyLength);
                 leaderIs.readFully(body, 0, bodyLength);
                 return JSON.parseObject(body, ClusterPacket.class);
-            }
+//            }
 		}
-		return null;
+//		return null;
 	}
 	
 	private void ackWithLeader() throws IOException {
