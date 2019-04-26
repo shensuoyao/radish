@@ -148,7 +148,7 @@ public class RadishAgent {
         URL fileUrl = this.getClass().getResource(Constant.SHELL_SCRIPT_PATH.concat(File.separator).concat(Constant.SHELL_SCRIPT_NAME));
 	    try {
             ScriptUtil.createAndAuthShellScript(shFilePath, fileUrl.openStream());
-        } catch (IOException e) {
+        } catch (Exception e) {
 	        log.error("Initialize monitor shell script file failed. [{}]", e.getMessage());
         }
     }
