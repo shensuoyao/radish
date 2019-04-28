@@ -26,4 +26,6 @@ public interface JobSchedulerMapper {
 
     int delete(Long jobId);
 
+    int exist(Long jobId);
+
 }

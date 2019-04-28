@@ -15,6 +15,7 @@ import org.sam.shen.core.constants.Constant;
 import org.sam.shen.scheduing.cluster.*;
 import org.sam.shen.scheduing.entity.JobInfo;
 import org.sam.shen.scheduing.mapper.JobInfoMapper;
+import org.sam.shen.scheduing.mapper.JobSchedulerMapper;
 import org.sam.shen.scheduing.scheduler.RadishDynamicScheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +35,9 @@ public class JobService {
 
 	@Resource
 	private JobInfoMapper jobInfoMapper;
+
+	@Resource
+    private JobSchedulerMapper jobSchedulerMapper;
 
 	@Autowired
 	private ClusterPeer clusterPeer;
@@ -75,6 +79,10 @@ public class JobService {
                 if (ClusterPeerNodes.getSingleton().getSchedulerJobsView().contains(jobInfo.getId())) {
                     if (StringUtils.isNotEmpty(jobInfo.getCrontab())) {
                         RadishDynamicScheduler.UpgradeScheduleJob(jobInfo.getId(), jobInfo.getJobName(), jobInfo.getCrontab());
+                    }
+                } else if (jobSchedulerMapper.exist(jobInfo.getId()) == 0) { // 判断该任务是否还在运行
+                    if (StringUtils.isNotEmpty(jobInfo.getCrontab())) {
+                        RadishDynamicScheduler.addJob(jobInfo.getId(), jobInfo.getJobName(), jobInfo.getCrontab());
                     }
                 } else {
                     if (StringUtils.isNotEmpty(jobInfo.getCrontab())) {

@@ -53,4 +53,8 @@
     <delete id="delete" parameterType="java.lang.Long">
         DELETE FROM job_scheduler WHERE job_id = #{jobId}
     </delete>
+
+    <select id="exist" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        SELECT count(id) FROM job_scheduler WHERE job_id = #{jobId}
+    </select>
 </mapper>

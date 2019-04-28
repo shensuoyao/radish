@@ -71,7 +71,7 @@ public class EventHandlerThread extends Thread {
             event.setHandlerResult(resp);
             RestRequest.post(rpcReportUrl, event);
 			// 如果任务执行成功，查看是否存在子任务
-			if (resp.getCode() == Resp.SUCCESS.getCode()) {
+			if (resp != null && resp.getCode() == Resp.SUCCESS.getCode()) {
 			    RestRequest.post(rpcSubeventUrl, event);
             }
 		} catch (Exception e) {
