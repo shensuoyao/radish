@@ -54,11 +54,11 @@ public class SystemUtil {
 		}
 		switch (binary) {
 		case MB:
-			return mem / KB / KB;
+			return mem >> 20;
 		case GB:
-			return mem / KB / KB / KB;
+			return mem >> 30;
 		default:
-			return mem / KB;
+			return mem >> 10;
 		}
 	}
 	
@@ -86,11 +86,11 @@ public class SystemUtil {
 		}
 		switch (binary) {
 		case MB:
-			return mem / KB / KB;
+			return mem >> 20;
 		case GB:
-			return mem / KB / KB / KB;
+			return mem >> 30;
 		default:
-			return mem / KB;
+			return mem >> 10;
 		}
 	}
 	
