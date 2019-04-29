@@ -39,7 +39,7 @@ public class EventHandlerThreadPool {
 	 */
 	public static synchronized boolean isAvailable() {
 		int avalibleCount = (fixedThreadPool.getMaximumPoolSize() - fixedThreadPool.getActiveCount());
-		if(logger.isInfoEnabled()) {
+		if(logger.isDebugEnabled()) {
 			logger.info("Callback Thread Pool avaliavle size is: {}", avalibleCount);
 		}
 		return avalibleCount > 0;

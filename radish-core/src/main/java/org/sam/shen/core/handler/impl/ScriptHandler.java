@@ -1,11 +1,12 @@
 package org.sam.shen.core.handler.impl;
 
 import java.io.File;
-import java.io.IOException;
+import java.util.Collections;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.sam.shen.core.constants.HandlerType;
 import org.sam.shen.core.event.HandlerEvent;
 import org.sam.shen.core.handler.AbsHandler;
 import org.sam.shen.core.handler.anno.AHandler;
@@ -29,22 +30,28 @@ public class ScriptHandler extends AbsHandler {
 
 	@Override
 	public Resp<String> execute(HandlerEvent event) throws Exception {
-
 		// make script file
 		scriptFileName = FilenameUtils.getFullPath(getLogFileName()).concat(getEventId())
 		        .concat(event.getHandlerType().getSuffix());
 		ScriptUtil.markScriptFile(scriptFileName, event.getCmd());
 
-		// invoke
-		int exitValue = ScriptUtil.execToFile(event.getHandlerType().getCmd(), scriptFileName, getLogFileName(), event.getParams());
+        if (event.getHandlerType() == HandlerType.H_JAVA) { // execute java with bean shell
+	        Resp<String> result = ScriptUtil.execBshScriptWithResult(scriptFileName);
+	        // print logs
+	        log(Collections.singletonList(result.getData()));
+	        return result;
+        } else {
+            // invoke
+            int exitValue = ScriptUtil.execToFile(event.getHandlerType().getCmd(), scriptFileName, getLogFileName(), event.getParams());
 
-		if (exitValue == 0) {
-			return Resp.SUCCESS;
-		} else if (exitValue == 101) {
-			return Resp.FAIL;
-		} else {
-			return new Resp<>(Resp.FAIL.getCode(), "script exit value(" + exitValue + ") is failed");
-		}
+            if (exitValue == 0) {
+                return Resp.SUCCESS;
+            } else if (exitValue == 101) {
+                return Resp.FAIL;
+            } else {
+                return new Resp<>(Resp.FAIL.getCode(), "script exit value(" + exitValue + ") is failed");
+            }
+        }
 	}
 
 	@Override

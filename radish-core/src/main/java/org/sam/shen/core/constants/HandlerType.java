@@ -7,7 +7,7 @@ package org.sam.shen.core.constants;
  */
 public enum HandlerType {
 
-	H_JAVA("Java", null, null),
+	H_JAVA("Java", null, ".bsh"),
 	H_SHELL("Shell", "bash", ".sh"),
 	H_PYTHON("Python", "python", ".py"),
 	H_JAVASCRIPT("Javascript", "node", ".js");

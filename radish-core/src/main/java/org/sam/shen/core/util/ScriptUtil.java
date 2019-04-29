@@ -1,11 +1,13 @@
 package org.sam.shen.core.util;
 
+import bsh.Interpreter;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.ExecuteWatchdog;
 import org.apache.commons.exec.PumpStreamHandler;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.sam.shen.core.model.Resp;
 
 import java.io.*;
 
@@ -173,6 +175,34 @@ public class ScriptUtil {
                 throw new IOException("Authorize script file failed.");
             }
         } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Execute java source file with bean shell
+     * @author clock
+     * @date 2019/4/28 下午5:41
+     * @param filePath java source file path
+     * @return result
+     */
+    public static Resp<String> execBshScriptWithResult(String filePath) {
+        Resp<String> resp;
+        Interpreter interpreter = new Interpreter();
+        try {
+            interpreter.source(filePath);
+            resp = Resp.SUCCESS;
+        } catch (Exception e) {
+            resp = new Resp<>(Resp.FAIL.getCode(), Resp.FAIL.getMsg(), e.getMessage());
+        }
+        return resp;
+    }
+
+    public static void main(String[] args) {
+        try {
+            Object r = new Interpreter().source("/Users/zhongsj/Desktop/test.bsh");
+            System.out.println(r.toString());
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

@@ -40,7 +40,9 @@ public class TriggerEventThread {
 		triggerThread = new Thread(() -> {
             while(!toStop) {
                 try {
-                    logger.info(" Callback Queue size is: {}", EventHandlerThreadPool.callbackQueueSize());
+                    if (logger.isDebugEnabled()) {
+                        logger.info(" Callback Queue size is: {}", EventHandlerThreadPool.callbackQueueSize());
+                    }
                     if (EventHandlerThreadPool.isCallbackQueueFull()) {
                         logger.error("Callback Queue is Full.");
                     } else {
