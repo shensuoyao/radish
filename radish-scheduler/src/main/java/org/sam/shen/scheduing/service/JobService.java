@@ -75,6 +75,13 @@ public class JobService {
 		// 修改scheduler 调度
 		if (jobInfo.getEnable() == Constant.YES && StringUtils.isNotEmpty(jobInfo.getExecutorHandlers())) {
             try {
+                // 如果单机模式
+                if (clusterPeer.getMyId() == null) {
+                    if (StringUtils.isNotEmpty(jobInfo.getCrontab())) {
+                        RadishDynamicScheduler.UpgradeScheduleJob(jobInfo.getId(), jobInfo.getJobName(), jobInfo.getCrontab());
+                    }
+                    return;
+                }
                 // 如果该任务在当前节点运行则执行更新
                 if (ClusterPeerNodes.getSingleton().getSchedulerJobsView().contains(jobInfo.getId())) {
                     if (StringUtils.isNotEmpty(jobInfo.getCrontab())) {
@@ -186,5 +193,10 @@ public class JobService {
 	public List<JobInfo> getChildJobByParentJobId(String jobId) {
 		return jobInfoMapper.findJobInfoByParentId(jobId);
 	}
+
+	public boolean removeJob(Long jobId) {
+	    int count = jobInfoMapper.deleteJobById(jobId);
+	    return count > 0;
+    }
 	
 }

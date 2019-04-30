@@ -17,29 +17,29 @@
         <result column="netty_port" property="nettyPort"/>
     </resultMap>
 
-  <select id="findAgentById" parameterType="Long" resultMap="agentMap">
-      <![CDATA[
-          SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat, network, netty_port
+    <select id="findAgentById" parameterType="Long" resultMap="agentMap">
+        <![CDATA[
+            SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat, network, netty_port
             FROM agent
-      ]]>
-    <where>
-    <![CDATA[
-        id = #{agentName}
+        ]]>
+        <where>
+            <![CDATA[
+                id = #{agentName}
             ]]>
-    </where>
-  </select>
+        </where>
+    </select>
 
-	<select id="findAgentByName" parameterType="String" resultMap="agentMap">
-		<![CDATA[
-			SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat, network, netty_port
-			  FROM agent
+    <select id="findAgentByName" parameterType="String" resultMap="agentMap">
+        <![CDATA[
+            SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat, network, netty_port
+            FROM agent
 		]]>
-	  <where>
-      <![CDATA[
-          agent_name = #{agentName}
-              ]]>
-	  </where>
-	</select>
+        <where>
+            <![CDATA[
+                agent_name = #{agentName}
+            ]]>
+        </where>
+    </select>
 
     <select id="queryAgentForPagerUser" resultMap="agentMap" parameterType="string">
         SELECT
@@ -76,42 +76,42 @@
         </if>
     </select>
 
- <select id="queryAgentForList" resultMap="agentMap" parameterType="string">
-  <![CDATA[
-      SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat, network, netty_port
-        FROM agent 
-     ]]>
-  <if test="agentName != null">
-    <where>
-        agent_name LIKE CONCAT(#{agentName}, '%')
-    </where>
-  </if>
- </select>
- 
-	<insert id="saveAgent" parameterType="Agent" useGeneratedKeys="true" keyProperty="id">
-	   <![CDATA[
-        INSERT INTO agent(agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat, network, netty_port)
-        VALUES (#{agentName}, #{agentIp}, #{agentPort}, #{admin}, 
-                #{adminEmail}, #{adminPhone}, #{regTime}, #{stat}, #{network}, #{nettyPort})
+    <select id="queryAgentForList" resultMap="agentMap" parameterType="string">
+        <![CDATA[
+            SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat, network, netty_port
+            FROM agent
         ]]>
-  </insert>
-  
-  <update id="upgradeAgentAdmin" parameterType="Agent">
-       <![CDATA[
-        UPDATE agent 
-           SET admin = #{admin}, admin_email = #{adminEmail}, admin_phone = #{adminPhone} 
-         WHERE id = #{id} 
+        <if test="agentName != null">
+            <where>
+                agent_name LIKE CONCAT(#{agentName}, '%')
+            </where>
+        </if>
+    </select>
+
+    <insert id="saveAgent" parameterType="Agent" useGeneratedKeys="true" keyProperty="id">
+        <![CDATA[
+            INSERT INTO agent(agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat, network, netty_port)
+            VALUES (#{agentName}, #{agentIp}, #{agentPort}, #{admin},
+                    #{adminEmail}, #{adminPhone}, #{regTime}, #{stat}, #{network}, #{nettyPort})
         ]]>
-  </update>
-  
-  <update id="upgradeAgent" parameterType="Agent">
-       <![CDATA[
-        UPDATE agent 
-           SET agent_port = #{agentPort}, admin = #{admin}, admin_email = #{adminEmail}, admin_phone = #{adminPhone}, network = #{network}, netty_port = #{nettyPort}
-         WHERE id = #{id} 
+    </insert>
+
+    <update id="upgradeAgentAdmin" parameterType="Agent">
+        <![CDATA[
+            UPDATE agent
+            SET admin = #{admin}, admin_email = #{adminEmail}, admin_phone = #{adminPhone}
+            WHERE id = #{id}
         ]]>
-  </update>
-  
+    </update>
+
+    <update id="upgradeAgent" parameterType="Agent">
+        <![CDATA[
+            UPDATE agent
+            SET agent_port = #{agentPort}, admin = #{admin}, admin_email = #{adminEmail}, admin_phone = #{adminPhone}, network = #{network}, netty_port = #{nettyPort}
+            WHERE id = #{id}
+        ]]>
+    </update>
+
     <select id="countAgent" resultType="int">
         <![CDATA[
             SELECT count(a.id) cnt FROM agent a LEFT JOIN agent_group_ref agf on a.id=agf.agent_id LEFT JOIN user_agent_group uag on agf.agent_group_id=uag.group_id
@@ -120,26 +120,29 @@
             <if test="userId != null">uag.user_id = #{userId}</if>
         </where>
     </select>
-  
-  <select id="queryAgentByAgentGroup" resultMap="agentMap" parameterType="long">
-  <![CDATA[
-      SELECT a.id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat, network, netty_port
-        FROM agent a 
-       INNER JOIN agent_group_ref agr 
-          ON a.id = agr.agent_id 
-       WHERE agr.agent_group_id = #{agentGroupId}
-     ]]>
- </select>
- 
- <select id="queryAgentInIds" parameterType="list" resultMap="agentMap">
-     <![CDATA[
-      SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat, network, netty_port
-        FROM agent 
-       WHERE id IN 
-         ]]>
-    <foreach collection="list" item="item" index="index" separator="," open="(" close=")">
-        #{item}
-    </foreach>
- </select>
-	
+
+    <select id="queryAgentByAgentGroup" resultMap="agentMap" parameterType="long">
+        <![CDATA[
+            SELECT a.id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat, network, netty_port
+            FROM agent a
+            INNER JOIN agent_group_ref agr
+            ON a.id = agr.agent_id
+            WHERE agr.agent_group_id = #{agentGroupId}
+        ]]>
+    </select>
+
+    <select id="queryAgentInIds" parameterType="list" resultMap="agentMap">
+        <![CDATA[
+            SELECT id, agent_name, agent_ip, agent_port, admin, admin_email, admin_phone, reg_time, stat, network, netty_port
+            FROM agent
+            WHERE id IN
+        ]]>
+        <foreach collection="list" item="item" index="index" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <delete id="deleteAgent" parameterType="java.lang.Long">
+        DELETE FROM agent WHERE id = #{agentId}
+    </delete>
 </mapper>

@@ -39,37 +39,37 @@
     layui.use(['table', 'form', 'layer'], function () {
 
         // 操作对象
-    var form = layui.form
-            , table = layui.table
-            , layer = layui.layer
-            , $ = layui.jquery;
+        var form = layui.form
+                , table = layui.table
+                , layer = layui.layer
+                , $ = layui.jquery;
 
         // 表格渲染
-   var tableIns = table.render({
-       elem: '#dateTable'                  //指定原始表格元素选择器（推荐id选择器）
-       , height: 'full-200'    //容器高度
-       , cols: [[   // 标题栏目
-           {field: 'id', title: 'ID'}
-           , {field: 'agentName', title: '客户机名称',}
-           , {field: 'agentIp', title: '客户机IP'}
-           , {field: 'agentPort', title: '客户机端口'}
-           , {field: 'admin', title: '管理员'}
-           , {field: 'adminEmail', title: '管理员邮箱'}
-           , {field: 'adminPhone', title: '管理员电话'}
-           , {field: 'regTime', title: '注册时间'}
-           , {field: 'stat', title: '状态'}
-           , {fixed: 'right', title: '操作', align: 'center', toolbar: '#barOption'} ]]
-       , id: 'dateTable'
-       , url: [[@{/portal/agent/json-pager}]]
-       , method: 'get'
-       , page: {
-           layout: ['count', 'prev', 'page', 'next'] //自定义分页布局
-           ,groups: 10 //只显示 1 个连续页码
-           ,first: true //不显示首页
-           ,last: true //不显示尾页
-                       }
-       , loading: false
-       , done: function (res, curr, count) {
+        var tableIns = table.render({
+            elem: '#dateTable'                  //指定原始表格元素选择器（推荐id选择器）
+            , height: 'full-200'    //容器高度
+            , cols: [[   // 标题栏目
+                {field: 'id', title: 'ID'}
+                , {field: 'agentName', title: '客户机名称'}
+                , {field: 'agentIp', title: '客户机IP'}
+                , {field: 'agentPort', title: '客户机端口'}
+                , {field: 'admin', title: '管理员'}
+                , {field: 'adminEmail', title: '管理员邮箱'}
+                , {field: 'adminPhone', title: '管理员电话'}
+                , {field: 'regTime', title: '注册时间'}
+                , {field: 'stat', title: '状态'}
+                , {fixed: 'right', title: '操作', align: 'center', toolbar: '#barOption'} ]]
+            , id: 'dateTable'
+            , url: [[@{/portal/agent/json-pager}]]
+            , method: 'get'
+            , page: {
+                layout: ['count', 'prev', 'page', 'next'] //自定义分页布局
+                ,groups: 10 //只显示 1 个连续页码
+                ,first: true //不显示首页
+                ,last: true //不显示尾页
+            }
+            , loading: false
+            , done: function (res, curr, count) {
                 //如果是异步请求数据方式，res即为你接口返回的信息。
                 //如果是直接赋值的方式，res即为：{data: [], count: 99} data为当前页数据、count为数据总长度
                  // console.log(res);
@@ -79,31 +79,46 @@
 
                 //得到数据总量
                 // console.log(count);
-                
             }
         });
         // 获取选中行
-    table.on('tool(agent)', function (obj) {
-        // layer.msg('123');
-        if(obj.event == 'edit') {
-        	window.location.href = [[@{/portal/agent-edit/}]] + obj.data.id;
-		    } else if(obj.event == 'del') {
-		    	layer.msg('Sorry! 删除 Agent 暂时没有完成');
-		    }
-        // 
-            });
+        table.on('tool(agent)', function (obj) {
+            // layer.msg('123');
+            if(obj.event == 'edit') {
+                window.location.href = [[@{/portal/agent-edit/}]] + obj.data.id;
+            } else if(obj.event == 'del') {
+                layer.confirm('是否删除该客户端信息？', function () {
+                    $.ajax({
+                        type: 'DELETE',
+                        url: [[@{/portal/agent/}]] + obj.data.id,
+                        dataType: 'json',
+                        headers: {
+                            'Content-Type' : 'application/json;charset=utf-8'
+                        }
+                    }).done(function (data) {
+                        if (data.code === 1) {
+                            layer.msg(data.msg);
+                        } else {
+                            layer.msg('删除成功！');
+                            tableIns.reload({
+                                where: {
+                                    agentName: $('#agentName').val()
+                                }
+                            });
+                        }
+                    });
+                });
+            }
+        });
 
         // 刷新
-    $('#btn-search').on('click', function () {
-        tableIns.reload({
-            where: {
-              agentName: $('#agentName').val()
-                                }
-                        });
-              });
-
-   // you code ...
-
+        $('#btn-search').on('click', function () {
+            tableIns.reload({
+                where: {
+                    agentName: $('#agentName').val()
+                }
+            });
+        });
     });
 </script>
 </html>

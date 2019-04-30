@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sam.shen.core.constants.Constant;
 import org.sam.shen.core.model.Resp;
 import org.sam.shen.scheduing.constants.SchedConstant;
 import org.sam.shen.scheduing.entity.Agent;
@@ -11,6 +12,7 @@ import org.sam.shen.scheduing.entity.AgentGroup;
 import org.sam.shen.scheduing.entity.RespPager;
 import org.sam.shen.scheduing.entity.User;
 import org.sam.shen.scheduing.service.AgentService;
+import org.sam.shen.scheduing.service.RedisService;
 import org.sam.shen.scheduing.vo.AgentEditVo;
 import org.sam.shen.scheduing.vo.AgentGroupEditView;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +40,9 @@ public class AgentController {
 	
 	@Autowired
 	private AgentService agentService;
+
+    @Autowired
+    private RedisService redisService;
 	
 	/**
 	 * @author suoyao
@@ -130,11 +135,29 @@ public class AgentController {
 	 * @return
 	 */
 	@RequestMapping(value = "agent-edit-save", method = RequestMethod.POST)
-	public String agentEditSave(ModelAndView model, @ModelAttribute Agent agent, 
+	public String agentEditSave(@ModelAttribute Agent agent,
 	        @RequestParam(value = "handlers", required = false) List<String> handlers) {
 		agentService.upgradeAgent(agent, handlers);
 		return "redirect:/portal/agent-edit/" + agent.getId();
 	}
+
+    /**
+     * 移除客户端信息
+     * @author clock
+     * @date 2019/4/30 上午11:09
+     * @param agentId 客户端ID
+     * @return 返回结果
+     */
+    @ResponseBody
+	@RequestMapping(value = "agent/{agentId}", method = RequestMethod.DELETE)
+	public Resp<String> deleteAgent(@PathVariable Long agentId) {
+	    String redisKey = Constant.REDIS_AGENT_PREFIX.concat(Long.toString(agentId));
+	    if (redisService.exists(redisKey)) {
+	        return new Resp<>(Resp.FAIL.getCode(), "客户端正在使用中！");
+        }
+        agentService.removeAgent(agentId);
+	    return Resp.SUCCESS;
+    }
 
 	@RequestMapping(value = "agent-group", method = RequestMethod.GET)
 	public ModelAndView toAgentGroupPage(ModelAndView model, HttpSession session) {

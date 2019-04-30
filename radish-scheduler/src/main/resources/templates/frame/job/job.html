@@ -49,39 +49,39 @@
     layui.use(['table', 'form', 'layer', 'laytpl'], function () {
 
         // 操作对象
-    var form = layui.form
+        var form = layui.form
             , table = layui.table
             , layer = layui.layer
             , $ = layui.jquery
             , laytpl = layui.laytpl;
 
         // 表格渲染
-   var tableIns = table.render({
-       elem: '#jobTable'                  //指定原始表格元素选择器（推荐id选择器）
-       , height: 'full-200'    //容器高度
-       , cols: [[   // 标题栏目
-           {field: 'id', title: 'ID'}
-           , {field: 'jobName', title: '任务名称'}
-           , {field: 'crontab', title: '定时规则'}
-           , {field: 'handlerType', title: '任务类型'}
-           , {field: 'handlerFailStrategy', title: '失败策略' }
-           , {field: 'admin', title: '负责人'}
-           , {field: 'adminEmail', title: '负责人邮箱'}
-           , {field: 'adminPhone', title: '负责人电话'}
-           , {field: 'createTime', title: '创建时间'}
-           , {field: 'updateTime', title: '更新时间'}
-           , {field: 'priority', title: '优先级',  width: 80}
-           , {field: 'enable', title: '是否启用',  templet: '#enableTpl', width: 100}
-           , {fixed: 'right', title: '操作', align: 'center', toolbar: '#barOption', width: 250} ]]
-       , id: 'jobTable'
-       , url: [[@{/portal/job/json-pager}]]
-       , method: 'get'
-       , page: {
-           layout: ['count', 'prev', 'page', 'next'] //自定义分页布局
-           ,groups: 10 //只显示 1 个连续页码
-                       }
-       , loading: false
-       , done: function (res, curr, count) {
+        var tableIns = table.render({
+        elem: '#jobTable'                  //指定原始表格元素选择器（推荐id选择器）
+        , height: 'full-200'    //容器高度
+        , cols: [[   // 标题栏目
+            {field: 'id', title: 'ID'}
+            , {field: 'jobName', title: '任务名称'}
+            , {field: 'crontab', title: '定时规则'}
+            , {field: 'handlerType', title: '任务类型'}
+            , {field: 'handlerFailStrategy', title: '失败策略' }
+            , {field: 'admin', title: '负责人'}
+            , {field: 'adminEmail', title: '负责人邮箱'}
+            , {field: 'adminPhone', title: '负责人电话'}
+            , {field: 'createTime', title: '创建时间'}
+            , {field: 'updateTime', title: '更新时间'}
+            , {field: 'priority', title: '优先级',  width: 80}
+            , {field: 'enable', title: '是否启用',  templet: '#enableTpl', width: 100}
+            , {fixed: 'right', title: '操作', align: 'center', toolbar: '#barOption', width: 250} ]]
+        , id: 'jobTable'
+        , url: [[@{/portal/job/json-pager}]]
+        , method: 'get'
+        , page: {
+            layout: ['count', 'prev', 'page', 'next'] //自定义分页布局
+            ,groups: 10 //只显示 1 个连续页码
+        }
+        , loading: false
+        , done: function (res, curr, count) {
                 //如果是异步请求数据方式，res即为你接口返回的信息。
                 //如果是直接赋值的方式，res即为：{data: [], count: 99} data为当前页数据、count为数据总长度
                  // console.log(res);
@@ -91,40 +91,56 @@
 
                 //得到数据总量
                 // console.log(count);
-                
             }
         });
         // 获取选中行
-    table.on('tool(jobTable)', function (obj) {
-        if(obj.event == 'view') {
-        	window.location.href = [[@{/portal/job-view/}]] + obj.data.id;
-        } else if(obj.event == 'edit') {
-        	window.location.href = [[@{/portal/job-edit/}]] + obj.data.id;
-        } else if(obj.event == 'del') {
-            layer.msg('Sorry! 删除 Job 暂时没有完成');
-        } else if(obj.event == 'run') {
-            $.post([[@{/portal/job-event-save/}]], {jobId: obj.data.id}, function(data) {
-                layer.msg(data.msg);
-            });
-        }
-    });
+        table.on('tool(jobTable)', function (obj) {
+            if(obj.event == 'view') {
+        	    window.location.href = [[@{/portal/job-view/}]] + obj.data.id;
+            } else if(obj.event == 'edit') {
+        	    window.location.href = [[@{/portal/job-edit/}]] + obj.data.id;
+            } else if(obj.event == 'del') {
+                layer.confirm('是否删除该任务？', function () {
+                    $.ajax({
+                        type: 'DELETE',
+                        url: [[@{/portal/job/}]] + obj.data.id,
+                        dataType: 'json',
+                        headers: {
+                            'Content-Type' : 'application/json;charset=utf-8'
+                        }
+                    }).done(function (data) {
+                        if (data.code === 1) {
+                            layer.msg(data.msg);
+                        } else {
+                            layer.msg('删除成功！');
+                            refresh()
+                        }
+                    });
+                });
+            } else if(obj.event == 'run') {
+                $.post([[@{/portal/job-event-save/}]], {jobId: obj.data.id}, function(data) {
+                    layer.msg(data.msg);
+                });
+            }
+        });
 
         // 刷新
-    $('#btn-search').on('click', function () {
-        tableIns.reload({
-            where: {
-              jobName: $('#jobName').val()
-                           },
-            page: {
-                layout: ['count', 'prev', 'page', 'next'] //自定义分页布局
-                ,groups: 10 //只显示 1 个连续页码
-                ,curr: 1
-                           }
-                        });
-              });
+        $('#btn-search').on('click', function () {
+            refresh();
+        });
 
-   // you code ...
-
+        function refresh() {
+            tableIns.reload({
+                where: {
+                    jobName: $('#jobName').val()
+                },
+                page: {
+                    layout: ['count', 'prev', 'page', 'next'] //自定义分页布局
+                    ,groups: 10 //只显示 1 个连续页码
+                    ,curr: 1
+                }
+            });
+        }
     });
 </script>
 </html>

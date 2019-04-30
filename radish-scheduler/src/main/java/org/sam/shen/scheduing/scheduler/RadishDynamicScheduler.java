@@ -130,10 +130,11 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 		// Trigger the job to run with cron
 		JobKey jobKey = new JobKey(String.valueOf(jobId), jobName);
 		Class<? extends Job> jobClass_ = EventJobBean.class;
-		JobDataMap jobDataMap = new JobDataMap(new HashMap<String, Long>(){
+		JobDataMap jobDataMap = new JobDataMap(new HashMap<String, Object>(){
 			private static final long serialVersionUID = 1L;
 			{
 				put("jobId", jobId);
+				put("jobName", jobName);
 			}
 		}) ;
 		JobDetail jobDetail = JobBuilder.newJob(jobClass_).withIdentity(jobKey).usingJobData(jobDataMap).build();

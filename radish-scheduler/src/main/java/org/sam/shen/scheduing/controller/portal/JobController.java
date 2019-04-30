@@ -18,8 +18,6 @@ import org.sam.shen.scheduing.service.JobEventService;
 import org.sam.shen.scheduing.service.JobService;
 import org.sam.shen.scheduing.vo.JobEventTreeNode;
 import org.sam.shen.scheduing.vo.JobSchedulerVo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -47,8 +45,6 @@ import javax.servlet.http.HttpSession;
 @RequestMapping(value = "portal")
 public class JobController {
 	
-	private Logger logger = LoggerFactory.getLogger(JobController.class);
-
 	@Autowired
 	private JobService jobService;
 	
@@ -63,6 +59,16 @@ public class JobController {
 		model.setViewName("frame/job/job");
 		return model;
 	}
+
+	@ResponseBody
+	@RequestMapping(value = "job/{jobId}", method = RequestMethod.DELETE)
+	public Resp<String> deleteJob(@PathVariable Long jobId) {
+	    if (jobService.removeJob(jobId)) {
+	        return Resp.SUCCESS;
+        } else {
+	        return Resp.FAIL;
+        }
+    }
 
 	/**
 	 * 到任务新增页面

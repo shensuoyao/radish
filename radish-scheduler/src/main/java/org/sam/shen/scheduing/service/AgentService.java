@@ -271,4 +271,10 @@ public class AgentService {
         }
     }
 
+    public boolean removeAgent(Long agentId) {
+        // 判断agent是否还连接着
+        int count = agentMapper.deleteAgent(agentId);
+        return count > 0;
+    }
+
 }
