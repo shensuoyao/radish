@@ -85,7 +85,7 @@
             <div class="layui-input-block">
                 <select name="handlerFailStrategy" class="layui-input" lay-filter="handlerFailStrategy">
                     <option value=""></option>
-                    <option th:each="enum : ${handlerFailStrategy}" th:value="${enum}" th:text="${enum.desc}" />
+                    <option th:each="enum,stat : ${handlerFailStrategy}" th:value="${enum}" th:text="${enum.desc}" th:selected="${stat.first}" />
                 </select>
             </div>
         </div>
@@ -108,7 +108,7 @@
             <div class="layui-inline">
                 <label class="layui-form-label">优先级</label>
                 <div class="layui-input-inline">
-                    <input type="input" name="priority" placeholder="0 - 9 越大优先级越高"  class="layui-input">
+                    <input type="input" name="priority" placeholder="0 - 9 越大优先级越高"  class="layui-input" value="0">
                 </div>
             </div>
             <div class="layui-inline">

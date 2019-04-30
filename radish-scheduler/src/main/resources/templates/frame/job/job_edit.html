@@ -109,7 +109,7 @@
             </div>
         </div>
         <div class="layui-form-item">
-            <label class="layui-form-label">分片规则</label>
+            <label class="layui-form-label" id="dist-tips"><i class="layui-icon">&#xe60b;</i> 分片规则</label>
             <div class="layui-input-block">
                 <input type="input" name="distRule" placeholder="分片规则" th:value="${jobInfo.distRule}" class="layui-input">
             </div>
@@ -221,17 +221,25 @@
         }, false);
 
         $("#param-tips").on('click', function() {
-        	  var tip = "如 Handler 处理器需要附加参数, 请为每一条参数独立一行, 多行将会作为多条参数处理...";
-	        	layer.tips(tip,  '#param-tips', {
-	                tips: [3, '#78BA32']
-	                    });
-                  }); 
+            var tip = "如 Handler 处理器需要附加参数, 请为每一条参数独立一行, 多行将会作为多条参数处理...";
+            layer.tips(tip,  '#param-tips', {
+                tips: [3, '#78BA32']
+            });
+        });
         $("#crontab-tips").on('click', function() {
             var tip = "crontab 可以不填写, 如果不填写, 则该Job为手动触发任务, 需要手动触发执行.";
-              layer.tips(tip,  '#crontab-tips', {
-                  tips: [1, '#78BA32']
-                      });
-                }); 
+            layer.tips(tip,  '#crontab-tips', {
+                tips: [1, '#78BA32']
+            });
+        });
+        $("#dist-tips").on('click', function() {
+            var tip = "枚举：各个类型之间用英文逗号隔开，例如专科,本科,硕士,博士；分页：目前只支持总页数|总数这种写法，例如7|100000；"
+                + "取模：直接输入一个正整数就行；时间：时间格式|开始时间～结束时间|间隔时间，例如yyyy-MM-dd|2018-01-01～2018-01-31|1d，"
+                + "间隔时间的可用单位为ymdh，分别表示年月日时。";
+            layer.tips(tip,  '#dist-tips', {
+                tips: [3, '#78BA32']
+            });
+        });
         
         var paramsEditor = CodeMirror.fromTextArea(document.getElementById("params"), {
             indentUnit: 4,
