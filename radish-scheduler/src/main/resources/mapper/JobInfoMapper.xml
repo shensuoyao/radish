@@ -92,8 +92,8 @@
             SET crontab = #{crontab}, handler_type = #{handlerType}, handler_fail_strategy = #{handlerFailStrategy},
                 admin = #{admin}, admin_phone = #{adminPhone}, admin_email = #{adminEmail}, executor_handlers = #{executorHandlers},
                 cmd = #{cmd}, params = #{params}, param_file_path = #{paramFilePath}, parent_job_id = #{parentJobId},
-                dist_type = #{distType}, dist_rule = #{distRule}, create_time = #{createTime}, update_time = #{updateTime},
-                priority = #{priority}, enable = #{enable}
+                dist_type = #{distType}, dist_rule = #{distRule}, update_time = #{updateTime}, priority = #{priority},
+                enable = #{enable}
             WHERE id = #{id}
 	    ]]>
     </update>
