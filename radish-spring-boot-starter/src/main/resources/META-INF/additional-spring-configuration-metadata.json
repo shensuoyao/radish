@@ -13,17 +13,17 @@
     {
       "name": "radish.agent.port",
       "type": "java.lang.Integer",
-      "description": "Radish agent port.",
+      "description": "Radish agent port."
     },
     {
       "name": "radish.agent.logpath",
       "type": "java.lang.String",
-      "description": "Log store path in radish agent.",
+      "description": "Log store path in radish agent."
     },
     {
       "name": "radish.agent.shpath",
       "type": "java.lang.String",
-      "description": "Shell script store path in radish agent.",
+      "description": "Shell script store path in radish agent."
     },
     {
       "name": "radish.scheduler.server",
@@ -39,7 +39,7 @@
     {
       "name": "radish.log-view-netty.port",
       "type": "java.lang.Integer",
-      "description": "Port that log view netty bind.",
+      "description": "Port that log view netty bind."
     }
   ]
 }
