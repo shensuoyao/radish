@@ -16,7 +16,9 @@ import org.sam.shen.core.model.Resp;
 import org.sam.shen.core.rpc.RestRequest;
 import org.sam.shen.core.thread.AgentHeartBeatThread;
 import org.sam.shen.core.thread.TriggerEventThread;
+import org.sam.shen.core.util.IpUtil;
 import org.sam.shen.core.util.ScriptUtil;
+import org.sam.shen.core.util.SystemUtil;
 import org.springframework.http.HttpMethod;
 
 import com.google.common.collect.Maps;
@@ -43,6 +45,20 @@ public class RadishAgent {
 
 	public RadishAgent(List<IHandler> handlers) {
 	    RadishAgent.handlers = handlers;
+	    // 初始化默认参数
+        if (SystemUtil.osName().startsWith("Windows")) {
+            logPath = "C:\\radish\\log";
+            shPath = "C:\\radish\\log";
+        } else {
+            logPath = "/tmp/log/radish";
+            shPath = "/tmp/log/radish";
+        }
+        agentInfo = new AgentInfo();
+        agentInfo.setAgentName(IpUtil.getIp() == null ? null : ("agent_".concat(IpUtil.getIp())));
+        agentInfo.setAgentIp(IpUtil.getIp());
+        agentInfo.setAgentPort(8083);
+        agentInfo.setNetwork("netty");
+        agentInfo.setNettyPort(8084);
     }
 
 	public void start() {

@@ -7,7 +7,6 @@ import org.sam.shen.core.handler.IHandler;
 import org.sam.shen.core.handler.anno.AHandler;
 import org.sam.shen.core.handler.impl.ScriptHandler;
 import org.sam.shen.core.model.AgentInfo;
-import org.sam.shen.core.util.IpUtil;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -63,6 +62,7 @@ public class RadishAutoConfiguration {
         // Set basic agent information
         String server = this.properties.getScheduler().getServer();
         String agentName = this.properties.getAgent().getName();
+        String agentIp = properties.getAgent().getIp();
         Integer agentPort = this.properties.getAgent().getPort();
         String network = this.properties.getLogViewMode();
         RadishProperties.LogViewNetty nettyProperties = this.properties.getLogViewNetty();
@@ -74,14 +74,17 @@ public class RadishAutoConfiguration {
         radishAgent.setLogPath(properties.getAgent().getLogpath());
         radishAgent.setShPath(properties.getAgent().getShpath());
         AgentInfo agentInfo = new AgentInfo();
-        agentInfo.setAgentIp(properties.getAgent().getIp());
-        if (StringUtils.isEmpty(agentName)) {
-            agentName = IpUtil.getHostName();
+        if (StringUtils.isNotEmpty(agentIp)) {
+            agentInfo.setAgentIp(agentIp);
         }
-        agentInfo.setAgentName(agentName);
-        agentInfo.setAgentPort(agentPort);
+        if (StringUtils.isNotEmpty(agentName)) {
+            agentInfo.setAgentName(agentName);
+        }
+        if (agentPort != null) {
+            agentInfo.setAgentPort(agentPort);
+        }
         agentInfo.setNetwork(network);
-        if (nettyProperties != null) {
+        if (nettyProperties != null && nettyProperties.getPort() != null) {
             agentInfo.setNettyPort(nettyProperties.getPort());
         }
         radishAgent.setAgentInfo(agentInfo);
