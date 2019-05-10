@@ -337,7 +337,10 @@ public class JobController {
 	    if (jobInfo == null) {
             return new Resp<>(0, "invalid job id.");
         }
-        if (jobInfo.getEnable() == Constant.NO || StringUtils.isNotEmpty(jobInfo.getCrontab()) || StringUtils.isNotEmpty(jobInfo.getParentJobId())) {
+//        if (jobInfo.getEnable() == Constant.NO || StringUtils.isNotEmpty(jobInfo.getCrontab()) || StringUtils.isNotEmpty(jobInfo.getParentJobId())) {
+//            return new Resp<>(0, "invalid job.");
+//        }
+		if (jobInfo.getEnable() == Constant.NO || StringUtils.isNotEmpty(jobInfo.getParentJobId())) {
             return new Resp<>(0, "invalid job.");
         }
         List<JobEvent> jobEvents = jobEventService.queryJobEventByJobId(jobId);
