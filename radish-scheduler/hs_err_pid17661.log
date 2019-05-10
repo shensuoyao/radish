@@ -1,0 +1,209 @@
+#
+# A fatal error has been detected by the Java Runtime Environment:
+#
+#  SIGSEGV (0xb) at pc=0x00007ff048782f95, pid=17661, tid=0x00007ff05abe9700
+#
+# JRE version: Java(TM) SE Runtime Environment (8.0_172-b11) (build 1.8.0_172-b11)
+# Java VM: Java HotSpot(TM) 64-Bit Server VM (25.172-b11 mixed mode linux-amd64 compressed oops)
+# Problematic frame:
+# C  [libjprofilerti.so+0xe8f95]  ProbePatches::getPatchFunction(jprofiler::String&, std::vector<std::pair<int, char const*>, std::allocator<std::pair<int, char const*> > >&)+0x1a5
+#
+# Core dump written. Default location: /run/media/suoyao/develop/radish/radish-scheduler/core or core.17661
+#
+# If you would like to submit a bug report, please visit:
+#   http://bugreport.java.com/bugreport/crash.jsp
+# The crash happened outside the Java Virtual Machine in native code.
+# See problematic frame for where to report the bug.
+#
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x00007ff024005800):  JavaThread "SIGTERM handler" daemon [_thread_in_native, id=18139, stack(0x00007ff05aae9000,0x00007ff05abea000)]
+
+siginfo: si_signo: 11 (SIGSEGV), si_code: 1 (SEGV_MAPERR), si_addr: 0x00007ff272819330
+
+Registers:
+RAX=0x0000000000000000, RBX=0x0000000010002499, RCX=0x0000000000000012, RDX=0x00007feffcdd5290
+RSP=0x00007ff05abe4d30, RBP=0x00007feffc9b9630, RSI=0x0000000001000249, RDI=0x00007ff0489d5660
+R8 =0x0000000001000249, R9 =0x0000000000000000, R10=0x00007ff0100008d0, R11=0x00007ff272819320
+R12=0x00007ff05abe5010, R13=0x0000000000000000, R14=0x00007ff05abe7070, R15=0x00000000180034bf
+RIP=0x00007ff048782f95, EFLAGS=0x0000000000010202, CSGSFS=0x002b000000000033, ERR=0x0000000000000004
+  TRAPNO=0x000000000000000e
+
+Top of Stack: (sp=0x00007ff05abe4d30)
+0x00007ff05abe4d30:   00007feffcdd5290 10002499489d5660
+0x00007ff05abe4d40:   00007ff05abe4d90 00007ff05abe5040
+0x00007ff05abe4d50:   00007ff0100026b0 000000000000000b
+0x00007ff05abe4d60:   3f40000000000008 00007ff024002650
+0x00007ff05abe4d70:   00007ff02919a168 00000003019d9740
+0x00007ff05abe4d80:   00007ff000000003 0000000000000000
+0x00007ff05abe4d90:   0000000000000000 00007fef00000000
+0x00007ff05abe4da0:   0000000000000000 00007ff05abe4d98
+0x00007ff05abe4db0:   00007ff05abe4d98 0000000000000000
+0x00007ff05abe4dc0:   00000000000003ae 00007ff0489d5660
+0x00007ff05abe4dd0:   00007ff05abe5040 00007ff05abe5010
+0x00007ff05abe4de0:   0000000000000000 00007feffd782bf0
+0x00007ff05abe4df0:   0000000000000000 00007ff0487a66c7
+0x00007ff05abe4e00:   00007ff05abe4ee8 00007feffd782bf0
+0x00007ff05abe4e10:   00007ff0489d5660 0000000000000000
+0x00007ff05abe4e20:   00007ff05abe7104 0000000000000000
+0x00007ff05abe4e30:   00007ff05abe5040 00007ff05abe4fd0
+0x00007ff05abe4e40:   00007ff05abe4f80 0000000000000000
+0x00007ff05abe4e50:   0000000000000000 0000000000000000
+0x00007ff05abe4e60:   0000000000000000 0000000000000000
+0x00007ff05abe4e70:   0100000000000000 0000000000000000
+0x00007ff05abe4e80:   0000000000000000 00007ff0100025f0
+0x00007ff05abe4e90:   00007ff0489d5660 0000000000000000
+0x00007ff05abe4ea0:   00007feffc01b150 0000000100000000
+0x00007ff05abe4eb0:   00007ff05abe725c 00007ff05abe70f8
+0x00007ff05abe4ec0:   000003ae00000000 00007ff02919a110
+0x00007ff05abe4ed0:   00007ff0240059f8 0000000000000000
+0x00007ff05abe4ee0:   0000000000000000 000002d700000000
+0x00007ff05abe4ef0:   0000000000000000 0000000000000000
+0x00007ff05abe4f00:   0000000000000000 0000000000000000
+0x00007ff05abe4f10:   0000000000000000 0000000000000000
+0x00007ff05abe4f20:   0000000000000000 0000000000000000 
+
+Instructions: (pc=0x00007ff048782f95)
+0x00007ff048782f75:   8b 04 b7 d3 e8 a8 02 0f 85 9c 00 00 00 a8 01 75
+0x00007ff048782f85:   3f 41 89 db 49 8b 7e 10 49 c1 e3 05 4c 03 5d 18
+0x00007ff048782f95:   49 8b 73 10 41 8b 4b 18 48 85 f6 41 0f 94 c2 48
+0x00007ff048782fa5:   85 ff 41 0f 94 c1 45 08 ca 74 35 45 31 e4 85 c9 
+
+Register to memory mapping:
+
+RAX=0x0000000000000000 is an unknown value
+RBX=0x0000000010002499 is an unknown value
+RCX=0x0000000000000012 is an unknown value
+RDX=0x00007feffcdd5290 is an unknown value
+RSP=0x00007ff05abe4d30 is pointing into the stack for thread: 0x00007ff024005800
+RBP=0x00007feffc9b9630 is an unknown value
+RSI=0x0000000001000249 is an unknown value
+RDI=0x00007ff0489d5660: _ZN24LiveClassProfilingHelper10nameBufferE+0 in /opt/jprofiler11.0/bin/linux-x64/libjprofilerti.so at 0x00007ff04869a000
+R8 =0x0000000001000249 is an unknown value
+R9 =0x0000000000000000 is an unknown value
+R10=0x00007ff0100008d0 is an unknown value
+R11=0x00007ff272819320 is an unknown value
+R12=0x00007ff05abe5010 is pointing into the stack for thread: 0x00007ff024005800
+R13=0x0000000000000000 is an unknown value
+R14=0x00007ff05abe7070 is pointing into the stack for thread: 0x00007ff024005800
+R15=0x00000000180034bf is an unknown value
+
+
+Stack: [0x00007ff05aae9000,0x00007ff05abea000],  sp=0x00007ff05abe4d30,  free space=1007k
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+C  [libjprofilerti.so+0xe8f95]  ProbePatches::getPatchFunction(jprofiler::String&, std::vector<std::pair<int, char const*>, std::allocator<std::pair<int, char const*> > >&)+0x1a5
+
+Java frames: (J=compiled Java code, j=interpreted, Vv=VM code)
+j  java.util.IdentityHashMap$KeySet.iterator()Ljava/util/Iterator;+0
+j  java.lang.ApplicationShutdownHooks.runHooks()V+27
+j  java.lang.ApplicationShutdownHooks$1.run()V+0
+j  java.lang.Shutdown.runHooks()V+39
+j  java.lang.Shutdown.sequence()V+26
+j  java.lang.Shutdown.exit(I)V+95
+j  java.lang.Terminator$1.handle(Lsun/misc/Signal;)V+8
+j  sun.misc.Signal$1.run()V+8
+j  java.lang.Thread.run()V+11
+v  ~StubRoutines::call_stub
+
+---------------  P R O C E S S  ---------------
+
+Java Threads: ( => current thread )
+=>0x00007ff024005800 JavaThread "SIGTERM handler" daemon [_thread_in_native, id=18139, stack(0x00007ff05aae9000,0x00007ff05abea000)]
+  0x00007fef5804c800 JavaThread "Sender-/192.168.140.146:2888" [_thread_blocked, id=17767, stack(0x00007fefa7dfe000,0x00007fefa7eff000)]
+  0x00007fef50032000 JavaThread "RecvWorker:3" daemon [_thread_in_native, id=17762, stack(0x00007fefe422c000,0x00007fefe432d000)]
+  0x00007fef50030000 JavaThread "SendWorker:3" daemon [_thread_blocked, id=17761, stack(0x00007fefe432d000,0x00007fefe442e000)]
+  0x00007fef5002e800 JavaThread "RecvWorker:2" daemon [_thread_in_native, id=17760, stack(0x00007fefe442e000,0x00007fefe452f000)]
+  0x00007fef5002c000 JavaThread "SendWorker:2" daemon [_thread_blocked, id=17759, stack(0x00007fefe452f000,0x00007fefe4630000)]
+  0x00007ff070014000 JavaThread "DestroyJavaVM" [_thread_blocked, id=17666, stack(0x00007ff077ddb000,0x00007ff077edb000)]
+  0x00007ff070a3a000 JavaThread "ClusterPeer[myid=4]" [_thread_in_vm, id=17758, stack(0x00007fefe4630000,0x00007fefe4731000)]
+  0x00007ff070a39000 JavaThread "WorkerReceiver[myid=4]" daemon [_thread_blocked, id=17757, stack(0x00007fefe4731000,0x00007fefe4832000)]
+  0x00007ff070a37000 JavaThread "WorkerSender[myid=4]" daemon [_thread_blocked, id=17756, stack(0x00007fefe4832000,0x00007fefe4933000)]
+  0x00007ff073126000 JavaThread "/192.168.140.21:3888" [_thread_in_native, id=17755, stack(0x00007fefe4933000,0x00007fefe4a34000)]
+  0x00007ff070fc7800 JavaThread "http-nio-8888-AsyncTimeout" daemon [_thread_blocked, id=17754, stack(0x00007fefe4a34000,0x00007fefe4b35000)]
+  0x00007ff070fc3000 JavaThread "http-nio-8888-Acceptor-0" daemon [_thread_in_native, id=17753, stack(0x00007fefe4b35000,0x00007fefe4c36000)]
+  0x00007ff071bb3800 JavaThread "http-nio-8888-ClientPoller-1" daemon [_thread_in_native, id=17752, stack(0x00007fefe4c36000,0x00007fefe4d37000)]
+  0x00007ff071bb2800 JavaThread "http-nio-8888-ClientPoller-0" daemon [_thread_in_native, id=17751, stack(0x00007fefe4d37000,0x00007fefe4e38000)]
+  0x00007ff071baf800 JavaThread "http-nio-8888-exec-10" daemon [_thread_blocked, id=17750, stack(0x00007fefe4e38000,0x00007fefe4f39000)]
+  0x00007ff070e2b800 JavaThread "http-nio-8888-exec-9" daemon [_thread_blocked, id=17749, stack(0x00007fefe4f39000,0x00007fefe503a000)]
+  0x00007ff070e29800 JavaThread "http-nio-8888-exec-8" daemon [_thread_blocked, id=17748, stack(0x00007fefe503a000,0x00007fefe513b000)]
+  0x00007ff070e27800 JavaThread "http-nio-8888-exec-7" daemon [_thread_blocked, id=17747, stack(0x00007fefe513b000,0x00007fefe523c000)]
+  0x00007ff070e25800 JavaThread "http-nio-8888-exec-6" daemon [_thread_blocked, id=17746, stack(0x00007fefe523c000,0x00007fefe533d000)]
+  0x00007ff070e24800 JavaThread "http-nio-8888-exec-5" daemon [_thread_blocked, id=17745, stack(0x00007fefe533d000,0x00007fefe543e000)]
+  0x00007ff071cdd000 JavaThread "http-nio-8888-exec-4" daemon [_thread_blocked, id=17744, stack(0x00007fefe543e000,0x00007fefe553f000)]
+  0x00007ff071cdb000 JavaThread "http-nio-8888-exec-3" daemon [_thread_blocked, id=17743, stack(0x00007fefe553f000,0x00007fefe5640000)]
+  0x00007ff071cd9800 JavaThread "http-nio-8888-exec-2" daemon [_thread_blocked, id=17742, stack(0x00007fefe5640000,0x00007fefe5741000)]
+  0x00007ff071cd7800 JavaThread "http-nio-8888-exec-1" daemon [_thread_blocked, id=17741, stack(0x00007fefe5741000,0x00007fefe5842000)]
+  0x00007ff07316e800 JavaThread "NioBlockingSelector.BlockPoller-1" daemon [_thread_in_native, id=17740, stack(0x00007fefe5842000,0x00007fefe5943000)]
+  0x00007ff072e2b800 JavaThread "RadishQuartzScheduler_QuartzSchedulerThread" [_thread_blocked, id=17734, stack(0x00007fefe5b43000,0x00007fefe5c44000)]
+  0x00007ff072e22800 JavaThread "RadishQuartzScheduler_Worker-15" [_thread_blocked, id=17733, stack(0x00007fefe5c44000,0x00007fefe5d45000)]
+  0x00007ff072e20800 JavaThread "RadishQuartzScheduler_Worker-14" [_thread_blocked, id=17732, stack(0x00007fefe5d45000,0x00007fefe5e46000)]
+  0x00007ff072e1e800 JavaThread "RadishQuartzScheduler_Worker-13" [_thread_blocked, id=17731, stack(0x00007fefe5e46000,0x00007fefe5f47000)]
+  0x00007ff072e1c800 JavaThread "RadishQuartzScheduler_Worker-12" [_thread_blocked, id=17730, stack(0x00007fefe5f47000,0x00007fefe6048000)]
+  0x00007ff072e1a800 JavaThread "RadishQuartzScheduler_Worker-11" [_thread_blocked, id=17729, stack(0x00007fefe6048000,0x00007fefe6149000)]
+  0x00007ff072df3000 JavaThread "RadishQuartzScheduler_Worker-10" [_thread_blocked, id=17728, stack(0x00007fefe6149000,0x00007fefe624a000)]
+  0x00007feff405a800 JavaThread "_jprofiler_control_sampler" daemon [_thread_blocked, id=17727, stack(0x00007fefe624a000,0x00007fefe634b000)]
+  0x00007ff072df1000 JavaThread "RadishQuartzScheduler_Worker-9" [_thread_blocked, id=17726, stack(0x00007fefe634b000,0x00007fefe644c000)]
+  0x00007ff072def000 JavaThread "RadishQuartzScheduler_Worker-8" [_thread_blocked, id=17725, stack(0x00007fefe644c000,0x00007fefe654d000)]
+  0x00007ff072ded000 JavaThread "RadishQuartzScheduler_Worker-7" [_thread_blocked, id=17724, stack(0x00007fefe654d000,0x00007fefe664e000)]
+  0x00007ff072deb800 JavaThread "RadishQuartzScheduler_Worker-6" [_thread_blocked, id=17723, stack(0x00007fefe664e000,0x00007fefe674f000)]
+  0x00007ff072de9800 JavaThread "RadishQuartzScheduler_Worker-5" [_thread_blocked, id=17722, stack(0x00007fefe674f000,0x00007fefe6850000)]
+  0x00007ff072de7800 JavaThread "RadishQuartzScheduler_Worker-4" [_thread_blocked, id=17721, stack(0x00007fefe6850000,0x00007fefe6951000)]
+  0x00007ff072de6000 JavaThread "RadishQuartzScheduler_Worker-3" [_thread_blocked, id=17720, stack(0x00007fefe6951000,0x00007fefe6a52000)]
+  0x00007ff072de4000 JavaThread "RadishQuartzScheduler_Worker-2" [_thread_blocked, id=17719, stack(0x00007fefe6a52000,0x00007fefe6b53000)]
+  0x00007ff072e05000 JavaThread "RadishQuartzScheduler_Worker-1" [_thread_blocked, id=17718, stack(0x00007fefe6b53000,0x00007fefe6c54000)]
+  0x00007feff4005800 JavaThread "_jprofiler_native_sampler" daemon [_thread_blocked, id=17717, stack(0x00007fefe6c54000,0x00007fefe6d55000)]
+  0x00007ff070dc0800 JavaThread "Druid-ConnectionPool-Destroy-1487131937" daemon [_thread_blocked, id=17714, stack(0x00007fefe7afd000,0x00007fefe7bfe000)]
+  0x00007ff070ceb000 JavaThread "Druid-ConnectionPool-Create-1487131937" daemon [_thread_blocked, id=17713, stack(0x00007fefe7bfe000,0x00007fefe7cff000)]
+  0x00007ff070918000 JavaThread "Abandoned connection cleanup thread" daemon [_thread_blocked, id=17712, stack(0x00007fefe7eff000,0x00007fefe8000000)]
+  0x00007ff0729d8000 JavaThread "container-0" [_thread_blocked, id=17711, stack(0x00007ff03428f000,0x00007ff034390000)]
+  0x00007ff0729d2000 JavaThread "ContainerBackgroundProcessor[StandardEngine[Tomcat]]" daemon [_thread_blocked, id=17710, stack(0x00007ff048078000,0x00007ff048179000)]
+  0x00007feffce92000 JavaThread "_jprofiler_native_comm" daemon [_thread_in_native, id=17708, stack(0x00007ff048599000,0x00007ff04869a000)]
+  0x00007feffce62000 JavaThread "_jprofiler_sampler" daemon [_thread_blocked, id=17707, stack(0x00007ff0580eb000,0x00007ff0581ec000)]
+  0x00007ff024001000 JavaThread "Attach Listener" daemon [_thread_blocked, id=17706, stack(0x00007ff059ad3000,0x00007ff059bd4000)]
+  0x00007ff070817800 JavaThread "Service Thread" daemon [_thread_blocked, id=17694, stack(0x00007ff05a1d4000,0x00007ff05a2d5000)]
+  0x00007ff070828800 JavaThread "C1 CompilerThread3" daemon [_thread_blocked, id=17693, stack(0x00007ff05a2d6000,0x00007ff05a3d6000)]
+  0x00007ff070826800 JavaThread "C2 CompilerThread2" daemon [_thread_blocked, id=17692, stack(0x00007ff05a3d7000,0x00007ff05a4d7000)]
+  0x00007ff07077c800 JavaThread "C2 CompilerThread1" daemon [_thread_blocked, id=17691, stack(0x00007ff05a4d8000,0x00007ff05a5d8000)]
+  0x00007ff07077f000 JavaThread "C2 CompilerThread0" daemon [_thread_blocked, id=17690, stack(0x00007ff05a5d9000,0x00007ff05a6d9000)]
+  0x00007ff070221800 JavaThread "JDWP Event Helper Thread" daemon [_thread_blocked, id=17684, stack(0x00007ff05abea000,0x00007ff05aceb000)]
+  0x00007ff07021e000 JavaThread "JDWP Transport Listener: dt_socket" daemon [_thread_in_native, id=17682, stack(0x00007ff05aceb000,0x00007ff05adec000)]
+  0x00007ff07020f000 JavaThread "Signal Dispatcher" daemon [_thread_blocked, id=17680, stack(0x00007ff05aff0000,0x00007ff05b0f1000)]
+  0x00007ff0701dd000 JavaThread "Finalizer" daemon [_thread_blocked, id=17679, stack(0x00007ff05b0f1000,0x00007ff05b1f2000)]
+  0x00007ff0701da800 JavaThread "Reference Handler" daemon [_thread_blocked, id=17678, stack(0x00007ff05b1f2000,0x00007ff05b2f3000)]
+
+Other Threads:
+  0x00007ff0701d1000 VMThread [stack: 0x00007ff05b2f4000,0x00007ff05b3f4000] [id=17677]
+  0x00007ff07083f800 WatcherThread [stack: 0x00007ff05a0d4000,0x00007ff05a1d4000] [id=17695]
+
+VM state:not at safepoint (normal execution)
+
+VM Mutex/Monitor currently owned by a thread: None
+
+Heap:
+ PSYoungGen      total 368128K, used 195421K [0x000000076d100000, 0x0000000785300000, 0x00000007c0000000)
+  eden space 350208K, 55% used [0x000000076d100000,0x0000000778fd7518,0x0000000782700000)
+  from space 17920K, 0% used [0x0000000783a80000,0x0000000783a80000,0x0000000784c00000)
+  to   space 19968K, 0% used [0x0000000782700000,0x0000000782700000,0x0000000783a80000)
+ ParOldGen       total 222208K, used 28530K [0x00000006c7200000, 0x00000006d4b00000, 0x000000076d100000)
+  object space 222208K, 12% used [0x00000006c7200000,0x00000006c8ddc8c8,0x00000006d4b00000)
+ Metaspace       used 62878K, capacity 65018K, committed 65152K, reserved 1105920K
+  class space    used 7600K, capacity 7980K, committed 8064K, reserved 1048576K
+
+Card table byte_map: [0x00007ff075fc5000,0x00007ff07678d000] byte_map_base: 0x00007ff07298c000
+
+Marking Bits: (ParMarkBitMap*) 0x00007ff079033de0
+ Begin Bits: [0x00007ff034390000, 0x00007ff0381c8000)
+ End Bits:   [0x00007ff0381c8000, 0x00007ff03c000000)
+
+Polling page: 0x00007ff079497000
+
+CodeCache: size=245760Kb used=17321Kb max_used=17668Kb free=228438Kb
+ bounds [0x00007ff061000000, 0x00007ff062160000, 0x00007ff070000000]
+ total_blobs=5837 nmethods=5267 adapters=490
+ compilation: enabled
+
+Compilation events (10 events):
+Event: 1194.933 Thread 0x00007ff070828800 7222   !   3       com.jprofiler.agent.probe.ProbeHandler::doSampling (153 bytes)
+Event: 1194.934 Thread 0x00007ff070828800 nmethod 7222 0x00007ff06203c690 code [0x00007ff06203c880, 0x00007ff06203d2a8]
+Event: 1201.031 Thread 0x00007ff070828800 7223   !   3       java.util.regex.Pattern::matcher (44 bytes)

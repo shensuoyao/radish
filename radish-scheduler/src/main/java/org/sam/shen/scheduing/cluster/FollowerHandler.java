@@ -159,7 +159,6 @@ public class FollowerHandler extends Thread {
 	 * @throws IOException 
 	 * @throws SchedulerException 
 	 */
-	@SuppressWarnings("unchecked") 
 	private void processPacket(ClusterPacket<?> cp) throws IOException, InterruptedException {
 	    if (cp.getType() == null) {
 	        return;
