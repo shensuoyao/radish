@@ -306,7 +306,6 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 		return TriggerKey.triggerKey(String.valueOf(jobId), jobName);
 	}
 	
-	@SuppressWarnings("unchecked")
 	public static List<JobSchedulerVo> listJobsInScheduler(Long userId) {
 	    List<JobSchedulerVo> jobs = jobSchedulerMapper.queryJobScheduler(JobScheduler.RunningStatus.RUNNING, userId);
 	    return jobs == null ? Collections.emptyList() : jobs;

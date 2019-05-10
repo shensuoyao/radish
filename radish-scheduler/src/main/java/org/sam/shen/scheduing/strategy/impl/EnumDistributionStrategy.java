@@ -1,18 +1,18 @@
 package org.sam.shen.scheduing.strategy.impl;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 import org.sam.shen.core.constants.EventStatus;
 import org.sam.shen.scheduing.entity.JobEvent;
 import org.sam.shen.scheduing.entity.JobInfo;
 import org.sam.shen.scheduing.strategy.AbsDistributionStrategy;
 
-import java.util.*;
-
 /**
  * @author clock
  * @date 2018/12/28 上午9:33
  */
-@Slf4j
 public class EnumDistributionStrategy extends AbsDistributionStrategy {
 
     @Override

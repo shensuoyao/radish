@@ -1,8 +1,11 @@
 package org.sam.shen.core.handler;
 
+import java.util.Arrays;
 import java.util.List;
 
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.commons.lang3.StringUtils;
 import org.sam.shen.core.event.HandlerEvent;
 import org.sam.shen.core.log.RadishLogFileAppender;
 import org.sam.shen.core.model.Resp;
@@ -61,6 +64,12 @@ public abstract class AbsHandler implements IHandler {
 
 	protected void log(List<String> logLines) {
 		RadishLogFileAppender.appendLog(logFileName, logLines);
+	}
+	
+	protected void log(String logStr) {
+		if(StringUtils.isNotEmpty(logStr)) {
+			RadishLogFileAppender.appendLog(logFileName, Arrays.asList(logStr));
+		}
 	}
 	
 }

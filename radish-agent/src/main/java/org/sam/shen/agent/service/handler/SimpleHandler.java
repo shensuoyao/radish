@@ -1,6 +1,5 @@
 package org.sam.shen.agent.service.handler;
 
-import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import org.sam.shen.core.event.HandlerEvent;
@@ -20,7 +19,7 @@ public class SimpleHandler extends AbsHandler {
 	public Resp<String> execute(HandlerEvent event) throws Exception {
 		for(String p : event.getParams()) {
 			logger.info(getEventId() + " 处理任务 p : {}", p);
-			log(Arrays.asList("jobId = " + getEventId() + " ====>>> " + p));
+			log("jobId = " + getEventId() + " ====>>> " + p);
 			TimeUnit.SECONDS.sleep(10);
 		}
 		return null;
