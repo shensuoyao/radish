@@ -2,6 +2,8 @@ package org.sam.shen.scheduing.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.sam.shen.core.annotations.RadishLog;
+import org.sam.shen.core.constants.MonitorType;
 import org.sam.shen.scheduing.entity.JobEvent;
 
 import com.github.pagehelper.Page;
@@ -33,6 +35,7 @@ public interface JobEventMapper {
 
 	int updateEventPriority(JobEvent jobEvent);
 
+	@RadishLog(monitorType = MonitorType.EVENT)
 	int batchInsert(List<JobEvent> list);
 
 	int updateChildEventStatus(@Param("stat") String stat, @Param("pid") String pid);

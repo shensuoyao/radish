@@ -1,13 +1,24 @@
 package org.sam.shen.scheduing.aop;
 
+import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.sam.shen.core.annotations.RadishLog;
+import org.sam.shen.core.constants.MonitorType;
+import org.sam.shen.core.event.HandlerEvent;
+import org.sam.shen.core.model.AgentMonitorInfo;
+import org.sam.shen.core.model.MonitorInfo;
 import org.sam.shen.core.model.Resp;
+import org.sam.shen.core.rpc.RestRequest;
 import org.sam.shen.scheduing.entity.AppInfo;
+import org.sam.shen.scheduing.entity.JobEvent;
 import org.sam.shen.scheduing.entity.User;
 import org.sam.shen.scheduing.mapper.AppInfoMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -16,18 +27,32 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author clock
  * @date 2019/1/14 下午2:29
  */
+@Slf4j
 @Aspect
 @Component
 public class CommonAspect {
 
     @Resource
     private AppInfoMapper appInfoMapper;
+
+    @Value("${monitor.url}")
+    private String url;
+
+    @Value("${monitor.heartbeat.timeout}")
+    private long beatTimeout;
+
+    @Value("${monitor.event.timeout}")
+    private long eventTimeout;
+
+    @Value("${monitor.alarmType}")
+    private String alarmType;
 
 
     /**
@@ -82,6 +107,55 @@ public class CommonAspect {
             return null;
         } else {
             return joinPoint.proceed();
+        }
+    }
+
+    /**
+     * 监控日志切点
+     * @author clock
+     * @date 2019-05-16 17:29
+     * @param joinPoint 切入点
+     */
+    @After(value = "@annotation(org.sam.shen.core.annotations.RadishLog)")
+    public void handleRadishLog(JoinPoint joinPoint) {
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        RadishLog radishLog = signature.getMethod().getAnnotation(RadishLog.class);
+        MonitorType monitorType = radishLog.monitorType();
+        long timeout = radishLog.timeout();
+        MonitorInfo monitorInfo = new MonitorInfo();
+        monitorInfo.setCreateTime(new Date());
+        monitorInfo.setMonitorType(monitorType);
+        monitorInfo.setAlarmType(alarmType);
+        switch (monitorType) {
+            case HEARTBEAT:
+                AgentMonitorInfo object = (AgentMonitorInfo) joinPoint.getArgs()[0];
+                monitorInfo.setBizId(Long.toString(object.getAgentId()));
+                if (timeout == -1L) {
+                    timeout = beatTimeout;
+                }
+                monitorInfo.setExtra(Collections.singletonMap("timeout", Long.toString(timeout)));
+                break;
+            case EVENT:
+                if (timeout == -1L) {
+                    timeout = eventTimeout;
+                }
+                monitorInfo.setExtra(Collections.singletonMap("timeout", Long.toString(timeout)));
+                String methodName = signature.getMethod().getName();
+                if (methodName.contains("handlerEventReport")) {
+                    HandlerEvent event = (HandlerEvent) joinPoint.getArgs()[0];
+                    monitorInfo.setBizId(event.getEventId());
+                } else if (methodName.contains("batchInsert")) {
+                    List<JobEvent> list = (List<JobEvent>) joinPoint.getArgs()[0];
+                    String bizId = list.stream().map(JobEvent::getEventId).collect(Collectors.joining(","));
+                    monitorInfo.setBizId(bizId);
+                }
+                break;
+        }
+        // 发送到监控中心
+        try {
+            RestRequest.post(url, monitorInfo);
+        } catch (Exception e) {
+            log.error("Request monitor failed.[{}]", e.getMessage());
         }
     }
 

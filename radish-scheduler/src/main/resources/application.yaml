@@ -11,10 +11,18 @@ cluster:
   syncLimit: 5 
   clusterListenOnAllIPs: false
   servers: 
-    node.2: 192.168.140.216:2888:3888
-    node.1: 192.168.140.236:2888:3888
-    #node.3: 192.168.140.146:2888:3888
-    node.4: 192.168.140.21:2888:3888
+#    node.2: 192.168.140.216:2888:3888
+#    node.1: 192.168.140.236:2888:3888
+    node.3: 192.168.140.146:2888:3888
+#    node.4: 192.168.140.21:2888:3888
+
+monitor:
+  url: http://127.0.0.1:9001/monitor/collect
+  alarmType: EMAIL
+  heartbeat:
+    timeout: 60000
+  event:
+    timeout: 300000
 
 spring:
   profiles:

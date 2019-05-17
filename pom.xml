@@ -17,6 +17,7 @@
         <module>radish-scheduler</module>
         <module>radish-agent</module>
         <module>radish-spring-boot-starter</module>
+        <module>radish-monitor</module>
     </modules>
 
     <properties>

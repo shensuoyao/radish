@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.Map;
 
 import lombok.extern.slf4j.Slf4j;
+import org.sam.shen.core.annotations.RadishLog;
 import org.sam.shen.core.constants.Constant;
+import org.sam.shen.core.constants.MonitorType;
 import org.sam.shen.core.event.HandlerEvent;
 import org.sam.shen.core.model.AgentInfo;
 import org.sam.shen.core.model.AgentMonitorInfo;
@@ -69,6 +71,7 @@ public class CoreController {
 	 * @date 下午3:24:44
 	 * @return agent monitoring information
 	 */
+	@RadishLog(monitorType = MonitorType.HEARTBEAT)
 	@RequestMapping(value = "/heartbeat", method = RequestMethod.POST)
 	public Resp<AgentMonitorInfo> heartbeat(@RequestBody AgentMonitorInfo agent) {
 		@SuppressWarnings("unchecked")
@@ -98,6 +101,7 @@ public class CoreController {
 	 * @param event job event
 	 * @return handle result
 	 */
+	@RadishLog(monitorType = MonitorType.EVENT)
 	@RequestMapping(value = "/handler-event-report", method = RequestMethod.POST)
 	public Resp<String> handlerEventReport(@RequestBody HandlerEvent event) {
 		jobEventService.handlerJobEventReport(event);
