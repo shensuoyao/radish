@@ -103,11 +103,11 @@ public class EventMonitoring extends AbsMonitoring {
                                     log.warn("event-{}未设置报警人联系方式！", monitorInfo.getBizId());
                                 }
                             }
+                            initialEventMap.remove(key);
                         }
                     } catch (Exception e) {
-                        log.error("event[{}] occurred exception when check whether initial event is timeout, {}", key, e.getMessage());
-                    } finally {
                         initialEventMap.remove(key);
+                        log.error("event[{}] occurred exception when check whether initial event is timeout, {}", key, e.getMessage());
                     }
                 }
             }
@@ -157,11 +157,11 @@ public class EventMonitoring extends AbsMonitoring {
                                     log.warn("event-{}未设置报警人联系方式！", monitorInfo.getBizId());
                                 }
                             }
+                            handleEventMap.remove(key);
                         }
                     } catch (Exception e) {
-                        log.error("event[{}] occurred exception when check whether handle event is timeout, {}", key, e.getMessage());
-                    } finally {
                         handleEventMap.remove(key);
+                        log.error("event[{}] occurred exception when check whether handle event is timeout, {}", key, e.getMessage());
                     }
                 }
             }

@@ -16,14 +16,6 @@ cluster:
     node.3: 192.168.140.146:2888:3888
 #    node.4: 192.168.140.21:2888:3888
 
-monitor:
-  url: http://127.0.0.1:9001/monitor/collect
-  alarmType: EMAIL
-  heartbeat:
-    timeout: 60000
-  event:
-    timeout: 60000
-
 spring:
   profiles:
     active: dev
@@ -105,6 +97,13 @@ spring:
         max-wait: -1s
         max-idle: 8
         min-idle: 0
+monitor:
+  url: http://127.0.0.1:9001/monitor/collect
+  alarmType: EMAIL
+  heartbeat:
+    timeout: 300000
+  event:
+    timeout: 300000
 
 ---
 
@@ -130,4 +129,11 @@ spring:
         max-wait: -1s
         max-idle: 8
         min-idle: 0
+monitor:
+  url: http://127.0.0.1:9001/monitor/collect
+  alarmType: EMAIL
+  heartbeat:
+    timeout: 60000
+  event:
+    timeout: 60000
 

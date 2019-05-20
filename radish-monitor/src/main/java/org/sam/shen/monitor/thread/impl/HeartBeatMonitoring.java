@@ -89,11 +89,11 @@ public class HeartBeatMonitoring extends AbsMonitoring {
                                     log.warn("event-{}未设置报警人联系方式！", monitorInfo.getBizId());
                                 }
                             }
+                            monitorInfoMap.remove(key);
                         }
                     } catch (Exception e) {
-                        log.error("agent[{}] occurred exception when check whether agent is offline, {}", key, e.getMessage());
-                    } finally {
                         monitorInfoMap.remove(key);
+                        log.error("agent[{}] occurred exception when check whether agent is offline, {}", key, e.getMessage());
                     }
                 }
             }
