@@ -22,7 +22,7 @@ monitor:
   heartbeat:
     timeout: 60000
   event:
-    timeout: 300000
+    timeout: 60000
 
 spring:
   profiles:

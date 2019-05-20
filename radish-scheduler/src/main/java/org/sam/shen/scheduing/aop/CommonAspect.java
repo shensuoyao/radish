@@ -3,7 +3,7 @@ package org.sam.shen.scheduing.aop;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
@@ -116,8 +116,8 @@ public class CommonAspect {
      * @date 2019-05-16 17:29
      * @param joinPoint 切入点
      */
-    @After(value = "@annotation(org.sam.shen.core.annotations.RadishLog)")
-    public void handleRadishLog(JoinPoint joinPoint) {
+    @AfterReturning(value = "@annotation(org.sam.shen.core.annotations.RadishLog)", returning = "result")
+    public void handleRadishLog(JoinPoint joinPoint, Object result) {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         RadishLog radishLog = signature.getMethod().getAnnotation(RadishLog.class);
         MonitorType monitorType = radishLog.monitorType();
@@ -139,16 +139,25 @@ public class CommonAspect {
                 if (timeout == -1L) {
                     timeout = eventTimeout;
                 }
-                monitorInfo.setExtra(Collections.singletonMap("timeout", Long.toString(timeout)));
+                Map<String, String> extra = new HashMap<>();
+                extra.put("timeout", Long.toString(timeout));
                 String methodName = signature.getMethod().getName();
                 if (methodName.contains("handlerEventReport")) {
                     HandlerEvent event = (HandlerEvent) joinPoint.getArgs()[0];
                     monitorInfo.setBizId(event.getEventId());
+                    extra.put("step", "3");
                 } else if (methodName.contains("batchInsert")) {
                     List<JobEvent> list = (List<JobEvent>) joinPoint.getArgs()[0];
                     String bizId = list.stream().map(JobEvent::getEventId).collect(Collectors.joining(","));
                     monitorInfo.setBizId(bizId);
+                    extra.put("step", "1");
+                } else if (methodName.contains("triggerEvent")) {
+                    Resp<HandlerEvent> resp = (Resp<HandlerEvent>) result;
+                    String bizId = resp.getData().getEventId();
+                    monitorInfo.setBizId(bizId);
+                    extra.put("step", "2");
                 }
+                monitorInfo.setExtra(extra);
                 break;
         }
         // 发送到监控中心

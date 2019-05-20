@@ -1,6 +1,7 @@
 package org.sam.shen.monitor.thread;
 
 
+import org.apache.commons.lang3.StringUtils;
 import org.sam.shen.core.model.MonitorInfo;
 
 import java.util.concurrent.BlockingQueue;
@@ -44,5 +45,17 @@ public abstract class AbsMonitoring extends Thread implements IMonitoring {
     }
 
     public abstract void process(MonitorInfo monitorInfo);
+
+    protected boolean isInteger(String i) {
+        if (StringUtils.isEmpty(i)) {
+            return false;
+        }
+        try {
+            Integer.parseInt(i);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
 }

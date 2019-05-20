@@ -87,6 +87,7 @@ public class CoreController {
 	 * @param agentId agent id
 	 * @return preemptive event
 	 */
+	@RadishLog(monitorType = MonitorType.EVENT)
 	@RequestMapping(value = "/trigger-event/{agentId}", method = RequestMethod.GET)
 	public Resp<HandlerEvent> triggerEvent(@PathVariable(value = "agentId", required = false) Long agentId) {
 		// 根据Agent机器性能决定是否能抢到任务
