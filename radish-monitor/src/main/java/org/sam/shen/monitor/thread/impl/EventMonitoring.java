@@ -86,13 +86,13 @@ public class EventMonitoring extends AbsMonitoring {
                             // 获取告警人
                             Notifier notifier = NotifierService.getNotifierOfJob(monitorInfo.getBizId());
                             if (notifier == null || (StringUtils.isEmpty(notifier.getPhone()) && StringUtils.isEmpty(notifier.getEmail()))) {
-                                log.warn("event-{}未设置报警人联系方式！", monitorInfo.getBizId());
+                                log.warn("event[{}]未设置报警人联系方式！", monitorInfo.getBizId());
                             } else {
                                 Alarm alarm = new Alarm();
                                 alarm.setId(UUID.randomUUID().toString().replaceAll("-", ""));
                                 alarm.setAlarmType(monitorInfo.getAlarmType());
                                 alarm.setNotifier(notifier.getName());
-                                alarm.setContent("event-" + monitorInfo.getBizId() + "已超时，未有客户端抢占处理!");
+                                alarm.setContent("event[" + monitorInfo.getBizId() + "]已超时，未有客户端抢占处理!");
                                 if ("EMAIL".equals(alarm.getAlarmType()) && StringUtils.isNotEmpty(notifier.getEmail())) {
                                     alarm.setEmail(notifier.getEmail());
                                     alarmCenter.offerAlarm(alarm);
@@ -100,7 +100,7 @@ public class EventMonitoring extends AbsMonitoring {
                                     alarm.setPhone(notifier.getPhone());
                                     alarmCenter.offerAlarm(alarm);
                                 } else {
-                                    log.warn("event-{}未设置报警人联系方式！", monitorInfo.getBizId());
+                                    log.warn("event[{}]未设置报警人联系方式！", monitorInfo.getBizId());
                                 }
                             }
                             initialEventMap.remove(key);
@@ -140,13 +140,13 @@ public class EventMonitoring extends AbsMonitoring {
                             // 获取告警人
                             Notifier notifier = NotifierService.getNotifierOfJob(monitorInfo.getBizId());
                             if (notifier == null || (StringUtils.isEmpty(notifier.getPhone()) && StringUtils.isEmpty(notifier.getEmail()))) {
-                                log.warn("event-{}未设置报警人联系方式！", monitorInfo.getBizId());
+                                log.warn("event[{}]未设置报警人联系方式！", monitorInfo.getBizId());
                             } else {
                                 Alarm alarm = new Alarm();
                                 alarm.setId(UUID.randomUUID().toString().replaceAll("-", ""));
                                 alarm.setAlarmType(monitorInfo.getAlarmType());
                                 alarm.setNotifier(notifier.getName());
-                                alarm.setContent("event-" + monitorInfo.getBizId() + "已超时，处理事件的线程被阻塞或异常结束!");
+                                alarm.setContent("event[" + monitorInfo.getBizId() + "]已超时，处理事件的线程被阻塞或异常结束!");
                                 if ("EMAIL".equals(alarm.getAlarmType()) && StringUtils.isNotEmpty(notifier.getEmail())) {
                                     alarm.setEmail(notifier.getEmail());
                                     alarmCenter.offerAlarm(alarm);
@@ -154,7 +154,7 @@ public class EventMonitoring extends AbsMonitoring {
                                     alarm.setPhone(notifier.getPhone());
                                     alarmCenter.offerAlarm(alarm);
                                 } else {
-                                    log.warn("event-{}未设置报警人联系方式！", monitorInfo.getBizId());
+                                    log.warn("event[{}]未设置报警人联系方式！", monitorInfo.getBizId());
                                 }
                             }
                             handleEventMap.remove(key);

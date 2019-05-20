@@ -72,13 +72,13 @@ public class HeartBeatMonitoring extends AbsMonitoring {
                             // 获取告警人
                             Notifier notifier = NotifierService.getNotifierOfAgent(monitorInfo.getBizId());
                             if (notifier == null || (StringUtils.isEmpty(notifier.getPhone()) && StringUtils.isEmpty(notifier.getEmail()))) {
-                                log.warn("event-{}未设置报警人联系方式！", monitorInfo.getBizId());
+                                log.warn("event[{}]未设置报警人联系方式！", monitorInfo.getBizId());
                             } else {
                                 Alarm alarm = new Alarm();
                                 alarm.setId(UUID.randomUUID().toString().replaceAll("-", ""));
                                 alarm.setAlarmType(monitorInfo.getAlarmType());
                                 alarm.setNotifier(notifier.getName());
-                                alarm.setContent("agent-" + monitorInfo.getBizId() + "已断开连接!");
+                                alarm.setContent("agent[" + monitorInfo.getBizId() + "]已断开连接!");
                                 if ("EMAIL".equals(alarm.getAlarmType()) && StringUtils.isNotEmpty(notifier.getEmail())) {
                                     alarm.setEmail(notifier.getEmail());
                                     alarmCenter.offerAlarm(alarm);
@@ -86,7 +86,7 @@ public class HeartBeatMonitoring extends AbsMonitoring {
                                     alarm.setPhone(notifier.getPhone());
                                     alarmCenter.offerAlarm(alarm);
                                 } else {
-                                    log.warn("event-{}未设置报警人联系方式！", monitorInfo.getBizId());
+                                    log.warn("event[{}]未设置报警人联系方式！", monitorInfo.getBizId());
                                 }
                             }
                             monitorInfoMap.remove(key);
