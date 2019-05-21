@@ -13,6 +13,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * 心跳监控线程
  * @author clock
  * @date 2019-05-15 09:20
  */

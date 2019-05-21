@@ -11,6 +11,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
+ * 告警中心
  * @author clock
  * @date 2019-05-15 17:31
  */

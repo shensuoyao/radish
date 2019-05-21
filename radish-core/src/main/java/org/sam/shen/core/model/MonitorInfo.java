@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.Map;
 
 /**
+ * 监控信息
  * @author clock
  * @date 2019-05-13 17:28
  */
@@ -21,14 +22,19 @@ public class MonitorInfo implements Serializable {
 
     private String id;
 
+    // 监控业务ID
     private String bizId;
 
+    // 监控类型
     private MonitorType monitorType;
 
+    // 告警类型
     private String alarmType;
 
+    // 额外的数据
     private Map<String, String> extra;
 
+    // 创建时间
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private Date createTime;
 

@@ -13,6 +13,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * 事件监控现线程
  * @author clock
  * @date 2019-05-16 15:35
  */
@@ -21,14 +22,19 @@ public class EventMonitoring extends AbsMonitoring {
 
     private final String timeoutKey = "timeout";
 
+    // 事件处理到哪个阶段
     private final String stepKey = "step";
 
+    // 刚初始化的事件Map
     private ConcurrentHashMap<String, MonitorInfo> initialEventMap;
 
+    // 正在处理的事件Map
     private ConcurrentHashMap<String, MonitorInfo> handleEventMap;
 
+    // 监听初始化事件Map，如果超时未被其他客户端获取，则产生超时该告警
     private InitializationTimeout initializationListener;
 
+    // 监听处理的事件Map，如果超时未执行完毕，则产生超时告警
     private HandleTimeout handleListener;
 
     public EventMonitoring() {

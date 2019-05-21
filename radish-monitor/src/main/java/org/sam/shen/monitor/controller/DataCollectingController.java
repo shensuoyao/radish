@@ -1,6 +1,5 @@
 package org.sam.shen.monitor.controller;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.sam.shen.core.model.MonitorInfo;
 import org.sam.shen.core.model.Resp;
@@ -10,10 +9,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
+ * 数据采集
  * @author clock
  * @date 2019-05-13 18:06
  */
-@Slf4j
 @RestController
 public class DataCollectingController {
 
@@ -23,6 +22,13 @@ public class DataCollectingController {
         this.monitoringCenter = monitoringCenter;
     }
 
+    /**
+     * 采集监控信息
+     * @author clock
+     * @date 2019-05-21 14:51
+     * @param monitorInfo 监控信息
+     * @return 请求结果
+     */
     @PostMapping("collect")
     public Resp<String> dataCollect(@RequestBody MonitorInfo monitorInfo) {
         if (StringUtils.isNotEmpty(monitorInfo.getBizId())) {

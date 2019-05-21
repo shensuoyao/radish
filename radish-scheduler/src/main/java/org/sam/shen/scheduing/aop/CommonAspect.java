@@ -119,9 +119,11 @@ public class CommonAspect {
     @AfterReturning(value = "@annotation(org.sam.shen.core.annotations.RadishLog)", returning = "result")
     public void handleRadishLog(JoinPoint joinPoint, Object result) {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        // 获取注解信息
         RadishLog radishLog = signature.getMethod().getAnnotation(RadishLog.class);
         MonitorType monitorType = radishLog.monitorType();
         long timeout = radishLog.timeout();
+        // 生成监控信息
         MonitorInfo monitorInfo = new MonitorInfo();
         monitorInfo.setCreateTime(new Date());
         monitorInfo.setMonitorType(monitorType);

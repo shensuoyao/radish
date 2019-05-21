@@ -6,6 +6,7 @@ import lombok.Setter;
 import java.io.Serializable;
 
 /**
+ * 告警信息
  * @author clock
  * @date 2019-05-15 16:32
  */
@@ -17,14 +18,19 @@ public class Alarm implements Serializable {
 
     private String id;
 
+    // 告警内容
     private String content;
 
+    // 告警类型，短信或者邮件
     private String alarmType;
 
+    // 告警通知人
     private String notifier;
 
+    // 告警通知邮箱
     private String email;
 
+    // 告警通知手机号
     private String phone;
 
 }

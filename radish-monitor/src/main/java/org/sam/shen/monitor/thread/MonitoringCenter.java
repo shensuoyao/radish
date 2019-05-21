@@ -7,6 +7,7 @@ import org.sam.shen.core.model.MonitorInfo;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
+ * 监控中心
  * @author clock
  * @date 2019-05-14 11:45
  */

@@ -5,6 +5,7 @@ import org.sam.shen.core.constants.MonitorType;
 import java.lang.annotation.*;
 
 /**
+ * 采集日志的注解
  * @author clock
  * @date 2019-05-10 18:04
  */

@@ -22,11 +22,24 @@ public class NotifierService implements ApplicationContextAware {
         notifierMapper = applicationContext.getBean(NotifierMapper.class);
     }
 
-
+    /**
+     * 查询客户端通知人
+     * @author clock
+     * @date 2019-05-21 14:56
+     * @param agentId 客户端ID
+     * @return 告警人信息
+     */
     public static Notifier getNotifierOfAgent(String agentId) {
         return notifierMapper.selectFromAgent(agentId);
     }
 
+    /**
+     * 查询任务通知人
+     * @author clock
+     * @date 2019-05-21 14:56
+     * @param eventId 事件ID
+     * @return 告警人信息
+     */
     public static Notifier getNotifierOfJob(String eventId) {
         return notifierMapper.selectFromJob(eventId);
     }

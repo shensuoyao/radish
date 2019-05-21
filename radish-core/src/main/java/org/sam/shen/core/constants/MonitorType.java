@@ -1,6 +1,7 @@
 package org.sam.shen.core.constants;
 
 /**
+ * 监控类型
  * @author clock
  * @date 2019-05-16 16:46
  */
