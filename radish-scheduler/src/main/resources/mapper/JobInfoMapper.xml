@@ -24,16 +24,17 @@
         <result column="priority" property="priority"/>
         <result column="enable" property="enable"/>
         <result column="user_id" property="userId"/>
+        <result column="expired" property="expired"/>
     </resultMap>
 
 	<insert id="saveJobInfo" parameterType="JobInfo" useGeneratedKeys="true" keyProperty="id">
 	    <![CDATA[
             INSERT INTO job_info(job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone,
                         executor_handlers, cmd, params, param_file_path, parent_job_id, dist_type, dist_rule, create_time, update_time,
-                        priority, enable, user_id)
+                        priority, enable, user_id, expired)
             VALUES (#{jobName}, #{crontab}, #{handlerType}, #{handlerFailStrategy}, #{admin}, #{adminEmail}, #{adminPhone},
                     #{executorHandlers}, #{cmd}, #{params}, #{paramFilePath}, #{parentJobId}, #{distType}, #{distRule}, #{createTime},
-                    #{updateTime}, #{priority}, #{enable}, #{userId})
+                    #{updateTime}, #{priority}, #{enable}, #{userId}, #{expired})
         ]]>
     </insert>
 
@@ -41,19 +42,19 @@
         <![CDATA[
             INSERT INTO job_info(job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone,
                         executor_handlers, cmd, params, param_file_path, parent_job_id, dist_type, dist_rule, create_time, update_time,
-                        priority, enable, user_id) VALUES
+                        priority, enable, user_id, expired) VALUES
         ]]>
         <foreach collection="list" item="item" index="index" separator=",">
             (#{item.jobName}, #{item.crontab}, #{item.handlerType}, #{item.handlerFailStrategy}, #{item.admin}, #{item.adminEmail},
             #{item.adminPhone}, #{item.executorHandlers}, #{item.cmd}, #{item.params}, #{item.paramFilePath}, #{item.parentJobId},
-            #{item.distType}, #{item.distRule}, #{item.createTime}, #{item.updateTime}, #{item.priority}, #{item.enable}, #{item.userId})
+            #{item.distType}, #{item.distRule}, #{item.createTime}, #{item.updateTime}, #{item.priority}, #{item.enable}, #{item.userId}, #{item.expired})
         </foreach>
     </insert>
     
     <sql id="Base_Column_List">
         id, job_name, crontab, handler_type, handler_fail_strategy, admin, admin_email, admin_phone, executor_handlers,
         cmd, params, param_file_path, parent_job_id, dist_type, dist_rule, create_time,update_time, priority, enable,
-        user_id
+        user_id, expired
     </sql>
 
     <select id="findJobInfoById" resultMap="jobInfoMap" parameterType="long">
@@ -93,7 +94,7 @@
                 admin = #{admin}, admin_phone = #{adminPhone}, admin_email = #{adminEmail}, executor_handlers = #{executorHandlers},
                 cmd = #{cmd}, params = #{params}, param_file_path = #{paramFilePath}, parent_job_id = #{parentJobId},
                 dist_type = #{distType}, dist_rule = #{distRule}, update_time = #{updateTime}, priority = #{priority},
-                enable = #{enable}
+                enable = #{enable}, expired = #{expired}
             WHERE id = #{id}
 	    ]]>
     </update>
@@ -138,7 +139,7 @@
         <![CDATA[
             SELECT a.id, a.job_name, a.crontab, a.handler_type, a.handler_fail_strategy, a.admin, a.admin_email, a.admin_phone,
                    a.executor_handlers, a.cmd, a.params, a.param_file_path, a.parent_job_id, a.dist_type, a.dist_rule, a.create_time,
-                   a.update_time, a.priority, a.enable, b.id as ref_id, b.app_id
+                   a.update_time, a.priority, a.enable, a.expired, b.id as ref_id, b.app_id
             FROM job_info a, job_app_ref b
             WHERE a.id = b.job_id AND a.id = #{jobId}
         ]]>
@@ -148,7 +149,7 @@
         <![CDATA[
             SELECT a.id, a.job_name, a.crontab, a.handler_type, a.handler_fail_strategy, a.admin, a.admin_email, a.admin_phone,
                    a.executor_handlers, a.cmd, a.params, a.param_file_path, a.parent_job_id, a.dist_type, a.dist_rule, a.create_time,
-                   a.update_time, a.priority, a.enable
+                   a.update_time, a.priority, a.enable, a.expired
             FROM job_info a, job_app_ref b
             WHERE a.id = b.job_id AND b.app_id = #{appId}
         ]]>

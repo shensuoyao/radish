@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 import java.util.stream.Stream;
 
+import com.alibaba.fastjson.JSON;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -18,6 +19,7 @@ import org.sam.shen.scheduing.service.JobEventService;
 import org.sam.shen.scheduing.service.JobService;
 import org.sam.shen.scheduing.vo.JobEventTreeNode;
 import org.sam.shen.scheduing.vo.JobSchedulerVo;
+import org.sam.shen.scheduing.vo.JobVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -99,7 +101,7 @@ public class JobController {
 	 * @return
 	 */
 	@RequestMapping(value = "job-save", method = RequestMethod.POST)
-	public ModelAndView jobSave(ModelAndView model, @ModelAttribute JobInfo jobInfo,
+	public ModelAndView jobSave(ModelAndView model, @ModelAttribute JobVo jobInfo,
 								@RequestParam("parentJob") List<String> parentJob,
 								@RequestParam("agentHandlers") List<String> agentHandlers,
 								HttpSession session) {
@@ -110,7 +112,9 @@ public class JobController {
 		if (null != agentHandlers && agentHandlers.size() > 0) {
 			jobInfo.setExecutorHandlers(Joiner.on(",").join(agentHandlers));
 		}
-		jobInfo.setUpdateTime(new Date());
+		if (jobInfo.getExpired() != null) {
+			jobInfo.setExpired(jobInfo.getExpired() + jobInfo.getExpiredUnit());
+		}
 		if(null == jobInfo.getId()) {
 			 // 新增Job
 			jobInfo.setCreateTime(new Date());
@@ -122,6 +126,7 @@ public class JobController {
 			jobService.addJobinfo(jobInfo);
 		} else {
 			 // 更新
+			jobInfo.setUpdateTime(new Date());
 			jobService.upgradeJobInfo(jobInfo);
 		}
 		return model;
@@ -224,7 +229,13 @@ public class JobController {
 	public ModelAndView jobEdit(ModelAndView model, @PathVariable(value = "id", required = false) Long id) {
 		if(null != id) {
 			JobInfo jobInfo = jobService.findJobInfo(id);
-			model.addObject("jobInfo", jobInfo);
+			JobVo jobVo = JSON.parseObject(JSON.toJSONString(jobInfo), JobVo.class);
+			String expired = jobVo.getExpired();
+			if (StringUtils.isNotEmpty(expired)) {
+				jobVo.setExpired(expired.substring(0, expired.length() - 1));
+				jobVo.setExpiredUnit(expired.substring(expired.length() - 1));
+			}
+			model.addObject("jobInfo", jobVo);
 			
 			List<Long> ids = Lists.newArrayList();
 			if(StringUtils.isNotEmpty(jobInfo.getParentJobId())) {
@@ -234,7 +245,6 @@ public class JobController {
 				List<JobInfo> parentJob = Lists.newArrayList();
 				List<JobInfo> depend = jobService.queryJobInfoByIds(ids);
 				depend.forEach(job -> {
-					
 					if(null != jobInfo.getParentJobId() && jobInfo.getParentJobId().indexOf(String.valueOf(job.getId())) >= 0) {
 						parentJob.add(job);
 					}

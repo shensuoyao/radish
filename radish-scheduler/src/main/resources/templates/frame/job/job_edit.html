@@ -128,6 +128,18 @@
             </div>
         </div>
 	    </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">过期时间</label>
+            <div class="layui-input-inline" style="width: 25%;">
+                <input type="input" name="expired" placeholder="过期时间" th:value="${jobInfo.expired}" class="layui-input">
+            </div>
+            <div class="layui-input-inline" style="width: 70px;">
+                <select name="expiredUnit" class="layui-input" lay-filter="expiredUnit">
+                    <option value="h" th:selected="${jobInfo.expiredUnit} eq 'h'">小时</option>
+                    <option value="d" th:selected="${jobInfo.expiredUnit} eq 'd'">天</option>
+                </select>
+            </div>
+        </div>
 	    <div class="layui-form-item">
 	        <label class="layui-form-label">脚本代码</label>
 	        <div class="layui-input-block layui-collapse">

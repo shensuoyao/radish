@@ -113,6 +113,7 @@ CREATE TABLE `job_info` (
   `priority` tinyint(2) DEFAULT '0' COMMENT '任务优先级 0 - 9',
   `enable` tinyint(2) DEFAULT '1' COMMENT '是否启用, 1: 启用, 0:禁用',
   `user_id` int(11) DEFAULT NULL COMMENT '创建用户ID',
+  `expired` varchar(32) DEFAULT NULL COMMENT '任务生成的事件过期移除的时间',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;

@@ -62,6 +62,8 @@ public class JobInfo extends Identity {
 
 	private Long userId; // 创建的用户ID
 
+	private String expired; // 事件过期时间
+
 	public JobInfo() {
 		super();
 	}
