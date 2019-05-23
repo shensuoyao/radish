@@ -12,7 +12,8 @@ public enum EventStatus {
 	HANDLE(2),
 	FAIL(3),
 	SUCCESS(4),
-	RETRY(5);
+	RETRY(5),
+	EXPIRED(6);
 	
 	private int stat;
 	
