@@ -98,6 +98,7 @@ spring:
         max-idle: 8
         min-idle: 0
 monitor:
+  enable: false
   url: http://127.0.0.1:9001/monitor/collect
   alarmType: EMAIL
   heartbeat:
@@ -130,6 +131,7 @@ spring:
         max-idle: 8
         min-idle: 0
 monitor:
+  enable: false
   url: http://127.0.0.1:9001/monitor/collect
   alarmType: EMAIL
   heartbeat:

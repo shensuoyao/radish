@@ -54,6 +54,9 @@ public class CommonAspect {
     @Value("${monitor.alarmType}")
     private String alarmType;
 
+    @Value("${monitor.enable}")
+    private boolean enable;
+
 
     /**
      * 外部接口的拦截切面，主要用于一些固定参数的校验
@@ -118,6 +121,9 @@ public class CommonAspect {
      */
     @AfterReturning(value = "@annotation(org.sam.shen.core.annotations.RadishLog)", returning = "result")
     public void handleRadishLog(JoinPoint joinPoint, Object result) {
+        if (!enable) {
+            return;
+        }
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         // 获取注解信息
         RadishLog radishLog = signature.getMethod().getAnnotation(RadishLog.class);
