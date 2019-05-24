@@ -2,16 +2,13 @@ package org.sam.shen.agent.handler;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sam.shen.agent.entity.ExpiredEvent;
-import org.sam.shen.agent.mapper.ExpiredEventMapper;
 import org.sam.shen.agent.service.ExpiredEventService;
 import org.sam.shen.core.event.HandlerEvent;
 import org.sam.shen.core.handler.AbsHandler;
 import org.sam.shen.core.handler.anno.AHandler;
 import org.sam.shen.core.model.Resp;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
