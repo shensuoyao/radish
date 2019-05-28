@@ -1,6 +1,7 @@
 package org.sam.shen.scheduing.aop;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -67,6 +68,17 @@ public class CommonAspect {
      */
     @Around("execution(* org.sam.shen.scheduing.api.JobApi.*(..))")
     public Object checkParams(ProceedingJoinPoint joinPoint) throws Throwable {
+        HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
+        String appId = request.getHeader("appId");
+        if (StringUtils.isEmpty(appId)) {
+            return new Resp<>(Resp.FAIL.getCode(), "应用ID不能为空！");
+        }
+        // 校验应用ID是否存在
+        AppInfo appInfo = appInfoMapper.selectAppInfoById(appId);
+        if (appInfo == null) {
+            return new Resp<>(Resp.FAIL.getCode(), "无效的应用ID！");
+        }
+
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         String[] params = signature.getParameterNames();
         Object[] args = joinPoint.getArgs();
@@ -76,16 +88,6 @@ public class CommonAspect {
             if ("jobId".equals(param)) {
                 if (arg == null) {
                     return new Resp<>(Resp.FAIL.getCode(), "任务ID不能为空！");
-                }
-            }
-            if ("appId".equals(param)) {
-                if (arg == null || "".equals(arg.toString())) {
-                    return new Resp<>(Resp.FAIL.getCode(), "应用ID不能为空！");
-                }
-                // 校验应用ID是否存在
-                AppInfo appInfo = appInfoMapper.selectAppInfoById(arg.toString());
-                if (appInfo == null) {
-                    return new Resp<>(Resp.FAIL.getCode(), "无效的应用ID！");
                 }
             }
         }
