@@ -2,7 +2,7 @@ package org.sam.shen.agent.handler;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sam.shen.agent.entity.ExpiredEvent;
-import org.sam.shen.agent.service.ExpiredEventService;
+import org.sam.shen.agent.service.JobEventService;
 import org.sam.shen.core.event.HandlerEvent;
 import org.sam.shen.core.handler.AbsHandler;
 import org.sam.shen.core.handler.anno.AHandler;
@@ -20,9 +20,9 @@ import java.util.List;
 @AHandler(name = "expiredEventHandler", description = "检查event是否超时未执行，并对移除超时event")
 public class ExpiredEventHandler extends AbsHandler {
 
-    private final ExpiredEventService expiredEventService;
+    private final JobEventService expiredEventService;
 
-    public ExpiredEventHandler(ExpiredEventService expiredEventService) {
+    public ExpiredEventHandler(JobEventService expiredEventService) {
         this.expiredEventService = expiredEventService;
     }
 

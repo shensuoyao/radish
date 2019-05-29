@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.sam.shen.agent.mapper.JobEventMapper">
+
+    <resultMap id="ExpiredEventMap" type="org.sam.shen.agent.entity.ExpiredEvent">
+        <result column="event_id" property="eventId"/>
+        <result column="expired" property="expired"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <select id="selectExpiredEvent" resultMap="ExpiredEventMap">
+        select je.event_id, ji.expired, je.create_time
+        from job_event je,
+             job_info ji
+        where je.job_id = ji.id
+          and (je.stat = 'WAIT' or je.stat = 'READY' or je.stat = 'HANDLE')
+          and ji.expired is not null
+    </select>
+
+    <delete id="deleteExpiredEvent" parameterType="java.lang.String">
+        update job_event set stat = 'EXPIRED' where event_id in
+        <foreach collection="events" item="event" open="(" separator="," close=")">
+            #{event}
+        </foreach>
+    </delete>
+
+    <select id="selectHandledEvent" resultType="java.util.Map">
+        select * from job_event where stat = 'SUCCESS' or stat = 'FAIL' or stat = 'EXPIRED'
+    </select>
+
+    <insert id="batchInsertEvent" parameterType="java.util.List">
+        insert into job_event_his(event_id, parent_event_id, job_id, parent_job_id, group_id, parent_group_id,
+            executor_handlers, handler_type, cmd, params, param_file_path, stat, handler_agent_id, handler_log_path,
+            priority, retry_count, create_time, dist_type, event_rule)
+        values
+        <foreach collection="events" item="event" separator=",">
+            (#{event.event_id}, #{event.parent_event_id}, #{event.job_id}, #{event.parent_job_id}, #{event.group_id},
+             #{event.parent_group_id}, #{event.executor_handlers}, #{event.handler_type}, #{event.cmd}, #{event.params},
+             #{event.param_file_path}, #{event.stat}, #{event.handler_agent_id}, #{event.handler_log_path},
+             #{event.priority}, #{event.retry_count}, #{event.create_time}, #{event.dist_type}, #{event.event_rule})
+        </foreach>
+    </insert>
+
+    <delete id="deleteHandledEvent">
+        delete from job_event where stat = 'SUCCESS' or stat = 'FAIL' or  stat = 'EXPIRED'
+    </delete>
+</mapper>
