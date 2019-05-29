@@ -98,7 +98,7 @@ public class EventMonitoring extends AbsMonitoring {
                                 alarm.setId(UUID.randomUUID().toString().replaceAll("-", ""));
                                 alarm.setAlarmType(monitorInfo.getAlarmType());
                                 alarm.setNotifier(notifier.getName());
-                                alarm.setContent("event[" + monitorInfo.getBizId() + "]已超时，未有客户端抢占处理!");
+                                alarm.setContent(notifier.getBizName() + "[event-" + monitorInfo.getBizId() + "]已超时，未有客户端抢占处理!");
                                 if ("EMAIL".equals(alarm.getAlarmType()) && StringUtils.isNotEmpty(notifier.getEmail())) {
                                     alarm.setEmail(notifier.getEmail());
                                     alarmCenter.offerAlarm(alarm);
@@ -152,7 +152,7 @@ public class EventMonitoring extends AbsMonitoring {
                                 alarm.setId(UUID.randomUUID().toString().replaceAll("-", ""));
                                 alarm.setAlarmType(monitorInfo.getAlarmType());
                                 alarm.setNotifier(notifier.getName());
-                                alarm.setContent("event[" + monitorInfo.getBizId() + "]已超时，处理事件的线程被阻塞或异常结束!");
+                                alarm.setContent(notifier.getBizName() + "[event-" + monitorInfo.getBizId() + "]已超时，处理事件的线程被阻塞或异常结束!");
                                 if ("EMAIL".equals(alarm.getAlarmType()) && StringUtils.isNotEmpty(notifier.getEmail())) {
                                     alarm.setEmail(notifier.getEmail());
                                     alarmCenter.offerAlarm(alarm);

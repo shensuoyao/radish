@@ -25,4 +25,7 @@ public class Notifier implements Serializable {
     // 通知人邮箱
     private String email;
 
+    // 通知的业务名称
+    private String bizName;
+
 }
