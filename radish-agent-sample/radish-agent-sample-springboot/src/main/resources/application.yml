@@ -5,6 +5,8 @@ server:
 
 radish:
   agent:
+    # agent服务器名称，可自定义，默认是agent_[ip]
     name: agent_spring_boot
   scheduler:
+    # 连接任务调度中心的地址
     server: http://127.0.0.1:8888/radish-scheduing
