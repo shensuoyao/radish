@@ -2,14 +2,15 @@ package org.sam.shen.core.agent;
 
 import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.sam.shen.core.constants.Constant;
 import org.sam.shen.core.handler.IHandler;
 import org.sam.shen.core.handler.anno.AHandler;
+import org.sam.shen.core.handler.impl.ScriptHandler;
 import org.sam.shen.core.log.RadishLogFileAppender;
 import org.sam.shen.core.model.AgentInfo;
 import org.sam.shen.core.model.Resp;
@@ -43,22 +44,28 @@ public class RadishAgent {
 
 	private static List<IHandler> handlers;
 
+	public RadishAgent() {
+		// 初始化默认参数
+		if (SystemUtil.osName().startsWith("Windows")) { // windows系统不能运行shell脚本，脚本目录无需设置
+			logPath = Constant.DEFAULT_LOG_FILE_PATH_WIN;
+		} else {
+			logPath = Constant.DEFAULT_LOG_FILE_PATH_LINUX;
+			shPath = Constant.DEFAULT_SHELL_SCRIPT_FILE_PATH;
+		}
+		agentInfo = new AgentInfo();
+		agentInfo.setAgentName(IpUtil.getIp() == null ? null : ("agent_".concat(IpUtil.getIp())));
+		agentInfo.setAgentIp(IpUtil.getIp());
+		agentInfo.setAgentPort(Constant.DEFAULT_AGENT_PORT);
+		agentInfo.setNetwork(Constant.AGENT_LOG_NETWORK_NETTY);
+		agentInfo.setNettyPort(Constant.DEFAULT_NETTY_PORT);
+		// 初始化handler
+		handlers = new ArrayList<>();
+		handlers.add(new ScriptHandler());
+	}
+
 	public RadishAgent(List<IHandler> handlers) {
-	    RadishAgent.handlers = handlers;
-	    // 初始化默认参数
-        if (SystemUtil.osName().startsWith("Windows")) {
-            logPath = "C:\\radish\\log";
-            shPath = "C:\\radish\\log";
-        } else {
-            logPath = "/tmp/log/radish";
-            shPath = "/tmp/log/radish";
-        }
-        agentInfo = new AgentInfo();
-        agentInfo.setAgentName(IpUtil.getIp() == null ? null : ("agent_".concat(IpUtil.getIp())));
-        agentInfo.setAgentIp(IpUtil.getIp());
-        agentInfo.setAgentPort(8083);
-        agentInfo.setNetwork("netty");
-        agentInfo.setNettyPort(8084);
+	    this();
+	    RadishAgent.handlers.addAll(handlers);
     }
 
 	public void start() {
@@ -72,11 +79,12 @@ public class RadishAgent {
 		// 初始化任务日志
 		RadishLogFileAppender.initLogPath(logPath);
 
-		// 初始化shell脚本目录
-        RadishLogFileAppender.initShPath(shPath);
-
-        // 生成shell脚本并赋予执行权限
-        initMonitorScriptFile();
+		if (!SystemUtil.osName().startsWith("Windows")) {
+			// 初始化shell脚本目录
+			RadishLogFileAppender.initShPath(shPath);
+			// 生成shell脚本并赋予执行权限
+			initMonitorScriptFile();
+		}
 		
 		// 建立心跳
 		initHeartBeat();
@@ -117,11 +125,15 @@ public class RadishAgent {
 			for (IHandler handler : handlers) {
                 String name = handler.getClass().getAnnotation(AHandler.class).name();
                 String desc = handler.getClass().getAnnotation(AHandler.class).description();
-                if (loadJobHandler(name) != null) {
+                IHandler curHandler = loadJobHandler(name);
+                // 如果存在重复名称的handler，并且实现类不同，则抛出异常
+                if (curHandler != null && !curHandler.getClass().isInstance(handler)) {
                     throw new RuntimeException("Radish job handler naming conflicts.");
                 }
-                registerJobHandler(name, handler);
-                registryAgentInfoHandler(name, desc);
+                if (curHandler == null) {
+					registerJobHandler(name, handler);
+					registryAgentInfoHandler(name, desc);
+				}
             }
 
 			// Registry Agent to Scheduing
@@ -173,7 +185,7 @@ public class RadishAgent {
 		log.info("Destroy RadishAgent ...");
 	}
 
-    public static AgentInfo getAgentInfo() {
+    public AgentInfo getAgentInfo() {
         return agentInfo;
     }
 
@@ -194,11 +206,7 @@ public class RadishAgent {
     }
 
     public void setLogPath(String logPath) {
-        if (StringUtils.isEmpty(logPath)) {
-            RadishAgent.logPath = Constant.DEFAULT_LOG_FILE_PATH;
-        } else {
-            RadishAgent.logPath = logPath;
-        }
+		RadishAgent.logPath = logPath;
     }
 
     public static String getShPath() {
@@ -206,11 +214,7 @@ public class RadishAgent {
     }
 
     public void setShPath(String shPath) {
-        if (StringUtils.isEmpty(shPath)) {
-            RadishAgent.shPath = Constant.DEFAULT_SHELL_SCRIPT_FILE_PATH;
-        } else {
-            RadishAgent.shPath = shPath;
-        }
+		RadishAgent.shPath = shPath;
     }
 
     public static String getShFilePath() {

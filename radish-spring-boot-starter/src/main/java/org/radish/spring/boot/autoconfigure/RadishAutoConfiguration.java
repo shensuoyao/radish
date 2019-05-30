@@ -7,6 +7,7 @@ import org.sam.shen.core.handler.IHandler;
 import org.sam.shen.core.handler.anno.AHandler;
 import org.sam.shen.core.handler.impl.ScriptHandler;
 import org.sam.shen.core.model.AgentInfo;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -27,6 +28,9 @@ import java.util.Map;
 @ConditionalOnClass(RadishAgent.class)
 @EnableConfigurationProperties(RadishProperties.class)
 public class RadishAutoConfiguration {
+
+    @Value("${server.port}")
+    private int serverPort;
 
     private final RadishProperties properties;
 
@@ -59,36 +63,48 @@ public class RadishAutoConfiguration {
         }
         RadishAgent radishAgent = new RadishAgent(handlers);
 
-        // Set basic agent information
-        String server = this.properties.getScheduler().getServer();
-        String agentName = this.properties.getAgent().getName();
-        String agentIp = properties.getAgent().getIp();
-        Integer agentPort = this.properties.getAgent().getPort();
-        String network = this.properties.getLogViewMode();
-        RadishProperties.LogViewNetty nettyProperties = this.properties.getLogViewNetty();
-        if (StringUtils.isEmpty(server)) {
+        // Set scheduler information
+        RadishProperties.Scheduler scheduler = this.properties.getScheduler();
+        if (scheduler == null || StringUtils.isEmpty(scheduler.getServer())) {
             log.error("Scheduler server can't be null.");
             throw new RuntimeException("Scheduler server can't be null.");
         }
-        radishAgent.setScheduingServer(server);
-        radishAgent.setLogPath(properties.getAgent().getLogpath());
-        radishAgent.setShPath(properties.getAgent().getShpath());
-        AgentInfo agentInfo = new AgentInfo();
-        if (StringUtils.isNotEmpty(agentIp)) {
-            agentInfo.setAgentIp(agentIp);
+        radishAgent.setScheduingServer(scheduler.getServer());
+
+        // set agent information
+        RadishProperties.Agent agent = this.properties.getAgent();
+        AgentInfo agentInfo = radishAgent.getAgentInfo();
+        if (agent != null) {
+            String agentName = agent.getName();
+            String agentIp = agent.getIp();
+            Integer agentPort = agent.getPort();
+            String logPath = agent.getLogpath();
+            String shPath = agent.getShpath();
+            if (StringUtils.isNotEmpty(logPath)) {
+                radishAgent.setLogPath(logPath);
+            }
+            if (StringUtils.isNotEmpty(shPath)) {
+                radishAgent.setShPath(shPath);
+            }
+            if (StringUtils.isNotEmpty(agentIp)) {
+                agentInfo.setAgentIp(agentIp);
+            }
+            if (StringUtils.isNotEmpty(agentName)) {
+                agentInfo.setAgentName(agentName);
+            }
+            if (agentPort != null) {
+                agentInfo.setAgentPort(agentPort);
+            } else {
+                agentInfo.setAgentPort(serverPort);
+            }
         }
-        if (StringUtils.isNotEmpty(agentName)) {
-            agentInfo.setAgentName(agentName);
-        }
-        if (agentPort != null) {
-            agentInfo.setAgentPort(agentPort);
-        }
+        String network = this.properties.getLogViewMode();
+        RadishProperties.LogViewNetty nettyProperties = this.properties.getLogViewNetty();
         agentInfo.setNetwork(network);
         if (nettyProperties != null && nettyProperties.getPort() != null) {
             agentInfo.setNettyPort(nettyProperties.getPort());
         }
-        radishAgent.setAgentInfo(agentInfo);
-
         return radishAgent;
     }
+
 }

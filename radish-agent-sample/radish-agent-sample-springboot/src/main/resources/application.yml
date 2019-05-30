@@ -1,0 +1,10 @@
+server:
+  port: 8083
+  servlet:
+    context-path: /radish-agent-sample
+
+radish:
+  agent:
+    name: agent_spring_boot
+  scheduler:
+    server: http://127.0.0.1:8888/radish-scheduing

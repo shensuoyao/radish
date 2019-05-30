@@ -18,6 +18,7 @@
         <module>radish-agent</module>
         <module>radish-spring-boot-starter</module>
         <module>radish-monitor</module>
+        <module>radish-agent-sample</module>
     </modules>
 
     <properties>
