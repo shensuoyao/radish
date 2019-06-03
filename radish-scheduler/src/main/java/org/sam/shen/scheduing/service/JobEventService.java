@@ -136,18 +136,15 @@ public class JobEventService {
 		// 设置事件执行日志路径
         jobEvent.setHandlerLogPath(event.getHandlerLogPath());
 
-		if(resp.getCode() == Resp.SUCCESS.getCode()) {
+		if(resp == null || resp.getCode() == Resp.SUCCESS.getCode()) {
 			// 执行成功, event 事件的状态改为成功
 			jobEvent.setStat(EventStatus.SUCCESS);
 			jobEventMapper.upgradeJobEvent(jobEvent);
 		} else {
 			// 执行失败, 判断任务的失败策略. 
 			JobInfo jobInfo = jobInfoMapper.findJobInfoById(jobEvent.getJobId());
-			if(null == jobInfo) {
-				return;
-			}
 			jobEvent.setStat(EventStatus.FAIL);
-			if (jobInfo.getHandlerFailStrategy().equals(HandlerFailStrategy.RETRY)) {
+			if (jobInfo != null && jobInfo.getHandlerFailStrategy().equals(HandlerFailStrategy.RETRY)) {
 				// 重试, 则增加重试次数, 并且更新重试状态
 				jobEvent.setStat(EventStatus.RETRY);
 				jobEvent.setRetryCount(jobEvent.getRetryCount() + 1);
@@ -162,9 +159,9 @@ public class JobEventService {
 //					}
 //				}
 //			}
-			if(jobInfo.getHandlerFailStrategy().equals(HandlerFailStrategy.DISCARD)) {
+//			if(jobInfo.getHandlerFailStrategy().equals(HandlerFailStrategy.DISCARD)) {
 				// 丢弃, 则直接更新状态, 什么也不做
-			}
+//			}
 			jobEventMapper.upgradeJobEvent(jobEvent);
 		}
 	}

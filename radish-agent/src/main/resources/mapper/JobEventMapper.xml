@@ -11,11 +11,11 @@
 
     <select id="selectExpiredEvent" resultMap="ExpiredEventMap">
         select je.event_id, ji.expired, je.create_time
-        from job_event je,
-             job_info ji
-        where je.job_id = ji.id
-          and (je.stat = 'WAIT' or je.stat = 'READY' or je.stat = 'HANDLE')
-          and ji.expired is not null
+        from job_event je
+                 left join job_info ji
+                           on je.job_id = ji.id
+        where ((je.stat = 'WAIT' or je.stat = 'READY' or je.stat = 'HANDLE') and ji.expired is not null)
+           or ji.id is null
     </select>
 
     <delete id="deleteExpiredEvent" parameterType="java.lang.String">

@@ -37,6 +37,7 @@ public class ExpiredEventHandler extends AbsHandler {
         for (ExpiredEvent expiredEvent : events) {
             String expiredStr = expiredEvent.getExpired();
             if (StringUtils.isEmpty(expiredEvent.getExpired())) {
+                expiredIds.add(expiredEvent.getEventId());
                 continue;
             }
             double expired = Double.parseDouble(expiredStr.substring(0, expiredStr.length() - 1));
