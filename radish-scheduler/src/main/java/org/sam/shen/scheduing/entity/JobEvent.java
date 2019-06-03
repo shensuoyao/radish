@@ -3,6 +3,7 @@ package org.sam.shen.scheduing.entity;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 import org.sam.shen.core.constants.Constant;
@@ -51,7 +52,8 @@ public class JobEvent implements Serializable {
 	private int priority;		// 优先级 从 0 - 9
 	
 	private int retryCount;
-	
+
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
 	private Date createTime;
 
 	private String handlerLogPath;

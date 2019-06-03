@@ -2,6 +2,7 @@ package org.sam.shen.scheduing.entity;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 import org.sam.shen.core.constants.DistributionType;
@@ -51,9 +52,11 @@ public class JobInfo extends Identity {
 	private DistributionType distType; // 分片类型
 
     private String distRule; // 分片规则
-	
+
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
 	private Date createTime;
-	
+
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
 	private Date updateTime;
 	
 	private int priority;

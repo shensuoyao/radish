@@ -4,6 +4,7 @@ import java.util.Date;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 /**
   *  客户端机组
@@ -18,6 +19,7 @@ public class AgentGroup extends Identity {
 	private String groupName;
 	
 	// 创建时间
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
 	private Date createTime;
 	
 	public String getGroupName() {
