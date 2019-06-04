@@ -17,6 +17,7 @@ import org.sam.shen.core.netty.HandlerLogNettyClient;
 import org.sam.shen.core.rpc.RestRequest;
 import org.sam.shen.scheduing.entity.Agent;
 import org.sam.shen.scheduing.entity.JobEvent;
+import org.sam.shen.scheduing.scheduler.RadishDynamicScheduler;
 import org.sam.shen.scheduing.vo.JobEventTreeNode;
 import org.sam.shen.scheduing.entity.JobInfo;
 import org.sam.shen.scheduing.mapper.AgentMapper;
@@ -27,6 +28,7 @@ import org.sam.shen.scheduing.vo.JobEventVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,6 +57,9 @@ public class JobEventService {
 	
 	@Autowired
 	private RedisService redisService;
+
+	@Value("${radish.retry-time:3}")
+	private int retryTime;
 
 	/**
 	 *  触发获取可执行的任务
@@ -144,25 +149,33 @@ public class JobEventService {
 			// 执行失败, 判断任务的失败策略. 
 			JobInfo jobInfo = jobInfoMapper.findJobInfoById(jobEvent.getJobId());
 			jobEvent.setStat(EventStatus.FAIL);
-			if (jobInfo != null && jobInfo.getHandlerFailStrategy().equals(HandlerFailStrategy.RETRY)) {
+			if (jobInfo != null && jobInfo.getHandlerFailStrategy().equals(HandlerFailStrategy.RETRY) && jobEvent.getRetryCount() < retryTime) {
 				// 重试, 则增加重试次数, 并且更新重试状态
 				jobEvent.setStat(EventStatus.RETRY);
 				jobEvent.setRetryCount(jobEvent.getRetryCount() + 1);
+				jobEventMapper.upgradeJobEvent(jobEvent);
+				// 将event添加到redis缓存
+				List<String> agentHandlers = Splitter.onPattern(",|-").splitToList(jobEvent.getExecutorHandlers());
+				Map<String, Object> eventHash = Maps.newHashMap();
+				eventHash.put("priority", jobEvent.getPriority());    // 设置优先级
+				Stream.iterate(0, i -> i + 1).limit(agentHandlers.size()).forEach(i -> {
+					if (i % 2 == 0) {
+						if (eventHash.containsKey(agentHandlers.get(i))) {
+							String val = String.valueOf(eventHash.get(agentHandlers.get(i))).concat(",").concat(agentHandlers.get(i + 1));
+							eventHash.put(agentHandlers.get(i), val);
+						} else {
+							eventHash.put(agentHandlers.get(i), agentHandlers.get(i + 1));
+						}
+					}
+				});
+				redisService.hmset(Constant.REDIS_EVENT_PREFIX.concat(jobEvent.getEventId()), eventHash);
+			} else {
+				jobEventMapper.upgradeJobEvent(jobEvent);
 			}
-//			if(jobInfo.getHandlerFailStrategy().equals(HandlerFailStrategy.ALARM)) {
-//				// 发送告警邮件或者短信
-//				if(StringUtils.isNotEmpty(jobInfo.getAdminEmail())) {
-//					try {
-//						SendEmailClient.sendEmail(jobInfo.getAdminEmail(), "Radish Handler Fail Alarm", jobEvent.toString(),  null);
-//					} catch (Exception e) {
-//						logger.error("send alarm mail fail.", e);
-//					}
-//				}
-//			}
 //			if(jobInfo.getHandlerFailStrategy().equals(HandlerFailStrategy.DISCARD)) {
 				// 丢弃, 则直接更新状态, 什么也不做
 //			}
-			jobEventMapper.upgradeJobEvent(jobEvent);
+
 		}
 	}
 	
