@@ -33,9 +33,9 @@ public class SendEmailClient {
 	public static boolean sendEmail(String emailparm, String title, String content, String cc) throws Exception {
 		// 发送邮件
 		MailBody body = new MailBody();
-		body.setFrom(Config.from);
+		body.setFrom(Config.getFrom());
 		// 设置 FromName
-		body.setFromName(Config.fromName);
+		body.setFromName(Config.getFromName());
 		// 设置 ReplyTo
 		body.setReplyTo("");
 		// 设置标题
@@ -76,7 +76,7 @@ public class SendEmailClient {
 			SendCloud sc = SendCloudBuilder.build();
 			res = sc.sendMail(mail);
 		} catch (Throwable e) {
-			e.printStackTrace();
+			logger.error("error:", e);
 		}
 		return (res != null && res.getStatusCode() == 200);
 	}

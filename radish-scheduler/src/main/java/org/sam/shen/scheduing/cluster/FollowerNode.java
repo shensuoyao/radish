@@ -98,7 +98,7 @@ public class FollowerNode {
 			try {
 				sock.close();
 			} catch (IOException e1) {
-				e1.printStackTrace();
+				log.error("error:", e1);
 			}
 		}
 	}

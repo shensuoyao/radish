@@ -99,12 +99,12 @@ public class Monitor {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("error:", e);
         } finally {
             try {
                 br.close();
             } catch (IOException e) {
-                e.printStackTrace();
+            	log.error("error:", e);
             }
         }
         map.put("javaMemoryList", javaList);

@@ -17,9 +17,9 @@ import org.apache.http.util.Asserts;
  *
  */
 public class SendCloudMail {
-	public MailBody body;
-	public Receiver to;
-	public Content content;
+	private MailBody body;
+	private Receiver to;
+	private Content content;
 
 	public MailBody getBody() {
 		return body;
