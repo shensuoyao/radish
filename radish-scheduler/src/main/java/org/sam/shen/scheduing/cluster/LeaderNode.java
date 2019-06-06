@@ -230,7 +230,7 @@ public class LeaderNode {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("error:", e);
 		}
 	}
 	

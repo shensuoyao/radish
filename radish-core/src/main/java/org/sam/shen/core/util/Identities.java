@@ -22,13 +22,6 @@ public class Identities {
 	}
 
 	/**
-	 * 使用SecureRandom随机生成Long.
-	 */
-	public static long randomLong() {
-		return Math.abs(random.nextLong());
-	}
-
-	/**
 	 * 基于Base64编码的SecureRandom随机生成bytes.
 	 */
 	public static String randomBase64(int length) {

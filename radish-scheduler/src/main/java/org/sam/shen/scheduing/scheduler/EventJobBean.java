@@ -31,7 +31,7 @@ public class EventJobBean extends QuartzJobBean {
 		init(context);
 		// JobInfo jobInfo = (JobInfo) dataMap.get("jobInfo");
 		// 1. load JobInfo
-		JobInfo jobInfo = RadishDynamicScheduler.jobInfoMapper.findJobInfoById(jobId);
+		JobInfo jobInfo = RadishDynamicScheduler.getJobInfoMapper().findJobInfoById(jobId);
 		// 2. 检查JobInfo的enable状态是否为启用，或者Job是否变为手动执行
 		if(jobInfo == null || jobInfo.getEnable() != 1 || StringUtils.isEmpty(jobInfo.getCrontab())) {
 			if(logger.isInfoEnabled()) {

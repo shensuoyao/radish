@@ -173,10 +173,10 @@ public class SendCloud {
 	 */
 	public ResponseData sendMail(SendCloudMail mail) throws Throwable {
 		Asserts.notNull(mail, "mail");
-		Asserts.notBlank(Config.api_user, "api_user");
-		Asserts.notBlank(Config.api_key, "api_key");
+		Asserts.notBlank(Config.getApiUser(), "api_user");
+		Asserts.notBlank(Config.getApiKey(), "api_key");
 		mail.validate();
-		Credential credential = new Credential(Config.api_user, Config.api_key);
+		Credential credential = new Credential(Config.getApiUser(), Config.getApiKey());
 		if (CollectionUtils.isEmpty(mail.getBody().getAttachments())) {
 			return post(credential, mail);
 		} else {

@@ -52,7 +52,11 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 	// scheduler
 	private static Scheduler scheduler;
 	
-	public static JobInfoMapper jobInfoMapper;
+	private static JobInfoMapper jobInfoMapper;
+	
+	public static JobInfoMapper getJobInfoMapper() {
+		return jobInfoMapper;
+	}
 	
 	private static JobEventMapper jobEventMapper;
 	

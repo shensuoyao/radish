@@ -83,5 +83,25 @@ public class ClusterPacket<T> {
 		if (!ret) return ret;
 		return ret;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 17;
+		if(null != uxid) {
+			result = prime * result + uxid.hashCode();
+		}
+		if(null != type) {
+			result = prime * result + type.hashCode();
+		}
+		if(null != nid) {
+			result = prime * result + nid.hashCode();
+		}
+		result = prime * result + rhid;
+		if(null != t) {
+			result = prime * result + t.hashCode();
+		}
+		return super.hashCode();
+	}
 	
 }

@@ -127,7 +127,7 @@ public class AgentHeartBeatThread {
             try {
                 FileUtils.forceDelete(file);
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error(e.getMessage(), e);
             }
         }
     }

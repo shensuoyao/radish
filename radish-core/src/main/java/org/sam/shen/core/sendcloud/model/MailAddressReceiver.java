@@ -20,7 +20,7 @@ public class MailAddressReceiver implements Receiver {
 	/**
 	 * 广播发送(收件人会全部显示)
 	 */
-	public boolean broadcastSend = true;
+	private boolean broadcastSend = true;
 
 	/**
 	 * 收件人

@@ -1,6 +1,8 @@
 package org.sam.shen.core.util;
 
 import bsh.Interpreter;
+import lombok.extern.slf4j.Slf4j;
+
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.ExecuteWatchdog;
@@ -20,6 +22,7 @@ import java.io.*;
  * @date 2018年8月1日 上午8:15:38
   * 
  */
+@Slf4j
 public class ScriptUtil {
 
 	/**
@@ -82,14 +85,14 @@ public class ScriptUtil {
 			int exitValue = exec.execute(commandline); // exit code: 0=success, 1=error
 			return exitValue;
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("error:", e);
 			return -1;
 		} finally {
 			if (fileOutputStream != null) {
 				try {
 					fileOutputStream.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+					log.error("error:", e);
 				}
 
 			}
@@ -124,13 +127,13 @@ public class ScriptUtil {
                 return  errMsg;
             }
         } catch (IOException e) {
-	        e.printStackTrace();
+	        log.error("error:", e);
         } finally {
             try {
                 sucBos.close();
                 errBos.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("error:", e);
             }
         }
         return "";
@@ -175,7 +178,7 @@ public class ScriptUtil {
                 throw new IOException("Authorize script file failed.");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("error:", e);
         }
     }
 
@@ -203,7 +206,7 @@ public class ScriptUtil {
             Object r = new Interpreter().source("/Users/zhongsj/Desktop/test.bsh");
             System.out.println(r.toString());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("error:", e);
         }
     }
 

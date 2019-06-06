@@ -81,7 +81,7 @@ public class EventHandlerThread extends Thread {
 			    event.setHandlerResult(new Resp<>(1, "Start Handler Error.", e.getMessage()));
 				RestRequest.post(rpcReportUrl, event);
 			} catch (Exception e1) {
-				e1.printStackTrace();
+				log.error("error:", e1);
 			}
 		} finally {
             handler.destroy();

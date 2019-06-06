@@ -5,10 +5,10 @@ import com.alibaba.fastjson.serializer.SerializerFeature;
 
 public class ResponseData {
 
-	public boolean result;
-	public int statusCode;
-	public String message;
-	public String info;
+	private boolean result;
+	private int statusCode;
+	private String message;
+	private String info;
 
 	public String toString() {
 		return JSON.toJSONString(this, SerializerFeature.WriteNullStringAsEmpty);

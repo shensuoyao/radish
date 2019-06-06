@@ -13,6 +13,9 @@ import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Maps;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class RedisService {
 	
@@ -26,7 +29,7 @@ public class RedisService {
 			operations.set(key, value);
 			result = true;
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("error:", e);
 		}
 		return result;
 	}
@@ -47,7 +50,7 @@ public class RedisService {
 			redisTemplate.expire(key, expireTime, TimeUnit.MILLISECONDS);
 			result = true;
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("error:", e);
 		}
 		return result;
 	}

@@ -44,7 +44,7 @@ public class Codecs {
 		}
 	}
 
-	public static Encoding DEFAULT_URL_ENCODING = Encoding.UTF8;
+	public static final Encoding DEFAULT_URL_ENCODING = Encoding.UTF8;
 	
 	public static final String ALGORITHM_DES = "DES";
 	
