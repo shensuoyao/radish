@@ -23,7 +23,7 @@ import com.alibaba.fastjson.JSON;
  * Agent 客户端心跳执行线程
  */
 @Slf4j
-public class AgentHeartBeatThread extends Thread {
+public class AgentHeartBeatThread {
 
     private static AgentHeartBeatThread instance = new AgentHeartBeatThread();
 
@@ -70,6 +70,7 @@ public class AgentHeartBeatThread extends Thread {
                     TimeUnit.SECONDS.sleep(Constant.BEAT_TIMEOUT);
                 } catch (InterruptedException e) {
                     log.error(e.getMessage(), e);
+                    Thread.currentThread().interrupt();
                 }
             }
             // 心跳停止, Agent客户端下线, 暂停, 停止
@@ -97,6 +98,7 @@ public class AgentHeartBeatThread extends Thread {
             beatThread.join();
         } catch (InterruptedException e) {
             log.error(e.getMessage(), e);
+            Thread.currentThread().interrupt();
         }
     }
 

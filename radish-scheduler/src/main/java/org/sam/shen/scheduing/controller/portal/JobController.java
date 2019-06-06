@@ -332,8 +332,9 @@ public class JobController {
 		LogReader logReader = jobEventService.readEventLogFromAgent(eventId, agentId);
 		if(null == logReader) {
 			model.addObject("logs", Lists.newArrayList("日志为空"));
+		} else {
+			model.addObject("logs", logReader.getLogLines());
 		}
-		model.addObject("logs", logReader.getLogLines());
 		return model;
 	}
 

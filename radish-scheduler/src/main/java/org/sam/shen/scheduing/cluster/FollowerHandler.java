@@ -71,6 +71,7 @@ public class FollowerHandler extends Thread {
 						sendPackets();
 					} catch (InterruptedException e) {
 						log.warn("Unexpected interruption", e);
+						Thread.currentThread().interrupt();
 					}
 				}
 			}.start();
@@ -83,7 +84,7 @@ public class FollowerHandler extends Thread {
                 }
 			}
 		} catch (IOException e) {
-			if (sock != null && !sock.isClosed()) {
+			if (!sock.isClosed()) {
 				log.error("Unexpected exception causing shutdown while sock " + "still open", e);
 				// close the socket to make sure the
 				// other side can see it being close
@@ -95,8 +96,9 @@ public class FollowerHandler extends Thread {
 			}
 		} catch (InterruptedException e) {
 			log.error("Unexpected exception causing shutdown", e);
+			Thread.currentThread().interrupt();
 		} finally {
-			log.warn("******* GOODBYE " + (sock != null ? sock.getRemoteSocketAddress() : "<null>") + " ********");
+			log.warn("******* GOODBYE " + sock.getRemoteSocketAddress() + " ********");
 			shutdown();
 		}
 	}
@@ -253,6 +255,7 @@ public class FollowerHandler extends Thread {
 			queuedPackets.put(packetOfDeath);
 		} catch (InterruptedException e) {
 			log.warn("Ignoring unexpected exception", e);
+			Thread.currentThread().interrupt();
 		}
 		try {
 			if (sock != null && !sock.isClosed()) {

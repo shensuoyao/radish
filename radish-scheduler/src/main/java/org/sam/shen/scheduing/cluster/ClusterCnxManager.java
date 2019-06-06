@@ -124,6 +124,7 @@ public class ClusterCnxManager {
 						log.error("Error closing server socket", ie);
 					} catch (InterruptedException ie) {
 						log.error("Interrupted while sleeping. " + "Ignoring exception", ie);
+						Thread.currentThread().interrupt();
 					}
 				}
 			}
@@ -526,6 +527,7 @@ public class ClusterCnxManager {
 						}
 					} catch (InterruptedException e) {
 						log.warn("Interrupted while waiting for message on queue", e);
+						Thread.currentThread().interrupt();
 					}
 				}
 			} catch (Exception e) {

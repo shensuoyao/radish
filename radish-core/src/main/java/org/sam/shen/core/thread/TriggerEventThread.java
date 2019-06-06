@@ -61,6 +61,7 @@ public class TriggerEventThread {
                     TimeUnit.SECONDS.sleep(Constant.BEAT_TIMEOUT);
                 } catch (InterruptedException e) {
                     logger.error(e.getMessage(), e);
+                    Thread.currentThread().interrupt();
                 }
             }
         });
@@ -80,6 +81,7 @@ public class TriggerEventThread {
                     TimeUnit.SECONDS.sleep(Constant.BEAT_TIMEOUT);
                 } catch (InterruptedException e) {
                     logger.error(e.getMessage(), e);
+                    Thread.currentThread().interrupt();
                 }
             }
         });
@@ -97,6 +99,7 @@ public class TriggerEventThread {
 			callbckThread.join();
 		} catch (InterruptedException e) {
 			logger.error(e.getMessage(), e);
+            Thread.currentThread().interrupt();
 		}
 	}
 }

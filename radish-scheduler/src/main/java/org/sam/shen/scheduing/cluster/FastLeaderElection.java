@@ -269,6 +269,7 @@ public class FastLeaderElection implements Election {
 						}
 					} catch (InterruptedException e) {
 						log.error("Interrupted Exception while waiting for new message" + e.toString());
+						Thread.currentThread().interrupt();
 					}
 				}
 				log.info("WorkerReceiver is down");
@@ -301,6 +302,7 @@ public class FastLeaderElection implements Election {
 						}
 						process(m);
 					} catch (InterruptedException e) {
+						Thread.currentThread().interrupt();
 						break;
 					}
 				}

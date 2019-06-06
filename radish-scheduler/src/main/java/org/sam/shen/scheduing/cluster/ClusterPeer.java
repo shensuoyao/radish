@@ -112,9 +112,12 @@ public class ClusterPeer extends Thread {
 				try {
 				    RadishDynamicScheduler.removeAllJobs();
 					setCurrentVote(this.electionAlg.lookForLeader());
-				} catch (InterruptedException | SchedulerException e) {
+				} catch (SchedulerException e) {
+					log.warn("Unexpected exception", e);
+				} catch (InterruptedException e) {
 					log.warn("Unexpected exception", e);
 					setPeerState(NodeState.LOOKING);
+					Thread.currentThread().interrupt();
 				}
 				break;
 			case FOLLOWING:
@@ -140,8 +143,6 @@ public class ClusterPeer extends Thread {
 					setLeaderNode(null);
 				} catch (IOException e) {
 					log.warn("Unexpected exception",e);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
 				} finally {
 					if (leaderNode != null) {
 						leaderNode.shutdown("Forcing shutdown");
