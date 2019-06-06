@@ -17,7 +17,7 @@ import org.sam.shen.core.netty.channel.ServerChannelInitializer;
 @Slf4j
 public class HandlerLogNettyServer extends Thread {
 
-    private static HandlerLogNettyServer instance;
+    private volatile static HandlerLogNettyServer instance;
 
     private Integer port;
 
@@ -37,7 +37,7 @@ public class HandlerLogNettyServer extends Thread {
     }
 
     @Override
-    public void start() {
+    public void run() {
         log.info(">>>>>>>>>>> 初始化netty server程序，用于服务端读取agent日志");
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -56,6 +56,7 @@ public class HandlerLogNettyServer extends Thread {
             cf.channel().closeFuture().sync();
         } catch (InterruptedException e) {
             log.info("<<<<<<<<<<< netty server启动异常：{}", e.getMessage());
+            Thread.currentThread().interrupt();
         } finally {
             // 优雅关闭
             bossGroup.shutdownGracefully();

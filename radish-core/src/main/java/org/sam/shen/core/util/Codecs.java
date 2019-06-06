@@ -379,14 +379,14 @@ public class Codecs {
 		}
 	}
 	
-	public static void main(String[] args) {
-		byte[] salt = Codecs.generateSalt(Codecs.SALT_SIZE);
-		String _salt = Codecs.hexEncode(salt);
-		System.out.println("salt : " + _salt);
-		String passwd = "123456";
-		byte[] plainPassword = passwd.getBytes();
-		byte[] hashPassword = Codecs.sha1Encode(plainPassword, salt, Codecs.HASH_INTERATIONS);
-		String _passwd = Codecs.hexEncode(hashPassword);
-		System.out.println("password : " + _passwd);
-	}
+//	public static void main(String[] args) {
+//		byte[] salt = Codecs.generateSalt(Codecs.SALT_SIZE);
+//		String _salt = Codecs.hexEncode(salt);
+//		System.out.println("salt : " + _salt);
+//		String passwd = "123456";
+//		byte[] plainPassword = passwd.getBytes();
+//		byte[] hashPassword = Codecs.sha1Encode(plainPassword, salt, Codecs.HASH_INTERATIONS);
+//		String _passwd = Codecs.hexEncode(hashPassword);
+//		System.out.println("password : " + _passwd);
+//	}
 }

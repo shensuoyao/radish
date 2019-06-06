@@ -71,6 +71,7 @@ public class FollowerNode {
 						}
 					} catch (InterruptedException e) {
 						log.warn("Unexpected interruption", e);
+						Thread.currentThread().interrupt();
 					} catch (IOException e) {
 						log.warn("Unexpected IOException", e);
 					}
@@ -88,8 +89,12 @@ public class FollowerNode {
                     processPacket(packet);
                 }
 			}
-		} catch (IOException | InterruptedException e) {
-			log.warn("Exception when following the leader", e);
+		} catch (IOException e) {
+			log.warn("IOException when following the leader", e);
+		} catch (InterruptedException e) {
+			log.warn("InterruptedException when following the leader", e);
+			Thread.currentThread().interrupt();
+		} finally {
 			try {
 				sock.close();
 			} catch (IOException e1) {

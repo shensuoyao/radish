@@ -78,7 +78,7 @@ public class SendEmailClient {
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
-		return (res.getStatusCode() == 200);
+		return (res != null && res.getStatusCode() == 200);
 	}
 
 }

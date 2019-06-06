@@ -137,6 +137,7 @@ public class EventHandlerThreadPool {
 				return eventsQueue.take();
 			} catch (InterruptedException e) {
 				logger.error(e.getMessage(), e);
+				Thread.currentThread().interrupt();
 			}
 		}
 		return null;

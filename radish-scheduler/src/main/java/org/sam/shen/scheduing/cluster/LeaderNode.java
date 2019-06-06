@@ -145,7 +145,7 @@ public class LeaderNode {
 		}
 	}
 	
-	void lead() throws InterruptedException {
+	void lead() {
 		self.end_fle = System.currentTimeMillis();
 		log.info("LEADING - LEADER ELECTION TOOK - " + (self.end_fle - self.start_fle));
 		self.start_fle = 0;
@@ -170,6 +170,7 @@ public class LeaderNode {
                     }
                 } catch (InterruptedException e) {
                     log.warn("Unexpected interruption", e);
+					Thread.currentThread().interrupt();
                 }
             }).start();
 			

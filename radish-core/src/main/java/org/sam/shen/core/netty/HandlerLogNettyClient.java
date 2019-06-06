@@ -6,6 +6,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import lombok.extern.slf4j.Slf4j;
 import org.sam.shen.core.log.LogReader;
 import org.sam.shen.core.model.Resp;
 import org.sam.shen.core.netty.channel.ClientChannelInitializer;
@@ -16,7 +17,7 @@ import java.util.Map;
  * @author clock
  * @date 2018/12/21 下午3:06
  */
-
+@Slf4j
 public class HandlerLogNettyClient {
 
     private String host;
@@ -46,7 +47,8 @@ public class HandlerLogNettyClient {
             channel.closeFuture().sync();
             return initializer.getMessage();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            log.error("Netty client send message error: {}", e.getMessage());
+            Thread.currentThread().interrupt();
         } finally {
             eventLoopGroup.shutdownGracefully();
         }
