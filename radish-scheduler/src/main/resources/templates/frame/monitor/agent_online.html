@@ -14,7 +14,7 @@
 
 <div class="layui-row layui-col-space10 my-index-main">
     <div class="layui-col-xs12 layui-col-sm6 layui-col-md3" th:each="agent : ${agentOnlines}">
-        <fieldset class="layui-elem-field">
+        <fieldset class="layui-elem-field" style="height: 800px;">
             <legend>
                 <a th:text="${agent['agentName']}" th:id="${agent['agentId']}" name="agentOnline" href="javascript:;"></a>
                 <i th:class="'layui-icon ' + (${agent.agentStatus.value} eq 3 ? 'layui-icon-face-cry' : 'layui-icon-face-smile')"

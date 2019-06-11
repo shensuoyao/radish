@@ -354,10 +354,10 @@ public class JobController {
 		if (jobInfo.getEnable() == Constant.NO || StringUtils.isNotEmpty(jobInfo.getParentJobId())) {
             return new Resp<>(0, "invalid job.");
         }
-        List<JobEvent> jobEvents = jobEventService.queryJobEventByJobId(jobId);
-	    if (jobEvents != null && jobEvents.size() > 0) {
-            return new Resp<>(0, "exist job event.");
-        }
+//        List<JobEvent> jobEvents = jobEventService.queryJobEventByJobId(jobId);
+//	    if (jobEvents != null && jobEvents.size() > 0) {
+//            return new Resp<>(0, "exist job event.");
+//        }
         if (RadishDynamicScheduler.addJobEvent(jobId)) {
 	        return new Resp<>(1, "add job event success.");
         } else {

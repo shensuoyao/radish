@@ -118,7 +118,7 @@
                    a.handler_type, a.cmd, a.params, a.param_file_path, a.stat, a.handler_agent_id, a.priority, a.retry_count, a.create_time,
                    a.handler_log_path, a.dist_type, a.event_rule
             FROM job_event a, job_info b
-            WHERE a.job_id=b.id AND a.stat<>'SUCCESS' AND a.stat<>'FAIL' AND a.job_id=#{jobId}
+            WHERE a.job_id=b.id AND a.stat<>'SUCCESS' AND a.stat<>'FAIL' AND a.stat <> 'EXPIRED' AND a.job_id=#{jobId}
         ]]>
     </select>
 
