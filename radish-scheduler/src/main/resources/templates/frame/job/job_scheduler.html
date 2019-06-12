@@ -12,34 +12,18 @@
 </head>
 <body class="body">
 
-<!-- 表格 -->
-<div id="jobTable" lay-filter="jobTable">
-	<table class="layui-table">
-	  <colgroup>
-	    <col width="150">
-	    <col width="200">
-	    <col>
-	  </colgroup>
-	  <thead>
-	    <tr>
-	      <th>ID</th>
-	      <th>任务名</th>
-	      <th>调度规则</th>
-	      <th>上次执行时间</th>
-	      <th>下次执行时间</th>
-	    </tr> 
-	  </thead>
-	  <tbody>
-	    <tr th:each="job : ${jobs}">
-	      <td th:text="${job.jobId}"></td>
-	      <td th:text="${job.jobName}"></td>
-	      <td th:text="${job.crontab}"></td>
-	      <td th:text="${#dates.format(job.prevFireTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
-	      <td th:text="${#dates.format(job.nextFireTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
-	    </tr>
-	  </tbody>
-	</table>
+<div class="my-btn-box">
+    <span class="fl">
+        Job Name：
+        <div class="layui-input-inline">
+            <input type="text" autocomplete="off" id="jobName" placeholder="请输入搜索条件" class="layui-input">
+        </div>
+        <button class="layui-btn mgl-20" id="btn-search">查询</button>
+    </span>
 </div>
+
+<!-- 表格 -->
+<div id="jobTable" lay-filter="jobTable"></div>
 
 <script type="text/javascript" th:src="@{/static/layui/layui.js}"></script>
 <script type="text/javascript" th:src="@{/static/js/index.js}"></script>
@@ -47,13 +31,47 @@
 <script th:inline="javascript">
     // layui方法
     layui.use(['table', 'form', 'layer', 'laytpl'], function () {
-
         // 操作对象
-    var layer = layui.layer
-            , $ = layui.jquery
+		var table = layui.table,
+            $ = layui.jquery;
 
-   // you code ...
+		var tableIns = table.render({
+			elem: '#jobTable'                  //指定原始表格元素选择器（推荐id选择器）
+			, height: 'full-200'    //容器高度
+			, cols: [[   // 标题栏目
+				{field: 'jobId', title: 'ID'}
+				, {field: 'jobName', title: '任务名称'}
+				, {field: 'crontab', title: '调度规则'}
+				, {field: 'nid', title: '运行节点'}
+				, {field: 'prevFireTime', title: '上次执行时间'}
+				, {field: 'nextFireTime', title: '下次执行时间' } ]]
+			, id: 'jobTable'
+			, url: [[@{/portal/job-scheduler-page}]]
+			, method: 'get'
+			, page: {
+				layout: ['count', 'prev', 'page', 'next'] //自定义分页布局
+				,groups: 10 //只显示 1 个连续页码
+			}
+			, loading: false
+		});
 
+		// 刷新
+		$('#btn-search').on('click', function () {
+			refresh();
+		});
+
+		function refresh() {
+			tableIns.reload({
+				where: {
+					jobName: $('#jobName').val()
+				},
+				page: {
+					layout: ['count', 'prev', 'page', 'next'] //自定义分页布局
+					,groups: 10 //只显示 1 个连续页码
+					,curr: 1
+				}
+			});
+		}
     });
 </script>
 </html>

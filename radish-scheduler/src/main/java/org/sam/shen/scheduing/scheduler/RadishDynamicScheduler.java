@@ -6,6 +6,8 @@ import java.util.stream.Stream;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
@@ -311,8 +313,13 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 	}
 	
 	public static List<JobSchedulerVo> listJobsInScheduler(Long userId) {
-	    List<JobSchedulerVo> jobs = jobSchedulerMapper.queryJobScheduler(JobScheduler.RunningStatus.RUNNING, userId);
+	    List<JobSchedulerVo> jobs = jobSchedulerMapper.queryJobScheduler(null, JobScheduler.RunningStatus.RUNNING, userId);
 	    return jobs == null ? Collections.emptyList() : jobs;
+	}
+
+	public static Page<JobSchedulerVo> listJobsInSchedulerWithPage(String jobName, Long userId, int pageIndex, int pageSize) {
+		PageHelper.startPage(pageIndex, pageSize);
+		return jobSchedulerMapper.queryJobScheduler(jobName, JobScheduler.RunningStatus.RUNNING, userId);
 	}
 
 	@SuppressWarnings("unchecked")

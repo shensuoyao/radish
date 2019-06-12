@@ -1,5 +1,6 @@
 package org.sam.shen.scheduing.mapper;
 
+import com.github.pagehelper.Page;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.sam.shen.scheduing.entity.JobScheduler;
@@ -18,7 +19,7 @@ public interface JobSchedulerMapper {
 
     int changeRunningStatus(JobScheduler jobScheduler);
 
-    List<JobSchedulerVo> queryJobScheduler(@Param("runningStatus") JobScheduler.RunningStatus status, @Param("userId") Long userId);
+    Page<JobSchedulerVo> queryJobScheduler(@Param("jobName") String jobName, @Param("runningStatus") JobScheduler.RunningStatus status, @Param("userId") Long userId);
 
     List<JobSchedulerVo> queryAllScheduler();
 

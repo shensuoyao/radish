@@ -36,6 +36,9 @@
         <if test="userId != null">
             and ji.user_id = #{userId}
         </if>
+        <if test="jobName != null and jobName != ''">
+            and ji.job_name like concat(#{jobName}, '%')
+        </if>
     </select>
     
     <select id="queryAllScheduler" resultMap="JobSchedulerVoMap">

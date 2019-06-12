@@ -271,15 +271,23 @@ public class JobController {
 	 * @return
 	 */
 	@RequestMapping(value = "job-scheduler", method = RequestMethod.GET)
-	public ModelAndView jobInScheduler(ModelAndView model, HttpSession session) {
+	public ModelAndView jobInScheduler(ModelAndView model) {
+		model.setViewName("frame/job/job_scheduler");
+		return model;
+	}
+
+	@ResponseBody
+	@GetMapping("job-scheduler-page")
+	public RespPager<Page<JobSchedulerVo>> listSchedulerWithPage(HttpSession session,
+																 @RequestParam(value = "page", defaultValue = "1") Integer page,
+																 @RequestParam(value = "limit", defaultValue = "10") Integer limit,
+																 @RequestParam(value = "jobName", required = false, defaultValue = "") String jobName) {
 		User user = (User) session.getAttribute("user");
 		if (SchedConstant.ADMINISTRATOR.equals(user.getUname())){ // 如果管理员登陆查询所有数据
 			user.setId(null);
 		}
-		List<JobSchedulerVo> jobs = RadishDynamicScheduler.listJobsInScheduler(user.getId());
-		model.addObject("jobs", jobs);
-		model.setViewName("frame/job/job_scheduler");
-		return model;
+		Page<JobSchedulerVo> pager = RadishDynamicScheduler.listJobsInSchedulerWithPage(jobName, user.getId(), page, limit);
+		return new RespPager<>(pager.getPageSize(), pager.getTotal(), pager);
 	}
 	
 	@RequestMapping(value = "job-event", method = RequestMethod.GET)
