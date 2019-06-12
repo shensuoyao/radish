@@ -10,6 +10,7 @@ import org.sam.shen.scheduing.service.UserService;
 import org.sam.shen.scheduing.vo.UserAgentGroupVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -172,7 +173,7 @@ public class ConfigController {
     @ResponseBody
     @RequestMapping(value = "users", method = RequestMethod.POST)
     public Resp<String> saveUser(@RequestBody UserAgentGroupVo userGroup) {
-        User user = new User(userGroup.getUname(), userGroup.getPassword());
+        User user = new User(userGroup.getUname(), DigestUtils.md5DigestAsHex(userGroup.getPassword().getBytes()));
         List<String> groups = null;
         if (StringUtils.isNotEmpty(userGroup.getGroups())) {
             groups = Arrays.asList(userGroup.getGroups().split(","));
@@ -194,7 +195,6 @@ public class ConfigController {
         User user = new User();
         user.setId(userId);
         user.setUname(vo.getUname());
-        user.setPassword(vo.getPassword());
         List<String> groups = null;
         if (StringUtils.isNotEmpty(vo.getGroupIds())) {
             groups = Arrays.asList(vo.getGroupIds().split(","));
@@ -207,6 +207,13 @@ public class ConfigController {
     @RequestMapping(value = "users/{userId}", method = RequestMethod.DELETE)
     public Resp<String> deleteUser(@PathVariable Long userId) {
         userService.deleteUserGroup(userId);
+        return Resp.SUCCESS;
+    }
+
+    @ResponseBody
+    @PostMapping("users/{userId}/change-pwd")
+    public Resp<String> changePassword(@PathVariable Long userId, @RequestBody User user) {
+        userService.modifyPassword(userId, DigestUtils.md5DigestAsHex(user.getPassword().getBytes()));
         return Resp.SUCCESS;
     }
 

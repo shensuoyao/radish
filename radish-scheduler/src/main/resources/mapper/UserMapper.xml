@@ -27,7 +27,7 @@
     </insert>
     
     <update id="update" parameterType="org.sam.shen.scheduing.entity.User">
-        UPDATE `user` set uname = #{uname}, password = #{password} WHERE id = #{id}
+        UPDATE `user` set uname = #{uname} WHERE id = #{id}
     </update>
 
     <delete id="delete" parameterType="java.lang.Long">
@@ -35,7 +35,7 @@
     </delete>
 
     <update id="modifyPassword">
-        UPDATE `user` SET password = #{password} WHERE uname = #{uname}
+        UPDATE `user` SET password = #{password} WHERE id = #{id}
     </update>
     
     <update id="enableUser">
@@ -46,7 +46,6 @@
         SELECT
             a.id,
             max(uname) AS uname,
-            max(`password`) AS `password`,
             max(`enable`) AS `enable`,
             GROUP_CONCAT(d.`group`) AS groups,
             GROUP_CONCAT(d.group_id) AS group_ids
@@ -75,7 +74,6 @@
         SELECT
             a.id,
             max(uname) AS uname,
-            max(`password`) AS `password`,
             max(`enable`) AS `enable`,
             GROUP_CONCAT(d.`group`) AS groups,
             GROUP_CONCAT(d.group_id) AS group_ids

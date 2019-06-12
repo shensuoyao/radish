@@ -5,6 +5,7 @@ import org.sam.shen.core.model.Resp;
 import org.sam.shen.scheduing.entity.User;
 import org.sam.shen.scheduing.mapper.UserMapper;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -36,7 +37,7 @@ public class LoginController {
         if (StringUtils.isEmpty(user.getUname())|| StringUtils.isEmpty(user.getPassword())) {
             return new Resp<>(Resp.FAIL.getCode(), "用户名和密码不能为空！");
         }
-        User u = userMapper.login(user.getUname(), user.getPassword());
+        User u = userMapper.login(user.getUname(), DigestUtils.md5DigestAsHex(user.getPassword().getBytes()));
         if (u == null) {
             return new Resp<>(Resp.FAIL.getCode(), "用户名或密码错误！");
         }

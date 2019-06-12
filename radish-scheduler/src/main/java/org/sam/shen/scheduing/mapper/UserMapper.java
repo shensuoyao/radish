@@ -21,7 +21,7 @@ public interface UserMapper {
 
     int delete(Long userId);
 
-    int modifyPassword(@Param("uname") String uname, @Param("password") String password);
+    int modifyPassword(@Param("id") Long id, @Param("password") String password);
 
     int enableUser(@Param("id") long userId, @Param("enable") int enable);
 

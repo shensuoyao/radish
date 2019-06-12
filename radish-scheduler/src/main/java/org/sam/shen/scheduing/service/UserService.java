@@ -71,4 +71,8 @@ public class UserService {
         userAgentGroupMapper.deleteByUserId(userId);
     }
 
+    public void modifyPassword(Long userId, String password) {
+        userMapper.modifyPassword(userId, password);
+    }
+
 }

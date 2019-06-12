@@ -15,6 +15,7 @@
     <!-- 表格操作按钮集 -->
     <script type="text/html" id="barOption">
         <a class="layui-btn layui-btn-sm layui-btn-normal" lay-event="edit"><i class="layui-icon">&#xe642;</i></a>
+        <a class="layui-btn layui-btn-sm layui-btn-normal" lay-event="pwd"><i class="layui-icon">&#xe673;</i></a>
         <a class="layui-btn layui-btn-sm layui-btn-danger" lay-event="del"><i class="layui-icon">&#xe640;</i></a>
     </script>
 </head>
@@ -38,7 +39,6 @@
 
 <!-- 新增应用弹出层 -->
 <div id="user-add" style="margin: 40px 20px;display: none;">
-    <input type="hidden" id="id" name="id"/>
     <div class="layui-form-item">
         <label class="layui-form-label">用户名</label>
         <div class="layui-input-block">
@@ -54,9 +54,44 @@
     <div class="layui-form-item">
         <label class="layui-form-label">客户端组</label>
         <div class="layui-input-block">
-            <select name="groups" xm-select="groups-select" xm-select-search="" xm-select-search-type="dl">
+            <select name="groups" xm-select="groups-select-add" xm-select-search="" xm-select-search-type="dl">
                 <option value=""></option>
             </select>
+        </div>
+    </div>
+</div>
+
+<!-- 编辑应用弹出层 -->
+<div id="user-edit" style="margin: 40px 20px;display: none;">
+    <input type="hidden" id="id" name="id"/>
+    <div class="layui-form-item">
+        <label class="layui-form-label">用户名</label>
+        <div class="layui-input-block">
+            <input type="text" name="uname" lay-verify="required" autocomplete="off" placeholder="用户名" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">客户端组</label>
+        <div class="layui-input-block">
+            <select name="groups" xm-select="groups-select-edit" xm-select-search="" xm-select-search-type="dl">
+                <option value=""></option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- 修改密码应用弹出层 -->
+<div id="change-pwd" style="margin: 40px 20px;display: none;">
+    <div class="layui-form-item">
+        <label class="layui-form-label">密码</label>
+        <div class="layui-input-block">
+            <input type="password" id="pwd" lay-verify="required" autocomplete="off" placeholder="密码" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">密码确认</label>
+        <div class="layui-input-block">
+            <input type="password" id="pwd_cfm" lay-verify="required" autocomplete="off" placeholder="密码确认" class="layui-input">
         </div>
     </div>
 </div>
@@ -79,7 +114,6 @@
             cols: [[   // 标题栏目
                 {field: 'userId', title: '用户ID'},
                 {field: 'uname', title: '用户名'},
-                {field: 'password', title: '密码'},
                 {field: 'groups', title: '客户端组'},
                 {fixed: 'right', title: '操作', align: 'center', toolbar: '#barOption', width: 250}
             ]],
@@ -92,7 +126,15 @@
             loading: false
         });
 
-        formSelects.config('groups-select', {
+        formSelects.config('groups-select-add', {
+            type: 'get',
+            searchUrl: [[@{/portal/agent-group-select}]],
+            searchName: 'groupName',
+            delay: 1000,
+            clearInput: false
+        }, false);
+
+        formSelects.config('groups-select-edit', {
             type: 'get',
             searchUrl: [[@{/portal/agent-group-select}]],
             searchName: 'groupName',
@@ -106,6 +148,8 @@
                 editApp(obj.data.userId);
             } else if (obj.event == 'del') {
                 delApp(obj.data.userId);
+            } else if (obj.event == 'pwd') {
+                changePwd(obj.data.userId);
             }
         });
 
@@ -126,7 +170,8 @@
             $('#id').val('');
             $('input[name="uname"]').val('');
             $('input[name="password"]').val('');
-            formSelects.value('groups-select', ['']);
+            formSelects.value('groups-select-add', ['']);
+            formSelects.value('groups-select-edit', ['']);
         }
 
         // 新增
@@ -145,9 +190,9 @@
                         dataType: 'json',
                         contentType: 'application/json;charset=utf-8',
                         data: JSON.stringify({
-                            uname: $('input[name="uname"]').val(),
-                            password: $('input[name="password"]').val(),
-                            groups: formSelects.value('groups-select', 'valStr')
+                            uname: $('#user-add input[name="uname"]').val(),
+                            password: $('#user-add input[name="password"]').val(),
+                            groups: formSelects.value('groups-select-add', 'valStr')
                         })
                     }).done(function (data) {
                         if (data.code === 1) {
@@ -168,15 +213,14 @@
             $.get([[@{/config/users/}]] + userId, function (data) {
                 var user = data.data;
                 $('#id').val(user.userId);
-                $('input[name="uname"]').val(user.uname);
-                $('input[name="password"]').val(user.password);
+                $('#user-edit input[name="uname"]').val(user.uname);
                 if (user.groupIds != null && user.groupIds !== '') {
-                    formSelects.value('groups-select', user.groupIds.split(','));
+                    formSelects.value('groups-select-edit', user.groupIds.split(','));
                 }
                 layer.open({
                     type: 1,
                     title: '编辑用户',
-                    content: $('#user-add'),
+                    content: $('#user-edit'),
                     area: ['750px', '500px'],
                     btn: ['保存'],
                     btn1: function (index) {
@@ -186,9 +230,8 @@
                             dataType: 'json',
                             contentType: 'application/json;charset=utf-8',
                             data: JSON.stringify({
-                                uname: $('input[name="uname"]').val(),
-                                password: $('input[name="password"]').val(),
-                                groupIds: formSelects.value('groups-select', 'valStr')
+                                uname: $('#user-edit input[name="uname"]').val(),
+                                groupIds: formSelects.value('groups-select-edit', 'valStr')
                             })
                         }).done(function (data) {
                             if (data.code === 1) {
@@ -201,6 +244,42 @@
                         });
                     }
                 });
+            });
+        }
+
+        // 修改密码
+        function changePwd(userId) {
+            layer.open({
+                type: 1,
+                title: '修改密码',
+                content: $('#change-pwd'),
+                area: ['750px', '500px'],
+                btn: ['保存'],
+                btn1: function (index) {
+                    var pwd = $('#pwd').val();
+                    var pwd_cfm = $('#pwd_cfm').val();
+                    if (pwd !== pwd_cfm) {
+                        layer.error('密码输入不一致！');
+                        return;
+                    }
+                    $.ajax({
+                        type: 'post',
+                        url: [[@{/config/users/}]] + userId + '/change-pwd',
+                        dataType: 'json',
+                        contentType: 'application/json;charset=utf-8',
+                        data: JSON.stringify({
+                            password: pwd
+                        })
+                    }).done(function (data) {
+                        if (data.code === 1) {
+                            layer.msg(data.msg);
+                        } else {
+                            layer.msg('保存成功！');
+                            layer.close(index);
+                            refresh();
+                        }
+                    });
+                }
             });
         }
 
