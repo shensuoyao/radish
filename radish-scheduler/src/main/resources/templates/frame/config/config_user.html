@@ -249,6 +249,8 @@
 
         // 修改密码
         function changePwd(userId) {
+            $('#pwd').val('');
+            $('#pwd_cfm').val('');
             layer.open({
                 type: 1,
                 title: '修改密码',
