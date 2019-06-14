@@ -142,7 +142,7 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 				put("jobId", jobId);
 				put("jobName", jobName);
 			}
-		}) ;
+		});
 		JobDetail jobDetail = JobBuilder.newJob(jobClass_).withIdentity(jobKey).usingJobData(jobDataMap).build();
 		
 		// Tell quartz to schedule the job using our trigger

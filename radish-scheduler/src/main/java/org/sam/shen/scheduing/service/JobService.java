@@ -57,7 +57,7 @@ public class JobService {
 		    try {
 		        RadishDynamicScheduler.addJob(jobInfo.getId(), jobInfo.getJobName(), jobInfo.getCrontab());
             } catch (SchedulerException e) {
-		        logger.info("add job to Scheduler failed. {}", e);
+		        logger.info("add job to Scheduler failed. {}", e.getMessage());
             }
 		}
 	}
@@ -105,7 +105,7 @@ public class JobService {
                     }
                 }
             } catch (SchedulerException | IOException e) {
-                logger.error("add job to Scheduler failed. {}", e);
+                logger.error("add job to Scheduler failed. {}", e.getMessage());
             }
 		}
 	}

@@ -14,6 +14,7 @@ import org.sam.shen.scheduing.mapper.JobInfoMapper;
 import org.sam.shen.scheduing.scheduler.RadishDynamicScheduler;
 import org.sam.shen.scheduing.vo.AppKindHandlerVo;
 import org.sam.shen.scheduing.vo.JobApiVo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,18 +44,35 @@ public class JobApiService {
     @Resource
     private AppKindHandlerMapper appKindHandlerMapper;
 
-    @Transactional(rollbackFor = Exception.class)
-    public void saveJobAppRef(JobApiVo vo, String kind) {
+    @Autowired
+    private JobService jobService;
+
+
+    /**
+     * 获取可执行处理器
+     * @author clock
+     * @date 2019-06-14 14:43
+     * @param appId 应用ID
+     * @param kind 分类名称
+     * @return 可执行处理器
+     */
+    private String getExecutors(String appId, String kind) {
         // 查询handler
-        AppKind appKind = appKindMapper.selectByAppAndKind(vo.getAppId(), kind);
+        String executors = null;
+        AppKind appKind = appKindMapper.selectByAppAndKind(appId, kind);
         if (appKind == null) {
             throw new RuntimeException("无效的kind！");
         }
         List<AppKindHandlerVo> handlers = appKindHandlerMapper.selectKindHandler(appKind.getId());
         if (handlers != null && handlers.size() > 0) {
-            String executors = handlers.stream().map(akh -> akh.getAgentId().concat("-").concat(akh.getHandler())).collect(Collectors.joining(","));
-            vo.setExecutorHandlers(executors);
+            executors = handlers.stream().map(akh -> akh.getAgentId().concat("-").concat(akh.getHandler())).collect(Collectors.joining(","));
         }
+        return executors;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void saveJobAppRef(JobApiVo vo, String kind) {
+        vo.setExecutorHandlers(getExecutors(vo.getAppId(), kind));
         // 保存基本信息
         vo.setCreateTime(new Date());
         jobInfoMapper.saveJobInfo(vo);
@@ -74,15 +92,7 @@ public class JobApiService {
     @Transactional(rollbackFor = Exception.class)
     public void batchSaveJobAppRef(List<JobApiVo> jobApiVos, String appId, String kind) {
         // 查询handler
-        String executors = null;
-        AppKind appKind = appKindMapper.selectByAppAndKind(appId, kind);
-        if (appKind == null) {
-            throw new RuntimeException("无效的kind！");
-        }
-        List<AppKindHandlerVo> handlers = appKindHandlerMapper.selectKindHandler(appKind.getId());
-        if (handlers != null && handlers.size() > 0) {
-            executors = handlers.stream().map(akh -> akh.getAgentId().concat("-").concat(akh.getHandler())).collect(Collectors.joining(","));
-        }
+        String executors = getExecutors(appId, kind);
         // 保存基本信息
         List<JobInfo> jobs = new ArrayList<>();
         for (JobApiVo jav : jobApiVos) {
@@ -124,16 +134,10 @@ public class JobApiService {
 
     @Transactional(rollbackFor = Exception.class)
     public void removeJobById(long jobId, String appId) {
-        JobApiVo job = this.findJobAppById(jobId, appId);
+        this.findJobAppById(jobId, appId);
         // 删除数据库中的job
         jobInfoMapper.deleteJobById(jobId);
         jobAppRefMapper.deleteJobAppRefByJobId(Long.toString(jobId));
-        // 移除系统中的job任务
-        try {
-            RadishDynamicScheduler.removeJob(jobId, job.getJobName());
-        } catch (Exception e) {
-            log.error("job[{}]: remove job scheduler failed. [{}]", jobId, e.getMessage());
-        }
     }
 
     public void unableJobById(long jobId, String appId) {
@@ -141,13 +145,7 @@ public class JobApiService {
         // 更新任务状态
         job.setEnable(Constant.NO);
         job.setUpdateTime(new Date());
-        jobInfoMapper.upgradeJonInfo(job);
-        // 移除运行的job任务
-        try {
-            RadishDynamicScheduler.pauseJob(jobId, job.getJobName());
-        } catch (SchedulerException e) {
-            log.error("job[{}]: remove job scheduler failed. [{}]", jobId, e.getMessage());
-        }
+        jobService.upgradeJobInfo(job);
     }
 
     public void enableJobById(long jobId, String appId) {
@@ -155,40 +153,15 @@ public class JobApiService {
         // 更新任务状态
         job.setEnable(Constant.YES);
         job.setUpdateTime(new Date());
-        jobInfoMapper.upgradeJonInfo(job);
-        // 移除运行的job任务
-        try {
-            if (!RadishDynamicScheduler.checkExists(job.getId(), job.getJobName())) {
-                if (StringUtils.isNotEmpty(job.getExecutorHandlers()) && StringUtils.isNotEmpty(job.getCrontab())) {
-                    RadishDynamicScheduler.addJob(job.getId(), job.getJobName(), job.getCrontab());
-                }
-            } else {
-                RadishDynamicScheduler.resumeJob(jobId, job.getJobName());
-            }
-        } catch (SchedulerException e) {
-            log.error("job[{}]: remove job scheduler failed. [{}]", jobId, e.getMessage());
-        }
+        jobService.upgradeJobInfo(job);
     }
 
-    public void updateJob(JobApiVo vo) {
+    public void updateJob(JobApiVo vo, String kind) {
         JobApiVo job = this.findJobAppById(vo.getId(), vo.getAppId());
-        if (StringUtils.isEmpty(vo.getJobName()) || !vo.getJobName().equals(job.getJobName())) {
-            throw new RuntimeException("任务名称不允许修改！");
-        }
         // 更新任务
         vo.setUpdateTime(new Date());
-        jobInfoMapper.upgradeJonInfo(vo);
-        // 更新定时任务
-        try {
-            if (vo.getEnable() == Constant.YES) {
-                if (StringUtils.isNotEmpty(job.getExecutorHandlers()) && StringUtils.isNotEmpty(vo.getCrontab())) {
-                    RadishDynamicScheduler.UpgradeScheduleJob(vo.getId(), vo.getJobName(), vo.getCrontab());
-                }
-            } else {
-                RadishDynamicScheduler.pauseJob(vo.getId(), vo.getJobName());
-            }
-        } catch (SchedulerException e) {
-            log.error("job[{}]: update job scheduler failed. [{}]", vo.getId(), e.getMessage());
-        }
+        vo.setExecutorHandlers(getExecutors(vo.getAppId(), kind));
+        job.update(vo);
+        jobService.upgradeJobInfo(job);
     }
 }

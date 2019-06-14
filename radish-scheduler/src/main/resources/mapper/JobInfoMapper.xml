@@ -90,7 +90,7 @@
     <update id="upgradeJonInfo" parameterType="JobInfo">
 	    <![CDATA[
             UPDATE job_info
-            SET crontab = #{crontab}, handler_type = #{handlerType}, handler_fail_strategy = #{handlerFailStrategy},
+            SET job_name = #{jobName}, crontab = #{crontab}, handler_type = #{handlerType}, handler_fail_strategy = #{handlerFailStrategy},
                 admin = #{admin}, admin_phone = #{adminPhone}, admin_email = #{adminEmail}, executor_handlers = #{executorHandlers},
                 cmd = #{cmd}, params = #{params}, param_file_path = #{paramFilePath}, parent_job_id = #{parentJobId},
                 dist_type = #{distType}, dist_rule = #{distRule}, update_time = #{updateTime}, priority = #{priority},

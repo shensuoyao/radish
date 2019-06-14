@@ -59,9 +59,9 @@ public class JobInfo extends Identity {
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
 	private Date updateTime;
 	
-	private int priority;
+	private Integer priority;
 	
-	private int enable;
+	private Integer enable;
 
 	private Long userId; // 创建的用户ID
 

@@ -2,6 +2,8 @@ package org.sam.shen.scheduing.api;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sam.shen.core.constants.Constant;
+import org.sam.shen.core.constants.HandlerFailStrategy;
+import org.sam.shen.core.constants.HandlerType;
 import org.sam.shen.core.model.Resp;
 import org.sam.shen.scheduing.entity.JobInfo;
 import org.sam.shen.scheduing.scheduler.RadishDynamicScheduler;
@@ -37,7 +39,20 @@ public class JobApi {
      * @return 任务ID
      */
     @RequestMapping(value = "/jobs", method = RequestMethod.POST)
-    public Resp<Long> addJob(@RequestBody JobApiVo jobApiVo, @RequestHeader String appId, @RequestParam String kind) {
+    public Resp<Long> addJob(@RequestBody JobApiVo jobApiVo, @RequestHeader String appId, @RequestHeader String kind) {
+        // 设置默认值
+        if (jobApiVo.getHandlerType() == null) {
+            jobApiVo.setHandlerType(HandlerType.H_JAVA);
+        }
+        if (jobApiVo.getHandlerFailStrategy() == null) {
+            jobApiVo.setHandlerFailStrategy(HandlerFailStrategy.DISCARD);
+        }
+        if (jobApiVo.getPriority() == null) {
+            jobApiVo.setPriority(0);
+        }
+        if (jobApiVo.getEnable() == null) {
+            jobApiVo.setEnable(1);
+        }
         jobApiVo.setAppId(appId);
         jobApiService.saveJobAppRef(jobApiVo, kind);
         return new Resp<>(jobApiVo.getId());
@@ -51,7 +66,7 @@ public class JobApi {
      * @return 批量创建任务结果
      */
     @RequestMapping(value = "/jobs/bulk", method = RequestMethod.POST)
-    public Resp<String> addJobs(@RequestBody List<JobApiVo> jobApiVos, @RequestHeader String appId, @RequestParam String kind) {
+    public Resp<String> addJobs(@RequestBody List<JobApiVo> jobApiVos, @RequestHeader String appId, @RequestHeader String kind) {
         jobApiService.batchSaveJobAppRef(jobApiVos, appId, kind);
         return Resp.SUCCESS;
     }
@@ -91,10 +106,11 @@ public class JobApi {
      * @return 处理结果
      */
     @RequestMapping(value = "/jobs/{jobId}", method = RequestMethod.PUT)
-    public Resp<String> updateJob(@RequestBody JobApiVo vo, @PathVariable Long jobId, @RequestHeader String appId) {
+    public Resp<String> updateJob(@RequestBody JobApiVo vo, @PathVariable Long jobId, @RequestHeader String appId,
+                                  @RequestHeader String kind) {
         vo.setId(jobId);
         vo.setAppId(appId);
-        jobApiService.updateJob(vo);
+        jobApiService.updateJob(vo, kind);
         return Resp.SUCCESS;
     }
 
