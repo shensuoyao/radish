@@ -54,9 +54,9 @@ public class AppService {
         return null;
     }
 
-    public boolean deleteApp(String appId) {
-        int flag = appInfoMapper.deleteAppInfoById(appId);
-        return flag == 1;
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteApp(String appId) {
+        appInfoMapper.deleteAppInfoById(appId);
     }
 
     public boolean updateApp(AppInfo appInfo) {

@@ -72,11 +72,8 @@ public class ConfigController {
     @ResponseBody
     @RequestMapping(value = "apps/{appId}", method = RequestMethod.DELETE)
     public Resp<String> deleteApp(@PathVariable String appId) {
-        if (appService.deleteApp(appId)) {
-            return Resp.SUCCESS;
-        } else {
-            return Resp.FAIL;
-        }
+        appService.deleteApp(appId);
+        return Resp.SUCCESS;
     }
 
     @ResponseBody
