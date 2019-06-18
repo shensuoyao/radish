@@ -85,11 +85,11 @@ public class CommonController {
             user.setId(null);
         }
         List<Map<String, ?>> list;
-        if (StringUtils.isEmpty(agentName)) {
-            list = agentService.queryAgentHandlerByAgentNameForPage(1, 10, agentName, user.getId());
-        } else {
+//        if (StringUtils.isEmpty(agentName)) {
+//            list = agentService.queryAgentHandlerByAgentNameForPage(1, 10, agentName, user.getId());
+//        } else {
             list = agentService.queryAgentHandlerByAgentName(agentName, user.getId());
-        }
+//        }
         List<Map<String, Object>> result = Lists.newArrayList();
         if(null != list && list.size() > 0) {
             long agentId = -1L;
