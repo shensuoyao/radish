@@ -4,13 +4,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.SchedulerException;
 import org.sam.shen.core.constants.Constant;
+import org.sam.shen.scheduing.entity.AppInfo;
 import org.sam.shen.scheduing.entity.AppKind;
 import org.sam.shen.scheduing.entity.JobAppRef;
 import org.sam.shen.scheduing.entity.JobInfo;
-import org.sam.shen.scheduing.mapper.AppKindHandlerMapper;
-import org.sam.shen.scheduing.mapper.AppKindMapper;
-import org.sam.shen.scheduing.mapper.JobAppRefMapper;
-import org.sam.shen.scheduing.mapper.JobInfoMapper;
+import org.sam.shen.scheduing.mapper.*;
 import org.sam.shen.scheduing.scheduler.RadishDynamicScheduler;
 import org.sam.shen.scheduing.vo.AppKindHandlerVo;
 import org.sam.shen.scheduing.vo.JobApiVo;
@@ -43,6 +41,9 @@ public class JobApiService {
 
     @Resource
     private AppKindHandlerMapper appKindHandlerMapper;
+
+    @Resource
+    private AppInfoMapper appInfoMapper;
 
     @Autowired
     private JobService jobService;
@@ -92,6 +93,7 @@ public class JobApiService {
 
     @Transactional(rollbackFor = Exception.class)
     public void batchSaveJobAppRef(List<JobApiVo> jobApiVos, String appId, String kind) {
+        AppInfo appInfo = appInfoMapper.selectAppInfoById(appId);
         // 查询handler
         String executors = getExecutors(appId, kind);
         // 保存基本信息
@@ -99,6 +101,7 @@ public class JobApiService {
         for (JobApiVo jav : jobApiVos) {
             jav.setCreateTime(new Date());
             jav.setExecutorHandlers(executors);
+            jav.setUserId(appInfo.getUserId());
             jobs.add(jav);
         }
         jobInfoMapper.batchInsert(jobs);

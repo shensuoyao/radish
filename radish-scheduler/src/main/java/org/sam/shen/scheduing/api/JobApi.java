@@ -1,5 +1,6 @@
 package org.sam.shen.scheduing.api;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.sam.shen.core.constants.Constant;
 import org.sam.shen.core.constants.HandlerFailStrategy;
@@ -12,12 +13,14 @@ import org.sam.shen.scheduing.service.JobService;
 import org.sam.shen.scheduing.vo.JobApiVo;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author clock
  * @date 2019/1/7 下午5:00
  */
+@Slf4j
 @RestController
 @RequestMapping("api")
 public class JobApi {
@@ -50,9 +53,9 @@ public class JobApi {
         if (jobApiVo.getPriority() == null) {
             jobApiVo.setPriority(0);
         }
-//        if (jobApiVo.getEnable() == null) {
-//            jobApiVo.setEnable(1);
-//        }
+        if (jobApiVo.getEnable() == null) {
+            jobApiVo.setEnable(1);
+        }
         jobApiVo.setAppId(appId);
         jobApiService.saveJobAppRef(jobApiVo, kind);
         return new Resp<>(jobApiVo.getId());
@@ -62,11 +65,50 @@ public class JobApi {
      * 批量新增job，创建定时任务
      * @author clock
      * @date 2019/1/11 下午5:25
+     * @param jobIds 删除的jobId集合
+     * @return 批量创建任务结果
+     */
+    @RequestMapping(value = "/jobs/bulk/remove", method = RequestMethod.POST)
+    public Resp<List<Long>> deleteJobs(@RequestBody List<Long> jobIds, @RequestHeader String appId) {
+        List<Long> errorIds = new ArrayList<>();
+        for (Long jobId : jobIds) {
+            try {
+                jobApiService.removeJobById(jobId, appId);
+            } catch (Exception e) {
+                errorIds.add(jobId);
+                log.error("Remove job[{}] failed. [{}]", jobId, e.getMessage());
+            }
+        }
+        if (errorIds.size() > 0) {
+            return new Resp<>(Resp.FAIL.getCode(), "Have jobs remove failed.", errorIds);
+        }
+        return new Resp<>(Resp.SUCCESS.getCode(), "success");
+    }
+
+    /**
+     * 批量删除job，创建定时任务
+     * @author clock
+     * @date 2019/1/11 下午5:25
      * @param jobApiVos 多任务
      * @return 批量创建任务结果
      */
     @RequestMapping(value = "/jobs/bulk", method = RequestMethod.POST)
     public Resp<String> addJobs(@RequestBody List<JobApiVo> jobApiVos, @RequestHeader String appId, @RequestHeader String kind) {
+        for (JobApiVo jobApiVo : jobApiVos) {
+            // 设置默认值
+            if (jobApiVo.getHandlerType() == null) {
+                jobApiVo.setHandlerType(HandlerType.H_JAVA);
+            }
+            if (jobApiVo.getHandlerFailStrategy() == null) {
+                jobApiVo.setHandlerFailStrategy(HandlerFailStrategy.DISCARD);
+            }
+            if (jobApiVo.getPriority() == null) {
+                jobApiVo.setPriority(0);
+            }
+            if (jobApiVo.getEnable() == null) {
+                jobApiVo.setEnable(1);
+            }
+        }
         jobApiService.batchSaveJobAppRef(jobApiVos, appId, kind);
         return Resp.SUCCESS;
     }
