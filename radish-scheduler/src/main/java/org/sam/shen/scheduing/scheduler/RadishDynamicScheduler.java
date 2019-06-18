@@ -113,34 +113,34 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 	 * @author suoyao
 	 * @date 下午5:52:11
 	 * @param jobId
-	 * @param jobName
+	 * @param createTime
 	 * @param crontab
 	 * @return
 	 * @throws SchedulerException
 	 */
-	public static boolean addJob(final Long jobId, final String jobName, final String crontab) throws SchedulerException {
+	public static boolean addJob(final Long jobId, final Long createTime, final String crontab) throws SchedulerException {
 		// TriggerKey valid if_exists
-		if (checkExists(jobId, jobName)) {
-			logger.info(">>>>>>>>> addJob fail, job already exist, jobGroup:{}, jobName:{}", jobId, jobName);
+		if (checkExists(jobId, createTime)) {
+			logger.info(">>>>>>>>> addJob fail, job already exist, jobId:{}, createTime:{}", jobId, createTime);
 			return false;
 		}
 		
 		// CronTrigger : TriggerKey + crontab //
 		// withMisfireHandlingInstructionDoNothing 忽略掉调度终止过程中忽略的调度
-		TriggerKey triggerKey = getTriggerKey(jobId, jobName);
+		TriggerKey triggerKey = getTriggerKey(jobId, createTime);
 		CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(crontab)
 		        .withMisfireHandlingInstructionDoNothing();
 		CronTrigger cronTrigger = TriggerBuilder.newTrigger().withIdentity(triggerKey).withSchedule(cronScheduleBuilder)
 		        .build();
 
 		// Trigger the job to run with cron
-		JobKey jobKey = new JobKey(String.valueOf(jobId), jobName);
+		JobKey jobKey = new JobKey(String.valueOf(jobId), String.valueOf(createTime));
 		Class<? extends Job> jobClass_ = EventJobBean.class;
 		JobDataMap jobDataMap = new JobDataMap(new HashMap<String, Object>(){
 			private static final long serialVersionUID = 1L;
 			{
 				put("jobId", jobId);
-				put("jobName", jobName);
+				put("createTime", createTime);
 			}
 		});
 		JobDetail jobDetail = JobBuilder.newJob(jobClass_).withIdentity(jobKey).usingJobData(jobDataMap).build();
@@ -166,20 +166,20 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 	 * @author suoyao
 	 * @date 下午5:11:52
 	 * @param jobId job ID
-	 * @param jobName job name
+	 * @param createTime create time
 	 * @param crontab crontab expression
 	 * @return
 	 * @throws SchedulerException
 	 */
-	public static boolean UpgradeScheduleJob(final Long jobId, final String jobName, final String crontab) throws SchedulerException {
+	public static boolean UpgradeScheduleJob(final Long jobId, final Long createTime, final String crontab) throws SchedulerException {
 		// TriggerKey valid if_exists
-		if (!checkExists(jobId, jobName)) {
-			logger.error(">>>>>>>>>>> Upgrade ScheduleJob, job not exists, JobGroup:{}, JobName:{}", jobId, jobName);
-			addJob(jobId, jobName, crontab);
+		if (!checkExists(jobId, createTime)) {
+			logger.error(">>>>>>>>>>> Upgrade ScheduleJob, job not exists, jobId:{}, createTime:{}", jobId, createTime);
+			addJob(jobId, createTime, crontab);
 			return true;
 		}
 		// TriggerKey : name + group
-		TriggerKey triggerKey = getTriggerKey(jobId, jobName);
+		TriggerKey triggerKey = getTriggerKey(jobId, createTime);
 		CronTrigger oldTrigger = (CronTrigger) scheduler.getTrigger(triggerKey);
 		if(null != oldTrigger) {
 			// 存在旧的触发器
@@ -206,7 +206,7 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 			        .withSchedule(cronScheduleBuilder).build();
 
 			// JobDetail-JobDataMap fresh
-			JobKey jobKey = new JobKey(String.valueOf(jobId), jobName);
+			JobKey jobKey = new JobKey(String.valueOf(jobId), String.valueOf(createTime));
 			JobDetail jobDetail = scheduler.getJobDetail(jobKey);
 
 			// Trigger fresh
@@ -218,7 +218,7 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
             updateRunningStatus(jobId, JobScheduler.RunningStatus.RUNNING, cronTrigger.getPreviousFireTime(), cronTrigger.getNextFireTime());
 		}
 		if(logger.isInfoEnabled()) {
-			logger.info(">>>>>>>>>>> resumeJob success, JobGroup:{}, JobName:{}", jobId, jobName);
+			logger.info(">>>>>>>>>>> resumeJob success, JobId:{}, CreateTime:{}", jobId, createTime);
 		}
 		return true;
 	}
@@ -228,15 +228,15 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 	 * @author suoyao
 	 * @date 下午5:13:37
 	 * @param jobId
-	 * @param jobName
+	 * @param createTime
 	 * @return
 	 * @throws SchedulerException
 	 */
-	public static boolean removeJob(final Long jobId, final String jobName) throws SchedulerException {
+	public static boolean removeJob(final Long jobId, final Long createTime) throws SchedulerException {
 		// TriggerKey : name + group
-		TriggerKey triggerKey = getTriggerKey(jobId, jobName);
-		boolean result = false;
-		if (checkExists(jobId, jobName)) {
+		TriggerKey triggerKey = getTriggerKey(jobId, createTime);
+		boolean result;
+		if (checkExists(jobId, createTime)) {
 			result = scheduler.unscheduleJob(triggerKey);
             // delete job scheduler
             jobSchedulerMapper.delete(jobId);
@@ -252,15 +252,15 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 	 * @author suoyao
 	 * @date 下午5:27:25
 	 * @param jobId
-	 * @param jobName
+	 * @param createTime
 	 * @return
 	 * @throws SchedulerException
 	 */
-	public static boolean pauseJob(final Long jobId, final String jobName) throws SchedulerException {
+	public static boolean pauseJob(final Long jobId, final Long createTime) throws SchedulerException {
 		// TriggerKey : name + group
-		TriggerKey triggerKey = getTriggerKey(jobId, jobName);
+		TriggerKey triggerKey = getTriggerKey(jobId, createTime);
 		boolean result = false;
-		if (checkExists(jobId, jobName)) {
+		if (checkExists(jobId, createTime)) {
 			scheduler.pauseTrigger(triggerKey);
             // update job scheduler
             updateRunningStatus(jobId, JobScheduler.RunningStatus.PAUSED, null, null);
@@ -279,16 +279,16 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 	 * @author suoyao
 	 * @date 下午5:27:07
 	 * @param jobId
-	 * @param jobName
+	 * @param createTime
 	 * @return
 	 * @throws SchedulerException
 	 */
-	public static boolean resumeJob(final Long jobId, final String jobName) throws SchedulerException {
+	public static boolean resumeJob(final Long jobId, final Long createTime) throws SchedulerException {
 		// TriggerKey : name + group
-		TriggerKey triggerKey = getTriggerKey(jobId, jobName);
+		TriggerKey triggerKey = getTriggerKey(jobId, createTime);
 
 		boolean result = false;
-		if (checkExists(jobId, jobName)) {
+		if (checkExists(jobId, createTime)) {
 			scheduler.resumeTrigger(triggerKey);
             // update job information
 			CronTrigger cronTrigger = (CronTrigger) scheduler.getTrigger(triggerKey);
@@ -303,13 +303,13 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 		return result;
 	}
 	
-	public static boolean checkExists(final Long jobId, final String jobName) throws SchedulerException{
-		TriggerKey triggerKey = getTriggerKey(jobId, jobName);
+	public static boolean checkExists(final Long jobId, final Long createTime) throws SchedulerException{
+		TriggerKey triggerKey = getTriggerKey(jobId, createTime);
 		return scheduler.checkExists(triggerKey);
 	}
 	
-	private static TriggerKey getTriggerKey(final Long jobId, final String jobName) {
-		return TriggerKey.triggerKey(String.valueOf(jobId), jobName);
+	private static TriggerKey getTriggerKey(final Long jobId, final Long createTime) {
+		return TriggerKey.triggerKey(String.valueOf(jobId), String.valueOf(createTime));
 	}
 	
 	public static List<JobSchedulerVo> listJobsInScheduler(Long userId) {
@@ -490,7 +490,7 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 		}
 		// 更新job中的执行时间
         try {
-            CronTrigger cronTrigger = (CronTrigger) scheduler.getTrigger(getTriggerKey(jobInfo.getId(), jobInfo.getJobName()));
+            CronTrigger cronTrigger = (CronTrigger) scheduler.getTrigger(getTriggerKey(jobInfo.getId(), jobInfo.getCreateTime().getTime()));
             updateRunningStatus(jobInfo.getId(), JobScheduler.RunningStatus.RUNNING, cronTrigger.getPreviousFireTime(), cronTrigger.getNextFireTime());
         } catch (SchedulerException e) {
             logger.error(e.getMessage());

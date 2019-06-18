@@ -233,10 +233,10 @@ public class FollowerNode {
 				boolean ret;
 				if(jobIds.contains(leaderInfo.getJobId())) {
 				    // 如果调度任务可用则更新
-                    ret = RadishDynamicScheduler.UpgradeScheduleJob(leaderInfo.getJobId(), leaderInfo.getJobName(), leaderInfo.getCrontab());
+                    ret = RadishDynamicScheduler.UpgradeScheduleJob(leaderInfo.getJobId(), leaderInfo.getCreateTime(), leaderInfo.getCrontab());
 				} else {
 					// 新增调度job
-					ret = RadishDynamicScheduler.addJob(leaderInfo.getJobId(), leaderInfo.getJobName(), leaderInfo.getCrontab());
+					ret = RadishDynamicScheduler.addJob(leaderInfo.getJobId(), leaderInfo.getCreateTime(), leaderInfo.getCrontab());
 				}
 				// 发送COMMIT 确认信息
 				ClusterPacket<Boolean> commitPacket = new ClusterPacket<Boolean>(LeaderNode.COMMIT, self.getMyId(),
@@ -260,7 +260,7 @@ public class FollowerNode {
 		    List<JobSchedulerVo> errorJobs = new ArrayList<>();
 		    for (JobSchedulerVo job : jobs) {
 		        try {
-		            RadishDynamicScheduler.addJob(job.getJobId(), job.getJobName(), job.getCrontab());
+		            RadishDynamicScheduler.addJob(job.getJobId(), job.getCreateTime().getTime(), job.getCrontab());
                 } catch (Exception e) {
 		            errorJobs.add(job);
                 }

@@ -58,7 +58,7 @@ public class RadishScheduingApplication implements ApplicationRunner {
 			if (null != enableJobInfo && enableJobInfo.size() > 0) {
 				enableJobInfo.forEach(jobInfo -> {
 					try {
-						RadishDynamicScheduler.addJob(jobInfo.getId(), jobInfo.getJobName(), jobInfo.getCrontab());
+						RadishDynamicScheduler.addJob(jobInfo.getId(), jobInfo.getCreateTime().getTime(), jobInfo.getCrontab());
 					} catch (SchedulerException e) {
 						logger.error("init add jobInfo failed. {}", jobInfo.getJobName());
 					}

@@ -190,7 +190,7 @@ public class FollowerHandler extends Thread {
 					if(ClusterPeerNodes.getSingleton().getSchedulerJobsView().contains(leaderInfo.getJobId())) {
 						// leader自己调度该任务
 						// 更新本机的调度服务
-						RadishDynamicScheduler.UpgradeScheduleJob(leaderInfo.getJobId(), leaderInfo.getJobName(), leaderInfo.getCrontab());
+						RadishDynamicScheduler.UpgradeScheduleJob(leaderInfo.getJobId(), leaderInfo.getCreateTime(), leaderInfo.getCrontab());
 					} else {
 						ClusterPacket<LeaderInfo> packet = new ClusterPacket<LeaderInfo>(LeaderNode.LEADERINFO,
 								leader.self.getMyId(), ClusterPeerNodes.getSingleton().getSchedulerJobCount(), leaderInfo);

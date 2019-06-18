@@ -295,7 +295,7 @@ public class ClusterPeer extends Thread {
             List<JobSchedulerVo> currentJobs = jobMap.get(myId);
             for (JobSchedulerVo job : currentJobs) {
                 try {
-                    RadishDynamicScheduler.addJob(job.getJobId(), job.getJobName(), job.getCrontab());
+                    RadishDynamicScheduler.addJob(job.getJobId(), job.getCreateTime().getTime(), job.getCrontab());
                 } catch (Exception e) {
                     leaderNode.loadPacket.addErrorJob(job);
                 }

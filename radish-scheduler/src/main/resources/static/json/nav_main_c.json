@@ -18,6 +18,11 @@
           "text": "Agent",
           "icon": "&#xe857;",
           "href": "/radish-scheduing/portal/agent"
+        },
+        {
+          "text": "Agent Online",
+          "icon": "&#xe629;",
+          "href": "/radish-scheduing/monitor/agent-online"
         }
       ]
     },
@@ -40,23 +45,6 @@
           "text": "Job Event",
           "icon": "&#xe60e;",
           "href": "/radish-scheduing/portal/job-event"
-        }
-      ]
-    },
-    {
-      "text": "Monitor 监控",
-      "icon": "&#xe62c;",
-      "href": "",
-      "subset": [
-        {
-          "text": "Agent Online",
-          "icon": "&#xe629;",
-          "href": "/radish-scheduing/monitor/agent-online"
-        },
-        {
-          "text": "报警",
-          "icon": "&#xe667;",
-          "href": "404.html"
         }
       ]
     },

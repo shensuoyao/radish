@@ -19,6 +19,7 @@ import org.sam.shen.scheduing.entity.AppInfo;
 import org.sam.shen.scheduing.entity.JobEvent;
 import org.sam.shen.scheduing.entity.User;
 import org.sam.shen.scheduing.mapper.AppInfoMapper;
+import org.sam.shen.scheduing.vo.JobApiVo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -88,6 +89,10 @@ public class CommonAspect {
             if ("jobId".equals(param)) {
                 if (arg == null) {
                     return new Resp<>(Resp.FAIL.getCode(), "任务ID不能为空！");
+                }
+            } else if ("jobApiVo".equals(param)) {
+                if (arg != null) {
+                    ((JobApiVo) arg).setUserId(appInfo.getUserId());
                 }
             }
         }

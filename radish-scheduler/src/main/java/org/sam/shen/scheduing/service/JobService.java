@@ -55,7 +55,8 @@ public class JobService {
 		// 加入任务调度
 		if (jobInfo.getEnable() == Constant.YES && StringUtils.isNotEmpty(jobInfo.getExecutorHandlers()) && StringUtils.isNotEmpty(jobInfo.getCrontab())) {
 		    try {
-		        RadishDynamicScheduler.addJob(jobInfo.getId(), jobInfo.getJobName(), jobInfo.getCrontab());
+		    	// new Date()获取的数据带有毫秒数，mysql数据库存的数据不带，所以去掉毫秒数统一标准
+		        RadishDynamicScheduler.addJob(jobInfo.getId(), jobInfo.getCreateTime().getTime() / 1000 * 1000, jobInfo.getCrontab());
             } catch (SchedulerException e) {
 		        logger.info("add job to Scheduler failed. {}", e.getMessage());
             }
@@ -78,22 +79,22 @@ public class JobService {
                 // 如果单机模式
                 if (clusterPeer.getMyId() == null) {
                     if (StringUtils.isNotEmpty(jobInfo.getCrontab())) {
-                        RadishDynamicScheduler.UpgradeScheduleJob(jobInfo.getId(), jobInfo.getJobName(), jobInfo.getCrontab());
+                        RadishDynamicScheduler.UpgradeScheduleJob(jobInfo.getId(), jobInfo.getCreateTime().getTime(), jobInfo.getCrontab());
                     }
                     return;
                 }
                 // 如果该任务在当前节点运行则执行更新
                 if (ClusterPeerNodes.getSingleton().getSchedulerJobsView().contains(jobInfo.getId())) {
                     if (StringUtils.isNotEmpty(jobInfo.getCrontab())) {
-                        RadishDynamicScheduler.UpgradeScheduleJob(jobInfo.getId(), jobInfo.getJobName(), jobInfo.getCrontab());
+                        RadishDynamicScheduler.UpgradeScheduleJob(jobInfo.getId(), jobInfo.getCreateTime().getTime(), jobInfo.getCrontab());
                     }
                 } else if (jobSchedulerMapper.exist(jobInfo.getId()) == 0) { // 判断该任务是否还在运行
                     if (StringUtils.isNotEmpty(jobInfo.getCrontab())) {
-                        RadishDynamicScheduler.addJob(jobInfo.getId(), jobInfo.getJobName(), jobInfo.getCrontab());
+                        RadishDynamicScheduler.addJob(jobInfo.getId(), jobInfo.getCreateTime().getTime(), jobInfo.getCrontab());
                     }
                 } else {
                     if (StringUtils.isNotEmpty(jobInfo.getCrontab())) {
-                        LeaderInfo leaderInfo = new LeaderInfo(jobInfo.getId(), jobInfo.getJobName(), jobInfo.getCrontab());
+                        LeaderInfo leaderInfo = new LeaderInfo(jobInfo.getId(), jobInfo.getJobName(), jobInfo.getCrontab(), jobInfo.getCreateTime().getTime());
                         // 如果当前是leader节点，则向LeaderNode中queue中添加数据包，从节点则将LeaderInfo发送给leader节点作处理
                         if (clusterPeer.getNodeState() == ClusterPeer.NodeState.LEADING) {
                             ClusterPacket<LeaderInfo> packet = new ClusterPacket<>();

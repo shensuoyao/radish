@@ -115,6 +115,10 @@ public class JobController {
 		if (jobInfo.getExpired() != null) {
 			jobInfo.setExpired(jobInfo.getExpired() + jobInfo.getExpiredUnit());
 		}
+		// 如果checkbox未选定，则设置enable属性未0
+		if (jobInfo.getEnable() == null) {
+			jobInfo.setEnable(0);
+		}
 		if(null == jobInfo.getId()) {
 			 // 新增Job
 			jobInfo.setCreateTime(new Date());
@@ -125,7 +129,9 @@ public class JobController {
 			jobInfo.setUserId(user.getId());
 			jobService.addJobinfo(jobInfo);
 		} else {
+			JobInfo job = jobService.findJobInfo(jobInfo.getId());
 			 // 更新
+			jobInfo.setCreateTime(job.getCreateTime());
 			jobInfo.setUpdateTime(new Date());
 			jobService.upgradeJobInfo(jobInfo);
 		}

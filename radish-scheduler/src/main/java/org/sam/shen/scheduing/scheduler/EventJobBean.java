@@ -21,6 +21,8 @@ public class EventJobBean extends QuartzJobBean {
 	private Long jobId;
 
 	private String jobName;
+
+	private Long createTime;
 	
 	public EventJobBean() {
 		super();
@@ -35,14 +37,14 @@ public class EventJobBean extends QuartzJobBean {
 		// 2. 检查JobInfo的enable状态是否为启用，或者Job是否变为手动执行
 		if(jobInfo == null || jobInfo.getEnable() != 1 || StringUtils.isEmpty(jobInfo.getCrontab())) {
 			if(logger.isInfoEnabled()) {
-				logger.info("job is disabled {}", jobName);
+				logger.info("job is disabled {}", jobId);
 			}
 			// 禁用状态, 则从调度器中删除该任务的调度
 			try {
-				RadishDynamicScheduler.removeJob(jobId, jobName);
+				RadishDynamicScheduler.removeJob(jobId, createTime);
 				// TODO: 2018/11/21 关闭执行中的线程，针对没有调度周期无限循环的调度任务
 			} catch (SchedulerException e) {
-				logger.error("remove job [" + jobName + "] from scheduler failed", e);
+				logger.error("remove job [" + jobId + "] from scheduler failed", e);
 			}
 		} else {
 			// 3. 发送Event事件到抢占任务事件队列
@@ -72,4 +74,7 @@ public class EventJobBean extends QuartzJobBean {
         this.jobName = jobName;
     }
 
+	public void setCreateTime(Long createTime) {
+		this.createTime = createTime;
+	}
 }

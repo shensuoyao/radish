@@ -13,6 +13,7 @@
     <resultMap id="JobSchedulerVoMap" type="org.sam.shen.scheduing.vo.JobSchedulerVo" extends="JobSchedulerMap">
         <result column="job_name" property="jobName"/>
         <result column="crontab" property="crontab"/>
+        <result column="create_time" property="createTime"/>
     </resultMap>
 
     <insert id="insert" parameterType="org.sam.shen.scheduing.entity.JobScheduler" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
@@ -30,7 +31,7 @@
     </update>
 
     <select id="queryJobScheduler" resultMap="JobSchedulerVoMap">
-        SELECT js.id, js.job_id, ji.job_name, ji.crontab, js.running_status, js.nid, js.prev_fire_time, js.next_fire_time
+        SELECT js.id, js.job_id, ji.job_name, ji.crontab, ji.create_time, js.running_status, js.nid, js.prev_fire_time, js.next_fire_time
         FROM job_scheduler js LEFT JOIN job_info ji ON js.job_id=ji.id
         WHERE js.running_status = #{runningStatus}
         <if test="userId != null">
@@ -42,13 +43,13 @@
     </select>
     
     <select id="queryAllScheduler" resultMap="JobSchedulerVoMap">
-        SELECT js.id, js.job_id, ji.job_name, ji.crontab, js.running_status, js.nid, js.prev_fire_time, js.next_fire_time
+        SELECT js.id, js.job_id, ji.job_name, ji.crontab, ji.create_time, js.running_status, js.nid, js.prev_fire_time, js.next_fire_time
         FROM job_scheduler js, job_info ji
         WHERE js.job_id = ji.id
     </select>
 
     <select id="querySchedulerByNid" resultMap="JobSchedulerVoMap">
-        SELECT js.id, js.job_id, ji.job_name, ji.crontab, js.running_status, js.nid, js.prev_fire_time, js.next_fire_time
+        SELECT js.id, js.job_id, ji.job_name, ji.crontab, ji.create_time, js.running_status, js.nid, js.prev_fire_time, js.next_fire_time
         FROM job_scheduler js, job_info ji
         WHERE js.job_id = ji.id AND js.nid=#{nid}
     </select>

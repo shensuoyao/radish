@@ -82,7 +82,8 @@ public class JobApiService {
         // 备注：多个地方需要同样的逻辑判断，可以放在addJob方法中实现
         if (vo.getEnable() == Constant.YES && StringUtils.isNotEmpty(vo.getExecutorHandlers()) && StringUtils.isNotEmpty(vo.getCrontab())) {
             try {
-                RadishDynamicScheduler.addJob(vo.getId(), vo.getJobName(), vo.getCrontab());
+                // new Date()获取的数据带有毫秒数，mysql数据库存的数据不带，所以去掉毫秒数统一标准
+                RadishDynamicScheduler.addJob(vo.getId(), vo.getCreateTime().getTime() / 1000 * 1000, vo.getCrontab());
             } catch (SchedulerException e) {
                 log.error("Add scheduler failed. [{}]", e.getMessage());
             }
@@ -109,7 +110,8 @@ public class JobApiService {
         for (JobInfo job : jobs) {
             if (job.getEnable() == Constant.YES && StringUtils.isNotEmpty(job.getExecutorHandlers()) && StringUtils.isNotEmpty(job.getCrontab())) {
                 try {
-                    RadishDynamicScheduler.addJob(job.getId(), job.getJobName(), job.getCrontab());
+                    // new Date()获取的数据带有毫秒数，mysql数据库存的数据不带，所以去掉毫秒数统一标准
+                    RadishDynamicScheduler.addJob(job.getId(), job.getCreateTime().getTime() / 1000 * 1000, job.getCrontab());
                 } catch (SchedulerException e) {
                     log.error("job[{}]: add scheduler failed. [{}]", job.getId(), e.getMessage());
                 }

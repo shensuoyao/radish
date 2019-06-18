@@ -50,9 +50,9 @@ public class JobApi {
         if (jobApiVo.getPriority() == null) {
             jobApiVo.setPriority(0);
         }
-        if (jobApiVo.getEnable() == null) {
-            jobApiVo.setEnable(1);
-        }
+//        if (jobApiVo.getEnable() == null) {
+//            jobApiVo.setEnable(1);
+//        }
         jobApiVo.setAppId(appId);
         jobApiService.saveJobAppRef(jobApiVo, kind);
         return new Resp<>(jobApiVo.getId());
