@@ -11,10 +11,7 @@ import org.sam.shen.scheduing.entity.Agent;
 import org.sam.shen.scheduing.entity.AgentGroup;
 import org.sam.shen.scheduing.entity.AgentGroupRef;
 import org.sam.shen.scheduing.entity.AgentHandler;
-import org.sam.shen.scheduing.mapper.AgentGroupMapper;
-import org.sam.shen.scheduing.mapper.AgentGroupRefMapper;
-import org.sam.shen.scheduing.mapper.AgentHandlerMapper;
-import org.sam.shen.scheduing.mapper.AgentMapper;
+import org.sam.shen.scheduing.mapper.*;
 import org.sam.shen.scheduing.vo.AgentEditVo;
 import org.sam.shen.scheduing.vo.AgentGroupEditView;
 import org.springframework.stereotype.Service;
@@ -44,6 +41,9 @@ public class AgentService {
 	
 	@Resource
 	private AgentGroupRefMapper agentGroupRefMapper;
+
+	@Resource
+	private UserAgentGroupMapper userAgentGroupMapper;
 	
 	/**
 	 *  Agent客户端注册
@@ -238,8 +238,10 @@ public class AgentService {
 		return list;
 	}
 
+	@Transactional(rollbackFor = Exception.class)
 	public void deleteAgentGroup(Long id) {
 		agentGroupMapper.deleteAgentGroup(id);
+		userAgentGroupMapper.deleteByGroupId(id);
 	}
 
     /**
@@ -271,10 +273,9 @@ public class AgentService {
         }
     }
 
-    public boolean removeAgent(Long agentId) {
+    public void removeAgent(Long agentId) {
         // 判断agent是否还连接着
-        int count = agentMapper.deleteAgent(agentId);
-        return count > 0;
+        agentMapper.deleteAgent(agentId);
     }
 
 }

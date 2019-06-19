@@ -108,7 +108,7 @@ CREATE TABLE `job_info`
 (
     `id`                    int(11) NOT NULL AUTO_INCREMENT COMMENT '唯一主键id',
     `parent_job_id`         varchar(125)  DEFAULT NULL COMMENT '父任务ID, 多个用逗号分割',
-    `job_name`              varchar(125)  DEFAULT NULL COMMENT 'job名称',
+    `job_name`              varchar(256)  DEFAULT NULL COMMENT 'job名称',
     `crontab`               varchar(32)   DEFAULT NULL COMMENT '定时策略',
     `handler_type`          varchar(32)   DEFAULT NULL COMMENT 'job类型, shell, java, Python etc',
     `handler_fail_strategy` varchar(32)   DEFAULT NULL COMMENT '处理器失败策略',
@@ -234,20 +234,7 @@ CREATE TABLE `app_kind`
     `id`     varchar(32) NOT NULL COMMENT '主键',
     `app_id` varchar(32) DEFAULT NULL COMMENT '应用ID',
     `kind`   varchar(32) DEFAULT NULL COMMENT '分类标签',
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8;
-
-
--- ----------------------------
---  Table structure for `app_kind_handler`
--- ----------------------------
-DROP TABLE IF EXISTS `app_kind_handler`;
-CREATE TABLE `app_kind_handler`
-(
-    `id`         varchar(32) NOT NULL COMMENT '主键',
-    `kind_id`    varchar(32) DEFAULT NULL COMMENT '分类ID',
-    `handler_id` varchar(32) DEFAULT NULL COMMENT '处理器ID',
+    `handlers` varchar(512) DEFAULT NULL COMMENT '处理器',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;

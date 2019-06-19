@@ -22,4 +22,8 @@
     <delete id="deleteByUserId">
         DELETE FROM user_agent_group WHERE user_id = #{userId}
     </delete>
+    
+    <delete id="deleteByGroupId">
+        delete from user_agent_group where group_id = #{groupId}
+    </delete>
 </mapper>

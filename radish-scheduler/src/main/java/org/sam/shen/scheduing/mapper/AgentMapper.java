@@ -33,6 +33,6 @@ public interface AgentMapper {
 	
 	List<Agent> queryAgentInIds(List<Long> ids);
 
-	int deleteAgent(Long agentId);
+	void deleteAgent(Long agentId);
 	
 }

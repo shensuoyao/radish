@@ -63,7 +63,7 @@
     
     <delete id="deleteAgentGroup" parameterType="long">
         <![CDATA[
-           DELETE FROM agent_group WHERE id = #{id} 
-                ]]>
+           DELETE ag, agr FROM agent_group ag, radish.agent_group_ref agr WHERE ag.id = agr.agent_group_id and ag.id = #{id}
+        ]]>
     </delete>
 </mapper>

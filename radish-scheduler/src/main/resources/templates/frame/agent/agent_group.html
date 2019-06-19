@@ -67,18 +67,20 @@
 
         // 获取选中行
 	   table.on('tool(agentGroupTable)', function (obj) {
-		     if(obj.event == 'edit') {
+           if(obj.event == 'edit') {
 	           window.location.href = [[@{/portal/agent-group-edit/}]] + obj.data.id;
 	       } else if(obj.event == 'del') {
-	           $.post([[@{/portal/agent-group-del}]],{"id" : obj.data.id},function(res){
-	        	   if(res.code == 0){
-	                   layer.msg("删除成功", {time: 2000});
-	                   tableIns.reload();
-                 } else{
-                    layer.msg("删除失败", {time: 2000});
-                                      }
-	           },'json');
-	           }
+               layer.confirm('是否删除该客户端信息？', function () {
+                   $.post([[@{/portal/agent-group-del}]],{"id" : obj.data.id},function(res){
+                       if(res.code == 0){
+                           layer.msg("删除成功", {time: 2000});
+                           tableIns.reload();
+                       } else{
+                           layer.msg("删除失败", {time: 2000});
+                       }
+                   },'json');
+               });
+           }
         });
 
         // 刷新
