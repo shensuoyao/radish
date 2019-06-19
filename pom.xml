@@ -108,4 +108,11 @@
         </license>
     </licenses>
 
+    <distributionManagement>
+        <repository>
+            <id>releases</id>
+            <name>90cbc5d6dffb41eebc631a503e3f479a_9db071b5d7c94c4396c58df388fb9b70</name>
+            <url>https://devrepo.devcloud.huaweicloud.com/02/nexus/content/repositories/90cbc5d6dffb41eebc631a503e3f479a_1_0/</url>
+        </repository>
+    </distributionManagement>
 </project>
