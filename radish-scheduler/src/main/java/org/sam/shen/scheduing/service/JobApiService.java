@@ -10,7 +10,6 @@ import org.sam.shen.scheduing.entity.JobAppRef;
 import org.sam.shen.scheduing.entity.JobInfo;
 import org.sam.shen.scheduing.mapper.*;
 import org.sam.shen.scheduing.scheduler.RadishDynamicScheduler;
-import org.sam.shen.scheduing.vo.AppKindHandlerVo;
 import org.sam.shen.scheduing.vo.JobApiVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -40,9 +39,6 @@ public class JobApiService {
     private AppKindMapper appKindMapper;
 
     @Resource
-    private AppKindHandlerMapper appKindHandlerMapper;
-
-    @Resource
     private AppInfoMapper appInfoMapper;
 
     @Autowired
@@ -59,16 +55,17 @@ public class JobApiService {
      */
     private String getExecutors(String appId, String kind) {
         // 查询handler
-        String executors = null;
         AppKind appKind = appKindMapper.selectByAppAndKind(appId, kind);
         if (appKind == null) {
             throw new RuntimeException("无效的kind！");
         }
-        List<AppKindHandlerVo> handlers = appKindHandlerMapper.selectKindHandler(appKind.getId());
-        if (handlers != null && handlers.size() > 0) {
-            executors = handlers.stream().map(akh -> akh.getAgentId().concat("-").concat(akh.getHandler())).collect(Collectors.joining(","));
+
+        String handlers = appKind.getHandlers();
+        if (StringUtils.isNotEmpty(handlers)) {
+            return handlers;
+        } else {
+            throw new RuntimeException("无可执行的handler！");
         }
-        return executors;
     }
 
     @Transactional(rollbackFor = Exception.class)

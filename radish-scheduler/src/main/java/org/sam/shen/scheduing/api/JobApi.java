@@ -35,15 +35,9 @@ public class JobApi {
     }
 
     /**
-     * 新增job，并创建定时任务
-     * @author clock
-     * @date 2019/1/9 下午5:52
-     * @param jobApiVo 任务
-     * @return 任务ID
+     * 给job设置默认值
      */
-    @RequestMapping(value = "/jobs", method = RequestMethod.POST)
-    public Resp<Long> addJob(@RequestBody JobApiVo jobApiVo, @RequestHeader String appId, @RequestHeader String kind) {
-        // 设置默认值
+    private void setJobDefalutValue(JobApiVo jobApiVo) {
         if (jobApiVo.getHandlerType() == null) {
             jobApiVo.setHandlerType(HandlerType.H_JAVA);
         }
@@ -56,6 +50,22 @@ public class JobApi {
         if (jobApiVo.getEnable() == null) {
             jobApiVo.setEnable(1);
         }
+        if (StringUtils.isEmpty(jobApiVo.getExpired())) {
+            jobApiVo.setExpired("1d");
+        }
+    }
+
+    /**
+     * 新增job，并创建定时任务
+     * @author clock
+     * @date 2019/1/9 下午5:52
+     * @param jobApiVo 任务
+     * @return 任务ID
+     */
+    @RequestMapping(value = "/jobs", method = RequestMethod.POST)
+    public Resp<Long> addJob(@RequestBody JobApiVo jobApiVo, @RequestHeader String appId, @RequestHeader String kind) {
+        // 设置默认值
+        setJobDefalutValue(jobApiVo);
         jobApiVo.setAppId(appId);
         jobApiService.saveJobAppRef(jobApiVo, kind);
         return new Resp<>(jobApiVo.getId());
@@ -96,18 +106,7 @@ public class JobApi {
     public Resp<String> addJobs(@RequestBody List<JobApiVo> jobApiVos, @RequestHeader String appId, @RequestHeader String kind) {
         for (JobApiVo jobApiVo : jobApiVos) {
             // 设置默认值
-            if (jobApiVo.getHandlerType() == null) {
-                jobApiVo.setHandlerType(HandlerType.H_JAVA);
-            }
-            if (jobApiVo.getHandlerFailStrategy() == null) {
-                jobApiVo.setHandlerFailStrategy(HandlerFailStrategy.DISCARD);
-            }
-            if (jobApiVo.getPriority() == null) {
-                jobApiVo.setPriority(0);
-            }
-            if (jobApiVo.getEnable() == null) {
-                jobApiVo.setEnable(1);
-            }
+            setJobDefalutValue(jobApiVo);
         }
         jobApiService.batchSaveJobAppRef(jobApiVos, appId, kind);
         return Resp.SUCCESS;

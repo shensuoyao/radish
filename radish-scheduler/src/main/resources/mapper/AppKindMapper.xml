@@ -5,9 +5,10 @@
         <result column="id" property="id"/>
         <result column="app_id" property="appId"/>
         <result column="kind" property="kind"/>
+        <result column="handlers" property="handlers"/>
     </resultMap>
     <sql id="Base_Column_List">
-        id, app_id, kind
+        id, app_id, kind, handlers
     </sql>
 
     <select id="selectAppKind" parameterType="org.sam.shen.scheduing.entity.AppKind" resultMap="AppKindMap">
@@ -21,13 +22,17 @@
     <select id="selectByAppAndKind" resultMap="AppKindMap">
         SELECT <include refid="Base_Column_List"/> FROM app_kind WHERE app_id = #{appId} AND kind = #{kind}
     </select>
+
+    <select id="selectById" resultMap="AppKindMap">
+        SELECT <include refid="Base_Column_List"/> FROM app_kind WHERE id = #{kindId}
+    </select>
     
     <insert id="insertAppKind" parameterType="org.sam.shen.scheduing.entity.AppKind">
-        INSERT INTO app_kind(id, app_id, kind) VALUES (#{id}, #{appId}, #{kind})
+        INSERT INTO app_kind(id, app_id, kind, handlers) VALUES (#{id}, #{appId}, #{kind}, #{handlers})
     </insert>
     
     <update id="updateAppKind" parameterType="org.sam.shen.scheduing.entity.AppKind">
-        UPDATE app_kind SET kind = #{kind} WHERE id = #{id}
+        UPDATE app_kind SET kind = #{kind}, handlers = #{handlers} WHERE id = #{id}
     </update>
 
     <delete id="deleteAppKind" parameterType="java.lang.String">

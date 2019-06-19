@@ -101,7 +101,7 @@ public class ConfigController {
                                              @RequestParam(defaultValue = "10") Integer limit) {
         AppKind appKind = new AppKind(appId, kind);
         Page<AppKind> kinds = appService.getKindsWithPage(appKind, page, limit);
-        return new RespPager<>(kinds);
+        return new RespPager<>(kinds.getPageSize(), kinds.getTotal(), kinds);
     }
 
     @SuppressWarnings("unchecked")
@@ -111,14 +111,14 @@ public class ConfigController {
         String appId = kindHandler.get("appId").toString();
         String kind = kindHandler.get("kind").toString();
         List<String> handlers = (ArrayList<String>) kindHandler.get("handlers");
-        appService.saveKindHandlers(appId, kind, handlers);
+        appService.saveKindHandlers(appId, kind, String.join(",", handlers));
         return Resp.SUCCESS;
     }
 
     @ResponseBody
     @RequestMapping(value = "kinds/{kindId}", method = RequestMethod.GET)
-    public Resp<Map<String, Object>> getKindHandler(@PathVariable String kindId) {
-        Map<String, Object> result = appService.getKindHandlerById(kindId);
+    public Resp<AppKind> getKindHandler(@PathVariable String kindId) {
+        AppKind result = appService.getAppKindById(kindId);
         return new Resp<>(result);
     }
 
@@ -127,9 +127,9 @@ public class ConfigController {
     @RequestMapping(value = "kinds/{kindId}", method = RequestMethod.PUT)
     public Resp<String> updateKindHandler(@PathVariable String kindId, @RequestBody Map<String, Object> kindHandler) {
         String kind = kindHandler.get("kind").toString();
-        AppKind appKind = new AppKind(kindId, null, kind);
         List<String> handlers = (ArrayList<String>) kindHandler.get("handlers");
-        appService.updateKindHandlers(appKind, handlers);
+        AppKind appKind = new AppKind(kindId, null, kind, String.join(",", handlers));
+        appService.updateKindHandlers(appKind);
         return Resp.SUCCESS;
     }
 

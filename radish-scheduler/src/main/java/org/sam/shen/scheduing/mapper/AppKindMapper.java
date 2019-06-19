@@ -16,6 +16,8 @@ public interface AppKindMapper {
 
     AppKind selectByAppAndKind(@Param("appId") String appId, @Param("kind") String kind);
 
+    AppKind selectById(String kindId);
+
     int insertAppKind(AppKind appKind);
 
     int updateAppKind(AppKind appKind);

@@ -45,7 +45,7 @@
     </insert>
     
     <delete id="deleteAppInfoById" parameterType="java.lang.String">
-        DELETE ai, ak, akh FROM app_info ai, app_kind ak, app_kind_handler akh WHERE ai.app_id = ak.app_id and ak.id = akh.kind_id and ai.app_id = #{appId}
+        DELETE ai, ak FROM app_info ai, app_kind ak WHERE ai.app_id = ak.app_id and ai.app_id = #{appId}
     </delete>
 
 </mapper>

@@ -109,7 +109,7 @@ public class CommonController {
                     private static final long serialVersionUID = -393533457698464686L;
                     {
                         put("name", m.get("handler"));
-                        put("value", String.valueOf(m.get("id")));
+                        put("value", String.valueOf(aId).concat("-").concat(String.valueOf(m.get("handler"))));
                     }
                 });
             }

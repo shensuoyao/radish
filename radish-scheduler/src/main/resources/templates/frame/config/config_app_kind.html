@@ -73,6 +73,7 @@
             cols: [[   // 标题栏目
                 {field: 'id', title: '分类ID'},
                 {field: 'kind', title: '分类标签'},
+                {field: 'handlers', title: '处理器'},
                 {fixed: 'right', title: '操作', align: 'center', toolbar: '#barOption', width: 250}
             ]],
             url: [[@{/config/kinds}]] + '?appId=' + [[${appId}]],
@@ -163,9 +164,9 @@
             clear();
             $.get([[@{/config/kinds/}]] + kindId, function (data) {
                 var kind = data.data;
-                $('#kindId').val(kind.kindId);
+                $('#kindId').val(kind.id);
                 $('input[name="kind"]').val(kind.kind);
-                formSelects.value('handlers-select', kind.handlers);
+                formSelects.value('handlers-select', kind.handlers.split(","));
                 layer.open({
                     type: 1,
                     title: '编辑分类标签',

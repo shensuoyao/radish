@@ -15,14 +15,17 @@ public class AppKind implements Serializable {
 
     private static final long serialVersionUID = -1602656594700856207L;
 
+    public AppKind() {}
+
     public AppKind(String appId, String kind) {
         this.appId = appId;
         this.kind = kind;
     }
 
-    public AppKind(String id, String appId, String kind) {
+    public AppKind(String id, String appId, String kind, String handlers) {
         this(appId, kind);
         this.id = id;
+        this.handlers = handlers;
     }
 
     private String id;
@@ -30,4 +33,6 @@ public class AppKind implements Serializable {
     private String appId;
 
     private String kind;
+
+    private String handlers;
 }
