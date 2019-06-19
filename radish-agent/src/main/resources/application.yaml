@@ -3,6 +3,20 @@ server:
   servlet:
     context-path: /${spring.application.name}
 
+radish:
+  agent:
+    ip: 192.168.140.146
+    port: 8083
+    name: tt
+    logpath: /tmp/log/radish
+    shpath: /tmp/log/radish
+  scheduler:
+    server: http://127.0.0.1:8888/radish-scheduing
+  log-view-mode: servlet
+  log-view-netty:
+    port: 8084
+
+
 spring:
   application:
     name: radish-agent
@@ -46,14 +60,14 @@ spring:
   profiles: prod
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://192.168.0.156:3306/radish?useUnicode=true&characterEncoding=UTF-8
-    username: root
-    password: 'p59d@7cdd9fE1907'
+    url: jdbc:mysql://??????/radish?useUnicode=true&characterEncoding=UTF-8
+    username: ???
+    password: ???
   redis:
     database: 3
-    host: 192.168.0.173
+    host: ???.???.???.???
     port: 6379
-    password: 'e986@2cfs9Ea1339'
+    password: pass
     timeout: 3000ms
     jedis:
       pool:
@@ -61,18 +75,6 @@ spring:
         max-wait: -1s
         max-idle: 8
         min-idle: 0
-radish:
-  agent:
-    ip: 192.168.6.37
-    port: 8083
-    name: radish-37
-    logpath: /tmp/log/radish
-    shpath: /tmp/log/radish
-  scheduler:
-    server: http://job.geedos.com/radish-scheduing/
-  log-view-mode: servlet
-  log-view-netty:
-    port: 8084
 
 ---
 
@@ -96,15 +98,3 @@ spring:
         max-wait: -1s
         max-idle: 8
         min-idle: 0
-radish:
-  agent:
-    ip: 192.168.140.146
-    port: 8083
-    name: tt
-    logpath: /tmp/log/radish
-    shpath: /tmp/log/radish
-  scheduler:
-    server: http://127.0.0.1:8001/radish-scheduing
-  log-view-mode: servlet
-  log-view-netty:
-    port: 8084

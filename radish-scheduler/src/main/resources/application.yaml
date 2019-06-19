@@ -1,15 +1,20 @@
 server:
-  port: 8001
+  port: 8888
   servlet:
     context-path: /${spring.application.name}
 
 # cluster config
 cluster: 
-  initLimit: 10
+  initLimit: 1
   tickTime: 2000
   cnxTimeout: 5000
   syncLimit: 5 
   clusterListenOnAllIPs: false
+  servers: 
+#    node.2: 192.168.140.216:2888:3888
+#    node.1: 192.168.140.236:2888:3888
+    node.3: 192.168.140.146:2888:3888
+#    node.4: 192.168.140.21:2888:3888
 
 spring:
   profiles:
@@ -77,14 +82,14 @@ spring:
     cache: true
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://192.168.0.156:3306/radish?useUnicode=true&characterEncoding=UTF-8
-    username: root
-    password: 'p59d@7cdd9fE1907'
+    url: jdbc:mysql://??????/radish?useUnicode=true&characterEncoding=UTF-8
+    username: ???
+    password: ???
   redis:
     database: 3
-    host: 192.168.0.173
+    host: ???.???.???.???
     port: 6379
-    password: 'e986@2cfs9Ea1339'
+    password: pass
     timeout: 3000ms
     jedis:
       pool:
@@ -92,14 +97,9 @@ spring:
         max-wait: -1s
         max-idle: 8
         min-idle: 0
-cluster:
-  servers:
-    node.1: 192.168.6.37:2888:3888
-    node.2: 192.168.6.96:2888:3888
-    node.3: 192.168.6.182:2888:3888
 monitor:
   enable: false
-  url: http://192.168.6.37:9001/monitor/collect
+  url: http://127.0.0.1:9001/monitor/collect
   alarmType: EMAIL
   heartbeat:
     timeout: 300000
@@ -138,10 +138,4 @@ monitor:
     timeout: 60000
   event:
     timeout: 60000
-cluster:
-  servers:
-#    node.2: 192.168.140.216:2888:3888
-#    node.1: 192.168.140.236:2888:3888
-    node.3: 192.168.140.146:2888:3888
-#    node.4: 192.168.140.21:2888:3888
 
