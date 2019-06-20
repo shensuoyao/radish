@@ -42,7 +42,7 @@
     </select>
 
     <select id="queryAgentForPagerUser" resultMap="agentMap" parameterType="string">
-        SELECT
+        SELECT distinct
             a.id ,
             a.agent_name ,
             a.agent_ip ,

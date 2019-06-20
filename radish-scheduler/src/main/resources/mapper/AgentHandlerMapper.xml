@@ -12,55 +12,51 @@
     </resultMap>
 
     <select id="queryAgentHandlerByAgentId" parameterType="Long" resultMap="agentHandlerMap">
-      <![CDATA[
-         SELECT id, agent_id, handler, description, enable 
-           FROM agent_handler
+        <![CDATA[
+            SELECT id, agent_id, handler, description, enable FROM agent_handler
+        ]]>
+        <where>
+            <![CDATA[
+                agent_id = #{agentId}
             ]]>
-      <where>
-      <![CDATA[
-          agent_id = #{agentId}
-              ]]>
-      </where>
+        </where>
     </select>
     
     <insert id="saveAgentHandlerBatch" parameterType="list">
-       <![CDATA[
-        INSERT INTO agent_handler(agent_id, handler, description, enable) 
-        VALUES 
-            ]]>
-     <foreach collection="list" item="item" index="index" separator=",">
-         (#{item.agentId}, #{item.handler}, #{item.description}, #{item.enable})
-     </foreach>
-  </insert>
-  
-  <update id="upgradeAgentHandler" parameterType="map">
-    <![CDATA[
-        UPDATE agent_handler 
-           SET enable = #{enable} 
+        <![CDATA[
+            INSERT INTO agent_handler(agent_id, handler, description, enable) VALUES
         ]]>
-    <where>
-        agent_id = #{agentId} 
-        <if test="null != handlers">
-            AND handler IN 
-			     <foreach collection="handlers" item="item" index="index" separator="," open="(" close=")">
-			         #{item}
-			     </foreach>
-        </if>
-    </where>
-  </update>
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.agentId}, #{item.handler}, #{item.description}, #{item.enable})
+        </foreach>
+    </insert>
   
-  <select id="queryAgentHandlerByAgentName" parameterType="string" resultType="map">
-	   <![CDATA[
-	        SELECT ah.id, agent_id agentId, handler, description, enable, a.agent_name agentName  
-           FROM agent_handler ah 
-          INNER JOIN agent a 
-             ON a.id = ah.agent_id
-          WHERE ah.enable = 1 AND a.agent_name LIKE CONCAT(#{agentName}, '%')
-	       ]]>
+    <update id="upgradeAgentHandler" parameterType="map">
+        <![CDATA[
+            UPDATE agent_handler SET enable = #{enable}
+        ]]>
+        <where>
+            agent_id = #{agentId}
+            <if test="null != handlers">
+                AND handler IN
+                <foreach collection="handlers" item="item" index="index" separator="," open="(" close=")">
+			        #{item}
+                </foreach>
+            </if>
+        </where>
+    </update>
+  
+    <select id="queryAgentHandlerByAgentName" parameterType="string" resultType="map">
+        <![CDATA[
+	        SELECT distinct ah.id, agent_id agentId, handler, description, enable, a.agent_name agentName
+            FROM agent_handler ah
+            INNER JOIN agent a ON a.id = ah.agent_id
+            WHERE ah.enable = 1 AND a.agent_name LIKE CONCAT(#{agentName}, '%')
+        ]]>
   </select>
 
     <select id="queryByAgentNameForUser" resultType="map">
-        SELECT
+        SELECT distinct
             ah.id,
             agr.agent_id agentId,
             ah.`handler`,
@@ -85,10 +81,10 @@
             </if>
     </select>
   
-  <delete id="deleteAgentHandler" parameterType="long">
-    <![CDATA[
-         DELETE FROM agent_handler WHERE agent_id = #{agentId} 
-           ]]>
-  </delete>
+    <delete id="deleteAgentHandler" parameterType="long">
+        <![CDATA[
+            DELETE FROM agent_handler WHERE agent_id = #{agentId}
+        ]]>
+    </delete>
     
 </mapper>

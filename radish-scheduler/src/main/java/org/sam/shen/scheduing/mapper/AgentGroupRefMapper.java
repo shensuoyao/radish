@@ -13,4 +13,6 @@ public interface AgentGroupRefMapper {
 	void saveAgentGroupRefBatch(List<AgentGroupRef> agentGroupRefList);
 	
 	void deleteAgentGroupRef(Long agentGroupId);
+
+	void deleteByAgentId(Long agentId);
 }

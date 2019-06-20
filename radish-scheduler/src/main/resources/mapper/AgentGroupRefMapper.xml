@@ -10,29 +10,33 @@
     </resultMap>
 	
 	<select id="queryAgentGroupRefByAgentGroup" resultMap="agentGroupRefMap" parameterType="long">
-  <![CDATA[
-	  SELECT id, agent_id, agent_group_id  
-	    FROM agent_group_ref 
-     ]]>
-  <where>
-      <![CDATA[ agent_group_id = #{agentGroupId} ]]>
-  </where>
- </select>
+        <![CDATA[
+	        SELECT id, agent_id, agent_group_id FROM agent_group_ref
+        ]]>
+        <where>
+            <![CDATA[ agent_group_id = #{agentGroupId} ]]>
+        </where>
+    </select>
  
- <insert id="saveAgentGroupRefBatch" parameterType="list">
-       <![CDATA[
-        INSERT INTO agent_group_ref(agent_id, agent_group_id) 
-        VALUES 
-            ]]>
-     <foreach collection="list" item="item" index="index" separator=",">
-         (#{item.agentId}, #{item.agentGroupId})
-     </foreach>
-  </insert>
+    <insert id="saveAgentGroupRefBatch" parameterType="list">
+        <![CDATA[
+            INSERT INTO agent_group_ref(agent_id, agent_group_id) VALUES
+        ]]>
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.agentId}, #{item.agentGroupId})
+        </foreach>
+    </insert>
   
-  <delete id="deleteAgentGroupRef" parameterType="long">
-    <![CDATA[
-        DELETE FROM agent_group_ref WHERE agent_group_id = #{agentGroupId}
-         ]]>
-  </delete>
+    <delete id="deleteAgentGroupRef" parameterType="long">
+        <![CDATA[
+            DELETE FROM agent_group_ref WHERE agent_group_id = #{agentGroupId}
+        ]]>
+    </delete>
+
+    <delete id="deleteByAgentId" parameterType="java.lang.Long">
+        <![CDATA[
+            delete from agent_group_ref where agent_id = #{agentId}
+        ]]>
+    </delete>
 	
 </mapper>

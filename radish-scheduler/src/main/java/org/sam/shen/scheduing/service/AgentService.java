@@ -273,9 +273,11 @@ public class AgentService {
         }
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public void removeAgent(Long agentId) {
         // 判断agent是否还连接着
         agentMapper.deleteAgent(agentId);
+        agentGroupRefMapper.deleteByAgentId(agentId);
     }
 
 }
