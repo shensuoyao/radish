@@ -195,9 +195,9 @@ public class JobService {
 		return jobInfoMapper.findJobInfoByParentId(jobId);
 	}
 
-	public boolean removeJob(Long jobId) {
-	    int count = jobInfoMapper.deleteJobById(jobId);
-	    return count > 0;
+	public void removeJob(Long jobId) {
+	    jobInfoMapper.deleteJobById(jobId);
+	    jobSchedulerMapper.delete(jobId);
     }
 	
 }

@@ -65,11 +65,8 @@ public class JobController {
 	@ResponseBody
 	@RequestMapping(value = "job/{jobId}", method = RequestMethod.DELETE)
 	public Resp<String> deleteJob(@PathVariable Long jobId) {
-	    if (jobService.removeJob(jobId)) {
-	        return Resp.SUCCESS;
-        } else {
-	        return Resp.FAIL;
-        }
+	    jobService.removeJob(jobId);
+	    return Resp.SUCCESS;
     }
 
 	/**

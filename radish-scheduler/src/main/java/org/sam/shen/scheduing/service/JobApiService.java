@@ -138,7 +138,7 @@ public class JobApiService {
     public void removeJobById(long jobId, String appId) {
         this.findJobAppById(jobId, appId);
         // 删除数据库中的job
-        jobInfoMapper.deleteJobById(jobId);
+        jobService.removeJob(jobId);
         jobAppRefMapper.deleteJobAppRefByJobId(Long.toString(jobId));
     }
 
