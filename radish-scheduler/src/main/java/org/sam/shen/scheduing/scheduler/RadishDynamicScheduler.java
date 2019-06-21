@@ -197,7 +197,7 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 			// rescheduleJob
 			scheduler.rescheduleJob(triggerKey, oldTrigger);
             // update job information
-            updateRunningStatus(jobId, JobScheduler.RunningStatus.RUNNING, oldTrigger.getPreviousFireTime(), oldTrigger.getNextFireTime());
+            updateRunningStatus(jobId, JobScheduler.RunningStatus.RUNNING, oldTrigger.getPreviousFireTime(), oldTrigger.getFireTimeAfter(new Date()));
 		} else {
 			// CronTrigger : TriggerKey + crontab
 			CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule(crontab)
@@ -215,7 +215,7 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 
 			scheduler.scheduleJob(jobDetail, triggerSet, true);
             // update job information
-            updateRunningStatus(jobId, JobScheduler.RunningStatus.RUNNING, cronTrigger.getPreviousFireTime(), cronTrigger.getNextFireTime());
+            updateRunningStatus(jobId, JobScheduler.RunningStatus.RUNNING, cronTrigger.getPreviousFireTime(), cronTrigger.getFireTimeAfter(new Date()));
 		}
 		if(logger.isInfoEnabled()) {
 			logger.info(">>>>>>>>>>> resumeJob success, JobId:{}, CreateTime:{}", jobId, createTime);
@@ -292,7 +292,7 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 			scheduler.resumeTrigger(triggerKey);
             // update job information
 			CronTrigger cronTrigger = (CronTrigger) scheduler.getTrigger(triggerKey);
-            updateRunningStatus(jobId, JobScheduler.RunningStatus.RUNNING, null, cronTrigger.getNextFireTime());
+            updateRunningStatus(jobId, JobScheduler.RunningStatus.RUNNING, null, cronTrigger.getFireTimeAfter(new Date()));
             // add scheduler to cluster peer nodes
             ClusterPeerNodes.getSingleton().addSchedulerJob(jobId);
 			result = true;
@@ -492,7 +492,7 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
         try {
             CronTrigger cronTrigger = (CronTrigger) scheduler.getTrigger(getTriggerKey(jobInfo.getId(), jobInfo.getCreateTime().getTime()));
             updateRunningStatus(jobInfo.getId(), JobScheduler.RunningStatus.RUNNING, cronTrigger.getPreviousFireTime(), cronTrigger.getNextFireTime());
-        } catch (SchedulerException e) {
+        } catch (Exception e) {
             logger.error(e.getMessage());
         }
 
@@ -507,7 +507,19 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
      */
 	public static boolean addJobEvent(Long jobId) {
         JobInfo jobInfo = jobInfoMapper.findJobInfoById(jobId);
-        return jobInfo != null && addJobEvent(jobInfo);
+        boolean result = jobInfo != null && addJobEvent(jobInfo);
+        if (result) {
+			// 更新job中的执行时间
+			try {
+				CronTrigger cronTrigger = (CronTrigger) scheduler.getTrigger(getTriggerKey(jobInfo.getId(), jobInfo.getCreateTime().getTime()));
+				if (cronTrigger != null) {
+					updateRunningStatus(jobInfo.getId(), JobScheduler.RunningStatus.RUNNING, new Date(), cronTrigger.getFireTimeAfter(new Date()));
+				}
+			} catch (Exception e) {
+				logger.error(e.getMessage());
+			}
+		}
+        return result;
     }
 
     /**
