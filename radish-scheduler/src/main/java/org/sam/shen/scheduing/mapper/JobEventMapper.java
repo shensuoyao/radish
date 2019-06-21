@@ -7,9 +7,11 @@ import org.sam.shen.core.constants.MonitorType;
 import org.sam.shen.scheduing.entity.JobEvent;
 
 import com.github.pagehelper.Page;
+import org.sam.shen.scheduing.vo.JobEventPageVo;
 import org.sam.shen.scheduing.vo.JobEventVo;
 
 import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface JobEventMapper {
@@ -20,7 +22,7 @@ public interface JobEventMapper {
 	
 	JobEvent findJobEventByEventId(String eventId);
 	
-	Page<JobEvent> queryJobEventForPager(@Param("stat") String stat, @Param("userId") Long userId);
+	Page<JobEventPageVo> queryJobEventForPager(@Param("stat") String stat, @Param("userId") Long userId);
 	
 	// ------------  统计 -----------------------------------
 	Integer countJobEventByStat(@Param("stat") String stat, @Param("userId") Long userId);

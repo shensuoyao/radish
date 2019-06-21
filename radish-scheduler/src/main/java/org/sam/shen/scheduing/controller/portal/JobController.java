@@ -19,6 +19,7 @@ import org.sam.shen.scheduing.scheduler.RadishDynamicScheduler;
 import org.sam.shen.scheduing.service.AgentService;
 import org.sam.shen.scheduing.service.JobEventService;
 import org.sam.shen.scheduing.service.JobService;
+import org.sam.shen.scheduing.vo.JobEventPageVo;
 import org.sam.shen.scheduing.vo.JobEventTreeNode;
 import org.sam.shen.scheduing.vo.JobSchedulerVo;
 import org.sam.shen.scheduing.vo.JobVo;
@@ -316,7 +317,7 @@ public class JobController {
 	 */
 	@RequestMapping(value = "job-event/json-pager", method = RequestMethod.GET)
 	@ResponseBody
-	public RespPager<Page<JobEvent>> queryJobEventForJsonPager(@RequestParam("page") Integer page
+	public RespPager<Page<JobEventPageVo>> queryJobEventForJsonPager(@RequestParam("page") Integer page
             , @RequestParam("limit") Integer limit
             , @RequestParam(value = "stat", required = false) EventStatus stat
             , HttpSession session) {
@@ -333,7 +334,7 @@ public class JobController {
         if (SchedConstant.ADMINISTRATOR.equals(user.getUname())){ // 如果管理员登陆查询所有数据
             user.setId(null);
         }
-		Page<JobEvent> pager = jobEventService.queryJobEventForPager(page, limit, stat, user.getId());
+		Page<JobEventPageVo> pager = jobEventService.queryJobEventForPager(page, limit, stat, user.getId());
 		return new RespPager<>(pager.getPageSize(), pager.getTotal(), pager);
 	}
 	

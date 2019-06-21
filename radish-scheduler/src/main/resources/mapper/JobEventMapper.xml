@@ -30,6 +30,10 @@
         <association property="jobInfo" resultMap="org.sam.shen.scheduing.mapper.JobInfoMapper.jobInfoMap"/>
     </resultMap>
 
+    <resultMap id="JobEventPageVoMap" type="org.sam.shen.scheduing.vo.JobEventPageVo" extends="jobEventMap">
+        <result column="job_name" property="jobName"/>
+    </resultMap>
+
     <insert id="saveJobEvent" parameterType="JobEvent">
         <![CDATA[
             INSERT INTO job_event(event_id, parent_event_id, job_id, parent_job_id, group_id, parent_group_id,
@@ -91,11 +95,11 @@
         ]]>
     </select>
 
-    <select id="queryJobEventForPager" resultMap="jobEventMap" parameterType="string">
+    <select id="queryJobEventForPager" resultMap="JobEventPageVoMap" parameterType="string">
         <![CDATA[
             SELECT a.event_id, a.parent_event_id, a.job_id, a.parent_job_id, a.group_id, a.parent_group_id, a.executor_handlers,
                    a.handler_type, a.cmd, a.params, a.param_file_path, a.stat, a.handler_agent_id, a.priority, a.retry_count,
-                   a.create_time, a.handler_log_path, a.dist_type, a.event_rule
+                   a.create_time, a.handler_log_path, a.dist_type, a.event_rule, b.job_name
             FROM job_event a, job_info b
             WHERE a.job_id = b.id
         ]]>

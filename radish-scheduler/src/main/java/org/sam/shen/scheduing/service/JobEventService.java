@@ -28,6 +28,7 @@ import org.sam.shen.scheduing.mapper.AgentMapper;
 import org.sam.shen.scheduing.mapper.JobEventMapper;
 import org.sam.shen.scheduing.mapper.JobInfoMapper;
 import org.sam.shen.scheduing.scheduler.EventLock;
+import org.sam.shen.scheduing.vo.JobEventPageVo;
 import org.sam.shen.scheduing.vo.JobEventTreeNode;
 import org.sam.shen.scheduing.vo.JobEventVo;
 import org.slf4j.Logger;
@@ -185,7 +186,7 @@ public class JobEventService {
 		}
 	}
 	
-	public Page<JobEvent> queryJobEventForPager(int index, int limit, EventStatus stat, Long userId) {
+	public Page<JobEventPageVo> queryJobEventForPager(int index, int limit, EventStatus stat, Long userId) {
 		PageHelper.startPage(index, limit);
 		return jobEventMapper.queryJobEventForPager(stat.name(), userId);
 	}
