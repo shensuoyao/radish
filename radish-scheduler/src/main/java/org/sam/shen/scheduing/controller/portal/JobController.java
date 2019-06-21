@@ -2,6 +2,8 @@ package org.sam.shen.scheduing.controller.portal;
 
 import java.io.*;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import com.alibaba.fastjson.JSON;
@@ -284,12 +286,15 @@ public class JobController {
 	public RespPager<Page<JobSchedulerVo>> listSchedulerWithPage(HttpSession session,
 																 @RequestParam(value = "page", defaultValue = "1") Integer page,
 																 @RequestParam(value = "limit", defaultValue = "10") Integer limit,
-																 @RequestParam(value = "jobName", required = false, defaultValue = "") String jobName) {
+																 @RequestParam(value = "jobName", required = false, defaultValue = "") String jobName,
+																 @RequestParam(value = "field", required = false) String field,
+																 @RequestParam(value = "order", required = false) String order) {
 		User user = (User) session.getAttribute("user");
 		if (SchedConstant.ADMINISTRATOR.equals(user.getUname())){ // 如果管理员登陆查询所有数据
 			user.setId(null);
 		}
-		Page<JobSchedulerVo> pager = RadishDynamicScheduler.listJobsInSchedulerWithPage(jobName, user.getId(), page, limit);
+		Page<JobSchedulerVo> pager = RadishDynamicScheduler.listJobsInSchedulerWithPage(jobName, user.getId(), page, limit,
+				camel2Underline(field), order);
 		return new RespPager<>(pager.getPageSize(), pager.getTotal(), pager);
 	}
 	
@@ -485,5 +490,24 @@ public class JobController {
             IOUtils.copy(fis, outputStream);
         };
     }
+
+	/**
+	 * 驼峰字符串转下划线
+	 * @param camelStr 驼峰字符串
+	 * @return 下划线字符串
+	 */
+	private String camel2Underline(String camelStr) {
+    	if (StringUtils.isEmpty(camelStr)) {
+    		return camelStr;
+		}
+		Matcher matcher = Pattern.compile("[A-Z]").matcher(camelStr);
+		StringBuffer sb = new StringBuffer();
+		while (matcher.find()) {
+			String origin = matcher.group();
+			matcher.appendReplacement(sb, "_" + origin.toLowerCase());
+		}
+		matcher.appendTail(sb);
+		return sb.toString();
+	}
 	
 }

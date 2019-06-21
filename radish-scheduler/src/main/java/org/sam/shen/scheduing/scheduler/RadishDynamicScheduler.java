@@ -313,13 +313,13 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 	}
 	
 	public static List<JobSchedulerVo> listJobsInScheduler(Long userId) {
-	    List<JobSchedulerVo> jobs = jobSchedulerMapper.queryJobScheduler(null, JobScheduler.RunningStatus.RUNNING, userId);
+	    List<JobSchedulerVo> jobs = jobSchedulerMapper.queryJobScheduler(null, JobScheduler.RunningStatus.RUNNING, userId, null, null);
 	    return jobs == null ? Collections.emptyList() : jobs;
 	}
 
-	public static Page<JobSchedulerVo> listJobsInSchedulerWithPage(String jobName, Long userId, int pageIndex, int pageSize) {
+	public static Page<JobSchedulerVo> listJobsInSchedulerWithPage(String jobName, Long userId, int pageIndex, int pageSize, String field, String order) {
 		PageHelper.startPage(pageIndex, pageSize);
-		return jobSchedulerMapper.queryJobScheduler(jobName, JobScheduler.RunningStatus.RUNNING, userId);
+		return jobSchedulerMapper.queryJobScheduler(jobName, JobScheduler.RunningStatus.RUNNING, userId, field, order);
 	}
 
 	@SuppressWarnings("unchecked")

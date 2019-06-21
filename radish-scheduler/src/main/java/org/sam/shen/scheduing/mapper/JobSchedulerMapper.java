@@ -19,7 +19,11 @@ public interface JobSchedulerMapper {
 
     int changeRunningStatus(JobScheduler jobScheduler);
 
-    Page<JobSchedulerVo> queryJobScheduler(@Param("jobName") String jobName, @Param("runningStatus") JobScheduler.RunningStatus status, @Param("userId") Long userId);
+    Page<JobSchedulerVo> queryJobScheduler(@Param("jobName") String jobName,
+                                                    @Param("runningStatus") JobScheduler.RunningStatus status,
+                                                    @Param("userId") Long userId,
+                                                    @Param("field") String field,
+                                                    @Param("order") String order);
 
     List<JobSchedulerVo> queryAllScheduler();
 

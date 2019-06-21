@@ -40,6 +40,9 @@
         <if test="jobName != null and jobName != ''">
             and ji.job_name like concat(#{jobName}, '%')
         </if>
+        <if test="field != null and field != '' and order != null and order != ''">
+            order by ${field} ${order}
+        </if>
     </select>
     
     <select id="queryAllScheduler" resultMap="JobSchedulerVoMap">

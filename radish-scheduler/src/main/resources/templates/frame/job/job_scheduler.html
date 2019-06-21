@@ -36,24 +36,42 @@
             $ = layui.jquery;
 
 		var tableIns = table.render({
-			elem: '#jobTable'                  //指定原始表格元素选择器（推荐id选择器）
-			, height: 'full-200'    //容器高度
-			, cols: [[   // 标题栏目
-				{field: 'jobId', title: 'ID'}
-				, {field: 'jobName', title: '任务名称'}
-				, {field: 'crontab', title: '调度规则'}
-				, {field: 'nid', title: '运行节点'}
-				, {field: 'prevFireTime', title: '上次执行时间'}
-				, {field: 'nextFireTime', title: '下次执行时间' } ]]
-			, id: 'jobTable'
-			, url: [[@{/portal/job-scheduler-page}]]
-			, method: 'get'
-			, page: {
-				layout: ['count', 'prev', 'page', 'next'] //自定义分页布局
-				,groups: 10 //只显示 1 个连续页码
-			}
-			, loading: false
+			elem: '#jobTable',                 //指定原始表格元素选择器（推荐id选择器）
+			height: 'full-200',    //容器高度
+			cols: [[   // 标题栏目
+				{field: 'jobId', title: 'ID', sort: true},
+				{field: 'jobName', title: '任务名称'},
+				{field: 'crontab', title: '调度规则'},
+				{field: 'nid', title: '运行节点'},
+				{field: 'prevFireTime', title: '上次执行时间'},
+				{field: 'nextFireTime', title: '下次执行时间', sort: true} ]],
+			id: 'jobTable',
+			url: [[@{/portal/job-scheduler-page}]],
+			method: 'get',
+			page: {
+				layout: ['count', 'prev', 'page', 'next'], //自定义分页布局
+				groups: 10 //只显示 1 个连续页码
+			},
+            // initSort: {field: 'nextFireTime', type: 'desc' },
+			loading: false,
+            autoSort: false
 		});
+
+		// 监听排序事件
+		table.on('sort(jobTable)', function (obj) {
+            tableIns.reload({
+                where: {
+                    jobName: $('#jobName').val(),
+                    field: obj.field,
+                    order: obj.type
+                },
+                page: {
+                    layout: ['count', 'prev', 'page', 'next'] //自定义分页布局
+                    ,groups: 10 //只显示 1 个连续页码
+                    ,curr: 1
+                }
+            });
+        });
 
 		// 刷新
 		$('#btn-search').on('click', function () {
