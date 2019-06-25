@@ -61,6 +61,9 @@ public class LeaderNode {
 
 	// 用于同步ClusterServer信息
 	final static int CLUSTERSERVER = 9;
+
+	// 用于处理手动执行任务标志
+	final static int EVENT = 10;
 	
 	private FollowerCnxAcceptor cnxAcceptor;
 	
@@ -316,6 +319,21 @@ public class LeaderNode {
 				packet.setNid(self.getMyId());
 				packet.setRhid(ClusterPeerNodes.getSingleton().getSchedulerJobCount());
 				f.queuePacket(packet);
+			}
+		}
+	}
+
+	public void queueEventPacket(Long jobId) {
+		ClusterPacket<Long> eventPacket = new ClusterPacket<>();
+		eventPacket.setT(jobId);
+		// 寻找当前job所在的节点服务器
+		Integer targetNid = ClusterPeerNodes.getSingleton().findFollowerNidByJob(jobId);
+		for (FollowerHandler f : getFollowers()) {
+			if(f.getNid().equals(targetNid)) {
+				eventPacket.setType(LeaderNode.EVENT);
+				eventPacket.setNid(self.getMyId());
+				eventPacket.setRhid(ClusterPeerNodes.getSingleton().getSchedulerJobCount());
+				f.queuePacket(eventPacket);
 			}
 		}
 	}

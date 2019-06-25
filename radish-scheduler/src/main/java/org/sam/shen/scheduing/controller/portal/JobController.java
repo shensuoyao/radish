@@ -375,11 +375,8 @@ public class JobController {
 //	    if (jobEvents != null && jobEvents.size() > 0) {
 //            return new Resp<>(0, "exist job event.");
 //        }
-        if (RadishDynamicScheduler.addJobEvent(jobId)) {
-	        return new Resp<>(1, "add job event success.");
-        } else {
-            return new Resp<>(0, "add job event failed.");
-        }
+        jobService.addJobEvent(jobInfo);
+		return new Resp<>(1, "add job event success.");
     }
 
     @RequestMapping(value = "job-event-view/{eventId}", method = RequestMethod.GET)

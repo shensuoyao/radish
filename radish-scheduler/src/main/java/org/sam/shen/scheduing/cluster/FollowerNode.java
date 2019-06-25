@@ -216,6 +216,12 @@ public class FollowerNode {
         writePacket(packet, true);
     }
 
+	public void sendEvent(Long jobId) throws IOException {
+		ClusterPacket<Long> packet = new ClusterPacket<>(LeaderNode.EVENT, self.getMyId(),
+				ClusterPeerNodes.getSingleton().getSchedulerJobCount(), jobId);
+		writePacket(packet, true);
+	}
+
     private void processPacket(ClusterPacket<?> cp) throws IOException {
 	    if (cp.getType() == null) {
 	        return;
@@ -276,6 +282,12 @@ public class FollowerNode {
                 self.getClusterServers().put(server.nid, server);
             }
             break;
+		case LeaderNode.EVENT:
+			Long jobId = Long.parseLong(cp.getT().toString());
+			if (ClusterPeerNodes.getSingleton().getSchedulerJobsView().contains(jobId)) {
+				RadishDynamicScheduler.addJobEvent(jobId);
+			}
+			break;
 		default:
 		}
 	}

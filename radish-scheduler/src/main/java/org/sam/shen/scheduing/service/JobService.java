@@ -110,6 +110,33 @@ public class JobService {
             }
 		}
 	}
+
+	/**
+	 * 手动执行job
+	 * @param jobInfo job信息
+	 */
+	@Transactional
+	public void addJobEvent(JobInfo jobInfo) {
+		try {
+			// 单机模式或者当前任务为手动执行的任务
+			if (clusterPeer.getMyId() == null || StringUtils.isEmpty(jobInfo.getCrontab())) {
+				RadishDynamicScheduler.addJobEvent(jobInfo.getId());
+				return;
+			}
+			// 分布式任务情况
+			if (ClusterPeerNodes.getSingleton().getSchedulerJobsView().contains(jobInfo.getId())) { // 如果运行在当前节点
+				RadishDynamicScheduler.addJobEvent(jobInfo.getId());
+			} else {
+				if (clusterPeer.getNodeState() == ClusterPeer.NodeState.LEADING) { // 主节点
+					clusterPeer.getLeaderNode().queueEventPacket(jobInfo.getId());
+				} else if (clusterPeer.getNodeState() == ClusterPeer.NodeState.FOLLOWING) { // 从节点
+					clusterPeer.getFollowerNode().sendEvent(jobInfo.getId());
+				}
+			}
+		} catch (Exception e) {
+			logger.error("add job event failed. {}", e.getMessage());
+		}
+	}
 	
 	/**
 	 *  分页查询JobInfo

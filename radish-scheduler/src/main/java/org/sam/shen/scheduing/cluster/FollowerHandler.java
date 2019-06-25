@@ -235,6 +235,14 @@ public class FollowerHandler extends Thread {
                     leader.broadcastPacket(packet);
                 }
                 break;
+			case LeaderNode.EVENT:
+				Long jobId = Long.parseLong(cp.getT().toString());
+				if (ClusterPeerNodes.getSingleton().getSchedulerJobsView().contains(jobId)) { // 任务运行在主节点
+					RadishDynamicScheduler.addJobEvent(jobId);
+				} else { // 任务运行在其他从节点
+					leader.queueEventPacket(jobId);
+				}
+				break;
 			default:
 				break;
 		}
