@@ -143,6 +143,6 @@
     </select>
 
     <delete id="deleteAgent" parameterType="java.lang.Long">
-        DELETE a, ah FROM agent a, agent_handler ah WHERE a.id = ah.agent_id and a.id = #{agentId}
+        DELETE a, ah FROM agent a left join agent_handler ah on a.id = ah.agent_id where a.id = #{agentId}
     </delete>
 </mapper>

@@ -57,7 +57,7 @@
     
     <delete id="deleteAgentGroup" parameterType="long">
         <![CDATA[
-            DELETE ag, agr FROM agent_group ag, agent_group_ref agr WHERE ag.id = agr.agent_group_id and ag.id = #{id}
+            DELETE ag, agr FROM agent_group ag left join agent_group_ref agr on ag.id = agr.agent_group_id where ag.id = #{id}
         ]]>
     </delete>
 

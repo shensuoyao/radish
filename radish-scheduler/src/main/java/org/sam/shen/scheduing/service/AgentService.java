@@ -193,16 +193,15 @@ public class AgentService {
 	 */
 	@Transactional
 	public void saveAgentGroup(AgentGroup agentGroup, List<Long> agents) {
+
 		if(null == agentGroup.getId()) {
 			// 新增
 			agentGroupMapper.saveAgentGroup(agentGroup);
 		} else {
 			// 修改
 			agentGroupMapper.upgradeAgentGroup(agentGroup);
-			if(null != agents && agents.size() > 0) {
-				// 删除原来的关联
-				agentGroupRefMapper.deleteAgentGroupRef(agentGroup.getId());
-			}
+			// 删除原来的关联
+			agentGroupRefMapper.deleteAgentGroupRef(agentGroup.getId());
 		}
 		if(null != agents && agents.size() > 0) {
 			List<AgentGroupRef> agentGroupRefList = Lists.newArrayList();
