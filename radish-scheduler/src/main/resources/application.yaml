@@ -1,20 +1,14 @@
 server:
-  port: 8888
   servlet:
     context-path: /${spring.application.name}
 
 # cluster config
-cluster: 
-  initLimit: 1
+cluster:
+  initLimit: 10
   tickTime: 2000
   cnxTimeout: 5000
-  syncLimit: 5 
+  syncLimit: 5
   clusterListenOnAllIPs: false
-  servers: 
-#    node.2: 192.168.140.216:2888:3888
-#    node.1: 192.168.140.236:2888:3888
-    node.3: 192.168.140.146:2888:3888
-#    node.4: 192.168.140.21:2888:3888
 
 spring:
   profiles:
@@ -58,7 +52,7 @@ spring:
       filters: stat
 
 #mybatis
-mybatis: 
+mybatis:
   mapper-locations: classpath:/mapper/*Mapper.xml
   type-aliases-package: org.sam.shen.scheduing.entity  # 注意：对应实体类的路径
   config-location: classpath:mybatis-config.xml
@@ -76,20 +70,22 @@ quartz:
 ---
 
 # 生产环境配置
+server:
+  port: 80
 spring:
   profiles: prod
   thymeleaf:
     cache: true
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://??????/radish?useUnicode=true&characterEncoding=UTF-8
-    username: ???
-    password: ???
+    url: jdbc:mysql://192.168.8.130:3306/radish?useUnicode=true&characterEncoding=UTF-8
+    username: root
+    password: 'nGxX_j8K'
   redis:
     database: 3
-    host: ???.???.???.???
+    host: 192.168.8.80
     port: 6379
-    password: pass
+    password: 'nGxX_j8K'
     timeout: 3000ms
     jedis:
       pool:
@@ -97,9 +93,54 @@ spring:
         max-wait: -1s
         max-idle: 8
         min-idle: 0
+cluster:
+  servers:
+    node.1: 192.168.6.37:2888:3888
+    node.2: 192.168.6.96:2888:3888
+    node.3: 192.168.6.182:2888:3888
 monitor:
   enable: false
-  url: http://127.0.0.1:9001/monitor/collect
+  url: http://192.168.6.37:9001/monitor/collect
+  alarmType: EMAIL
+  heartbeat:
+    timeout: 300000
+  event:
+    timeout: 300000
+
+---
+
+# 测试环境配置
+server:
+  port: 8001
+spring:
+  profiles: sit
+  thymeleaf:
+    cache: true
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://192.168.0.156:3306/radish?useUnicode=true&characterEncoding=UTF-8
+    username: root
+    password: 'p59d@7cdd9fE1907'
+  redis:
+    database: 3
+    host: 192.168.0.173
+    port: 6379
+    password: 'e986@2cfs9Ea1339'
+    timeout: 3000ms
+    jedis:
+      pool:
+        max-active: 8
+        max-wait: -1s
+        max-idle: 8
+        min-idle: 0
+cluster:
+  servers:
+    node.1: 192.168.6.28:2888:3888
+    node.2: 192.168.6.215:2888:3888
+    node.3: 192.168.6.43:2888:3888
+monitor:
+  enable: false
+  url: http://192.168.6.28:9001/monitor/collect
   alarmType: EMAIL
   heartbeat:
     timeout: 300000
@@ -109,6 +150,8 @@ monitor:
 ---
 
 # 开发环境配置
+server:
+  port: 8001
 spring:
   profiles: dev
   thymeleaf:
@@ -138,4 +181,9 @@ monitor:
     timeout: 60000
   event:
     timeout: 60000
-
+cluster:
+  servers:
+#    node.3: 192.168.140.216:2888:3888
+#    node.1: 192.168.140.236:2888:3888
+    node.2: 192.168.140.146:2888:3888
+#    node.4: 192.168.140.21:2888:3888
