@@ -490,6 +490,7 @@ public final class RadishDynamicScheduler implements ApplicationContextAware {
 		}
 		// 更新job中的执行时间
         try {
+        	logger.info("jobId: {}, createTime: {}", jobInfo.getId(), jobInfo.getCreateTime().getTime());
             CronTrigger cronTrigger = (CronTrigger) scheduler.getTrigger(getTriggerKey(jobInfo.getId(), jobInfo.getCreateTime().getTime()));
             updateRunningStatus(jobInfo.getId(), JobScheduler.RunningStatus.RUNNING, cronTrigger.getPreviousFireTime(), cronTrigger.getNextFireTime());
         } catch (Exception e) {

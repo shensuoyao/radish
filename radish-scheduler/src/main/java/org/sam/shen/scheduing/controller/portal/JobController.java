@@ -121,7 +121,7 @@ public class JobController {
 		}
 		if(null == jobInfo.getId()) {
 			 // 新增Job
-			jobInfo.setCreateTime(new Date());
+			jobInfo.setCreateTime(new Date(System.currentTimeMillis() / 1000 * 1000));
 			User user = (User) session.getAttribute("user");
 			if (SchedConstant.ADMINISTRATOR.equals(user.getUname())){ // 如果管理员登陆查询所有数据
 			    user.setId(null);
