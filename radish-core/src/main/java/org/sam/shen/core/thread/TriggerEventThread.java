@@ -58,7 +58,7 @@ public class TriggerEventThread {
                 }
 
                 try {
-                    TimeUnit.SECONDS.sleep(Constant.BEAT_TIMEOUT);
+                    TimeUnit.SECONDS.sleep(Constant.BEAT_TRIGGER);
                 } catch (InterruptedException e) {
                     logger.error(e.getMessage(), e);
                     Thread.currentThread().interrupt();
@@ -78,7 +78,7 @@ public class TriggerEventThread {
                 }
 
                 try {
-                    TimeUnit.SECONDS.sleep(Constant.BEAT_TIMEOUT);
+                    TimeUnit.SECONDS.sleep(Constant.BEAT_HANDLE_EVENT);
                 } catch (InterruptedException e) {
                     logger.error(e.getMessage(), e);
                     Thread.currentThread().interrupt();

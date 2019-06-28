@@ -125,15 +125,15 @@ public class EventHandlerThreadPool {
 	 */
 	public static HandlerEvent takeCallbackQueue() {
 		synchronized (eventsQueue) {
-			HandlerEvent handlerEvent = null;
+			HandlerEvent handlerEvent;
 			try {
 				handlerEvent = eventsQueue.peek();
 				if(null == handlerEvent) {
 					return null;
 				}
-				if(handlerNow.containsKey(handlerEvent.getRegistryHandler())) {
-					return null;
-				}
+//				if(handlerNow.containsKey(handlerEvent.getRegistryHandler())) {
+//					return null;
+//				}
 				return eventsQueue.take();
 			} catch (InterruptedException e) {
 				logger.error(e.getMessage(), e);
