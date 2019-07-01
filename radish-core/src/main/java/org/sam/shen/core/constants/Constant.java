@@ -7,7 +7,7 @@ package org.sam.shen.core.constants;
  */
 public class Constant {
 
-	public static final int BEAT_TIMEOUT = 5;
+	public static final int BEAT_TIMEOUT = 2;
 
 	public static final int BEAT_TRIGGER = 2;
 

@@ -72,7 +72,7 @@ public class JobApiService {
     public void saveJobAppRef(JobApiVo vo, String kind) {
         vo.setExecutorHandlers(getExecutors(vo.getAppId(), kind));
         // 保存基本信息
-        vo.setCreateTime(new Date());
+        vo.setCreateTime(new Date(System.currentTimeMillis() / 1000 * 1000));
         jobInfoMapper.saveJobInfo(vo);
         JobAppRef jobAppRef = new JobAppRef(Long.toString(vo.getId()), vo.getAppId());
         jobAppRefMapper.insertJobAppRef(jobAppRef);
@@ -96,7 +96,7 @@ public class JobApiService {
         // 保存基本信息
         List<JobInfo> jobs = new ArrayList<>();
         for (JobApiVo jav : jobApiVos) {
-            jav.setCreateTime(new Date());
+            jav.setCreateTime(new Date(System.currentTimeMillis() / 1000 * 1000));
             jav.setExecutorHandlers(executors);
             jav.setUserId(appInfo.getUserId());
             jobs.add(jav);

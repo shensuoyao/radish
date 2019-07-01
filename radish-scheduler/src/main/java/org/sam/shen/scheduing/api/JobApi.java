@@ -50,8 +50,9 @@ public class JobApi {
         if (jobApiVo.getEnable() == null) {
             jobApiVo.setEnable(1);
         }
+        // 默认过期时间1小时
         if (StringUtils.isEmpty(jobApiVo.getExpired())) {
-            jobApiVo.setExpired("1d");
+            jobApiVo.setExpired("1h");
         }
     }
 

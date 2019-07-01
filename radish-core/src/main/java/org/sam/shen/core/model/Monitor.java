@@ -75,7 +75,7 @@ public class Monitor {
         BufferedReader br = new BufferedReader(new StringReader(result));
         try {
             String line;
-            while ((line = br.readLine()) != null) {
+            while (StringUtils.isNotEmpty(line = br.readLine().trim())) {
                 String[] kv = line.split(":");
                 if (kv.length == 2 && StringUtils.isNotEmpty(kv[0]) && StringUtils.isNotEmpty(kv[1])) {
                     if (kv[0].startsWith("java")) { // java服务占用内存一对多关系，特殊处理
