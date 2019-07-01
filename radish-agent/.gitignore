@@ -22,3 +22,5 @@
 /dist/
 /nbdist/
 /.nb-gradle/
+.idea/
+.gitee/
