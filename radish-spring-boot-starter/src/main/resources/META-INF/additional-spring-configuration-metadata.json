@@ -1,45 +1,90 @@
 {
+  "hints": [
+    {
+      "name": "radish.log-view-mode",
+      "values": [
+        {
+          "value": "netty"
+        },
+        {
+          "value": "servlet"
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "name": "radish",
+      "type": "org.radish.spring.boot.autoconfigure.RadishProperties",
+      "sourceType": "org.radish.spring.boot.autoconfigure.RadishProperties"
+    },
+    {
+      "name": "radish.agent",
+      "type": "org.radish.spring.boot.autoconfigure.RadishProperties$Agent",
+      "sourceType": "org.radish.spring.boot.autoconfigure.RadishProperties",
+      "sourceMethod": "getAgent()"
+    },
+    {
+      "name": "radish.scheduler",
+      "type": "org.radish.spring.boot.autoconfigure.RadishProperties$Scheduler",
+      "sourceType": "org.radish.spring.boot.autoconfigure.RadishProperties",
+      "sourceMethod": "getScheduler()"
+    },
+    {
+      "name": "radish.log-view-netty",
+      "type": "org.radish.spring.boot.autoconfigure.RadishProperties$LogViewNetty",
+      "sourceType": "org.radish.spring.boot.autoconfigure.RadishProperties",
+      "sourceMethod": "getLogViewNetty()"
+    }
+  ],
   "properties": [
     {
       "name": "radish.agent.name",
       "type": "java.lang.String",
-      "description": "Radish agent name."
+      "description": "Radish agent name.",
+      "sourceType": "org.radish.spring.boot.autoconfigure.RadishProperties$Agent"
     },
     {
       "name": "radish.agent.ip",
       "type": "java.lang.String",
-      "description": "Radish agent ip."
+      "description": "Radish agent ip.",
+      "sourceType": "org.radish.spring.boot.autoconfigure.RadishProperties$Agent"
     },
     {
       "name": "radish.agent.port",
       "type": "java.lang.Integer",
-      "description": "Radish agent port."
+      "description": "Radish agent port.",
+      "sourceType": "org.radish.spring.boot.autoconfigure.RadishProperties$Agent"
     },
     {
       "name": "radish.agent.logpath",
       "type": "java.lang.String",
-      "description": "Log store path in radish agent."
+      "description": "Log store path in radish agent.",
+      "sourceType": "org.radish.spring.boot.autoconfigure.RadishProperties$Agent"
     },
     {
       "name": "radish.agent.shpath",
       "type": "java.lang.String",
-      "description": "Shell script store path in radish agent."
+      "description": "Shell script store path in radish agent.",
+      "sourceType": "org.radish.spring.boot.autoconfigure.RadishProperties$Agent"
     },
     {
       "name": "radish.scheduler.server",
       "type": "java.lang.String",
-      "description": "Url connect to scheduler center."
+      "description": "Url connect to scheduler center.",
+      "sourceType": "org.radish.spring.boot.autoconfigure.RadishProperties$Scheduler"
     },
     {
       "name": "radish.log-view-mode",
       "type": "java.lang.String",
       "description": "The mode that view agent handler log.",
-      "defaultValue": "servlet"
+      "sourceType": "org.radish.spring.boot.autoconfigure.RadishProperties"
     },
     {
       "name": "radish.log-view-netty.port",
       "type": "java.lang.Integer",
-      "description": "Port that log view netty bind."
+      "description": "Port that log view netty bind.",
+      "sourceType": "org.radish.spring.boot.autoconfigure.RadishProperties$LogViewNetty"
     }
   ]
 }

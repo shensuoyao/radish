@@ -17,11 +17,7 @@ import org.sam.shen.scheduing.service.JobEventService;
 import org.sam.shen.scheduing.service.JobService;
 import org.sam.shen.scheduing.service.RedisService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.alibaba.fastjson.JSON;
 
@@ -85,13 +81,15 @@ public class CoreController {
 	 * @author suoyao
 	 * @date 下午5:57:48
 	 * @param agentId agent id
+	 * @param count count that preempt event
 	 * @return preemptive event
 	 */
 	@RadishLog(monitorType = MonitorType.EVENT)
 	@RequestMapping(value = "/trigger-event/{agentId}", method = RequestMethod.GET)
-	public Resp<HandlerEvent> triggerEvent(@PathVariable(value = "agentId", required = false) Long agentId) {
+	public Resp<List<HandlerEvent>> triggerEvent(@PathVariable(value = "agentId", required = false) Long agentId,
+										   @RequestParam(value = "count", required = false, defaultValue = "1") Integer count) {
 		// 根据Agent机器性能决定是否能抢到任务
-		HandlerEvent event = jobEventService.triggerJobEvent(agentId);
+		List<HandlerEvent> event = jobEventService.triggerJobEvent(agentId, count);
 		return new Resp<>(event);
 	}
 	

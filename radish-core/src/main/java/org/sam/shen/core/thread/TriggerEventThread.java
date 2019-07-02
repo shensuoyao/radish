@@ -1,5 +1,6 @@
 package org.sam.shen.core.thread;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
@@ -46,10 +47,16 @@ public class TriggerEventThread {
                     if (EventHandlerThreadPool.isCallbackQueueFull()) {
                         logger.error("Callback Queue is Full.");
                     } else {
-                        Resp<HandlerEvent> resp = RestRequest.getUriVariables(rpcTriggerUrl, HandlerEvent.class, agentId);
+                        Resp<List<HandlerEvent>> resp = RestRequest.getUriVariablesWithList(rpcTriggerUrl, HandlerEvent.class, agentId,
+                                EventHandlerThreadPool.availableCount());
                         if(Resp.SUCCESS.getCode() == resp.getCode()) {
-                            if(null != resp.getData() && StringUtils.isNotEmpty(resp.getData().getEventId())) {
-                                EventHandlerThreadPool.pushCallbackQueue(resp.getData());
+                            if(null != resp.getData()) {
+                                for (HandlerEvent event : resp.getData()) {
+                                    if (StringUtils.isNotEmpty(event.getEventId())) {
+                                        EventHandlerThreadPool.pushCallbackQueue(event);
+                                    }
+                                }
+
                             }
                         }
                     }

@@ -44,6 +44,15 @@ public class EventHandlerThreadPool {
 		}
 		return avalibleCount > 0;
 	}
+
+	/**
+	 * 计算抢占的事件数量
+	 * @return 抢占的事件数
+	 */
+	public static int availableCount() {
+		int count = fixedThreadPool.getMaximumPoolSize() - eventsQueue.size() - fixedThreadPool.getActiveCount();
+		return count < 0 ? 0 : count;
+	}
 	
 	public static void run(String rpcSubeventUrl, String rpcReportUrl) {
 		HandlerEvent handlerEvent = takeCallbackQueue();

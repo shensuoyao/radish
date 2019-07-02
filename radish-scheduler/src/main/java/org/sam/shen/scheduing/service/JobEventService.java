@@ -76,7 +76,8 @@ public class JobEventService {
 	 * @return
 	 */
 	@Transactional
-	public HandlerEvent triggerJobEvent(Long agentId) {
+	public List<HandlerEvent> triggerJobEvent(Long agentId, Integer count) {
+		List<HandlerEvent> events = new ArrayList<>();
 		// 获取所有事件key
 		Set<String> keys = redisService.getKeys(Constant.REDIS_EVENT_PREFIX.concat("*"));
 		
@@ -93,6 +94,9 @@ public class JobEventService {
 		// 按照优先级从高到低抢占
 		for(Map.Entry<String, Integer> mapping: list) {
 			if(redisService.hkeyExists(mapping.getKey(), String.valueOf(agentId))) {
+				if (events.size() >= count) {
+					break;
+				}
 				// 可以抢占
 				EventLock lock = new EventLock(redisTemplate, String.valueOf(mapping.getKey()), String.valueOf(agentId));
 				try {
@@ -120,7 +124,7 @@ public class JobEventService {
 						if(StringUtils.isNotEmpty(event.getParams())) {
 							handlerEvent.setParams(event.getParams().split(System.lineSeparator()));
 						}
-						return handlerEvent;
+						events.add(handlerEvent);
 					}
 				} catch (Exception e) {
 					logger.error("event lock error.", e);
@@ -129,7 +133,7 @@ public class JobEventService {
 				}
 			}
 		}
-		return new HandlerEvent();
+		return events;
 	}
 	
 	/**

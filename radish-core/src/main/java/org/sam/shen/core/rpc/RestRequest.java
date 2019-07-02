@@ -142,6 +142,11 @@ public class RestRequest {
 		Resp<Object> resp = restTemplate.getForObject(url, Resp.class, uriVariables);
 		return new Resp<T>(JSON.parseObject(resp.toJsonData(), clazz));
 	}
+
+	public static <T> Resp<List<T>> getUriVariablesWithList(String url, Class<T> clazz, Object... uriVariables) {
+		Resp<?> resp = restTemplate.getForObject(url, Resp.class, uriVariables);
+		return new Resp<>(JSON.parseArray(resp.toJsonData(), clazz));
+	}
 	
 	/**
 	 * 发送/获取 服务端数据(主要用于解决发送put,delete方法无返回值问题).

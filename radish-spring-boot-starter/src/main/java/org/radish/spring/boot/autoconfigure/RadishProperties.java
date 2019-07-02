@@ -20,7 +20,7 @@ public class RadishProperties {
     /**
      * 读取客户端日志的访问模式
      */
-    private String logViewMode;
+    private String logViewMode = "servlet";
 
 //    private LogViewServlet logViewServlet;
 
