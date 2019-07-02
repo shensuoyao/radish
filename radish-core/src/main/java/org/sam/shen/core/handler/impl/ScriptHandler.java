@@ -22,7 +22,7 @@ import org.sam.shen.core.util.ScriptUtil;
 @AHandler(name = "scriptHandler", description = "脚本任务处理器")
 public class ScriptHandler extends AbsHandler {
 
-	private String scriptFileName;
+	private ThreadLocal<String> scriptFileName = new ThreadLocal<>();
 
 	public ScriptHandler() {
 		super();
@@ -31,18 +31,18 @@ public class ScriptHandler extends AbsHandler {
 	@Override
 	public Resp<String> execute(HandlerEvent event) throws Exception {
 		// make script file
-		scriptFileName = FilenameUtils.getFullPath(getLogFileName()).concat(getEventId())
-		        .concat(event.getHandlerType().getSuffix());
-		ScriptUtil.markScriptFile(scriptFileName, event.getCmd());
+		this.scriptFileName.set(FilenameUtils.getFullPath(getLogFileName()).concat(getEventId())
+		        .concat(event.getHandlerType().getSuffix()));
+		ScriptUtil.markScriptFile(scriptFileName.get(), event.getCmd());
 
         if (event.getHandlerType() == HandlerType.H_JAVA) { // execute java with bean shell
-	        Resp<String> result = ScriptUtil.execBshScriptWithResult(scriptFileName);
+	        Resp<String> result = ScriptUtil.execBshScriptWithResult(scriptFileName.get());
 	        // print logs
 	        log(Collections.singletonList(result.getData()));
 	        return result;
         } else {
             // invoke
-            int exitValue = ScriptUtil.execToFile(event.getHandlerType().getCmd(), scriptFileName, getLogFileName(), event.getParams());
+            int exitValue = ScriptUtil.execToFile(event.getHandlerType().getCmd(), scriptFileName.get(), getLogFileName(), event.getParams());
 
             if (exitValue == 0) {
                 return Resp.SUCCESS;
@@ -58,11 +58,11 @@ public class ScriptHandler extends AbsHandler {
 	public Resp<String> destroy() {
 		super.destroy();
 		try {
-			FileUtils.forceDelete(new File(scriptFileName));
+			FileUtils.forceDelete(new File(scriptFileName.get()));
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		} finally {
-			scriptFileName = null;
+			this.scriptFileName.remove();
 		}
 		return null;
 	}

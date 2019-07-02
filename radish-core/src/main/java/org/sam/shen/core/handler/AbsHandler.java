@@ -16,27 +16,27 @@ public abstract class AbsHandler implements IHandler {
 	/**
 	 *  任务调用ID
 	 */
-	protected String eventId;
+	protected ThreadLocal<String> eventId = new ThreadLocal<>();
 	
 	/**
 	 *  日志文件名
 	 */
-	protected String logFileName;
+	protected ThreadLocal<String> logFileName = new ThreadLocal<>();
 
 	public String getEventId() {
-		return eventId;
+		return eventId.get();
 	}
 
 	public void setEventId(String eventId) {
-		this.eventId = eventId;
+		this.eventId.set(eventId);
 	}
 
 	public String getLogFileName() {
-		return logFileName;
+		return logFileName.get();
 	}
 
 	public void setLogFileName(String logFileName) {
-		this.logFileName = logFileName;
+		this.logFileName.set(logFileName);
 	}
 
 	public abstract Resp<String> execute(HandlerEvent event) throws Exception;
@@ -49,26 +49,26 @@ public abstract class AbsHandler implements IHandler {
 
 	@Override
 	public Resp<String> destroy() {
-		log.info("RADISH ------------> 清理任务:  {}",  eventId);
-		setEventId(null);
-		setLogFileName(null);
+		log.info("RADISH ------------> 清理任务:  {}",  eventId.get());
+		eventId.remove();
+		logFileName.remove();
 		return Resp.SUCCESS;
 	}
 
 	@Override
 	public Resp<String> start(HandlerEvent event) throws Exception {
-		this.eventId = event.getEventId();
-		this.logFileName = RadishLogFileAppender.makeLogFile(this.eventId);
+		this.setEventId(event.getEventId());
+		this.setLogFileName(RadishLogFileAppender.makeLogFile(this.getEventId()));
 		return execute(event);
 	}
 
 	protected void log(List<String> logLines) {
-		RadishLogFileAppender.appendLog(logFileName, logLines);
+		RadishLogFileAppender.appendLog(this.getLogFileName(), logLines);
 	}
 	
 	protected void log(String logStr) {
 		if(StringUtils.isNotEmpty(logStr)) {
-			RadishLogFileAppender.appendLog(logFileName, Arrays.asList(logStr));
+			RadishLogFileAppender.appendLog(this.getLogFileName(), Arrays.asList(logStr));
 		}
 	}
 	

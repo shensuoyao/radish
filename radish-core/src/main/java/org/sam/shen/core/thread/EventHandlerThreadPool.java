@@ -55,9 +55,13 @@ public class EventHandlerThreadPool {
 	}
 	
 	public static void run(String rpcSubeventUrl, String rpcReportUrl) {
-		HandlerEvent handlerEvent = takeCallbackQueue();
-		if(null != handlerEvent && StringUtils.isNotEmpty(handlerEvent.getEventId())) {
-			fixedThreadPool.execute(new EventHandlerThread(handlerEvent, rpcSubeventUrl, rpcReportUrl));
+		// 一次性
+		int avalibleCount = fixedThreadPool.getMaximumPoolSize() - fixedThreadPool.getActiveCount();
+		for (int i = 0; i < Math.min(avalibleCount, eventsQueue.size()); i++) {
+			HandlerEvent handlerEvent = takeCallbackQueue();
+			if(null != handlerEvent && StringUtils.isNotEmpty(handlerEvent.getEventId())) {
+				fixedThreadPool.execute(new EventHandlerThread(handlerEvent, rpcSubeventUrl, rpcReportUrl));
+			}
 		}
 	}
 	
@@ -133,23 +137,7 @@ public class EventHandlerThreadPool {
 	 *  从队列中获取需要执行的任务
 	 */
 	public static HandlerEvent takeCallbackQueue() {
-		synchronized (eventsQueue) {
-			HandlerEvent handlerEvent;
-			try {
-				handlerEvent = eventsQueue.peek();
-				if(null == handlerEvent) {
-					return null;
-				}
-//				if(handlerNow.containsKey(handlerEvent.getRegistryHandler())) {
-//					return null;
-//				}
-				return eventsQueue.take();
-			} catch (InterruptedException e) {
-				logger.error(e.getMessage(), e);
-				Thread.currentThread().interrupt();
-			}
-		}
-		return null;
+		return eventsQueue.poll();
 	}
 	
 }
