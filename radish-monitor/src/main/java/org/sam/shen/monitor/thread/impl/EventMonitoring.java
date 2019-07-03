@@ -98,12 +98,14 @@ public class EventMonitoring extends AbsMonitoring {
                                 alarm.setId(UUID.randomUUID().toString().replaceAll("-", ""));
                                 alarm.setAlarmType(monitorInfo.getAlarmType());
                                 alarm.setNotifier(notifier.getName());
-                                alarm.setContent(notifier.getBizName() + "[event-" + monitorInfo.getBizId() + "]已超时，未有客户端抢占处理!");
                                 if ("EMAIL".equals(alarm.getAlarmType()) && StringUtils.isNotEmpty(notifier.getEmail())) {
                                     alarm.setEmail(notifier.getEmail());
+                                    alarm.setContent(notifier.getBizName() + "[EVENT-" + monitorInfo.getBizId() + "]已超时，未有客户端抢占处理!");
                                     alarmCenter.offerAlarm(alarm);
                                 } else if ("SMS".equals(alarm.getAlarmType()) && StringUtils.isNotEmpty(notifier.getPhone())) {
                                     alarm.setPhone(notifier.getPhone());
+                                    alarm.setTemplate("event_chao");
+                                    alarm.setTemplateParams(new String[] {notifier.getBizName() + ":" + monitorInfo.getBizId()});
                                     alarmCenter.offerAlarm(alarm);
                                 } else {
                                     log.warn("event[{}]未设置报警人联系方式！", monitorInfo.getBizId());
@@ -152,11 +154,19 @@ public class EventMonitoring extends AbsMonitoring {
                                 alarm.setId(UUID.randomUUID().toString().replaceAll("-", ""));
                                 alarm.setAlarmType(monitorInfo.getAlarmType());
                                 alarm.setNotifier(notifier.getName());
-                                alarm.setContent(notifier.getBizName() + "[event-" + monitorInfo.getBizId() + "]已超时，处理事件的线程被阻塞或异常结束!");
+
+                                // 查询执行客户端信息
+                                Map<String, Object> agent = NotifierService.selectAgentByEventId(monitorInfo.getBizId());
+                                String agentName = agent == null ? null : String.valueOf(agent.get("agentName"));
+
+                                // 根据告警方式生成告警通知
                                 if ("EMAIL".equals(alarm.getAlarmType()) && StringUtils.isNotEmpty(notifier.getEmail())) {
+                                    alarm.setContent(notifier.getBizName() + "[EVENT-" + monitorInfo.getBizId() + "]客户端[" + agentName + "]执行超时，处理该事件的线程被阻塞或异常结束!");
                                     alarm.setEmail(notifier.getEmail());
                                     alarmCenter.offerAlarm(alarm);
                                 } else if ("SMS".equals(alarm.getAlarmType()) && StringUtils.isNotEmpty(notifier.getPhone())) {
+                                    alarm.setTemplate("event_error");
+                                    alarm.setTemplateParams(new String[] {notifier.getBizName() + ":" + monitorInfo.getBizId(), agentName});
                                     alarm.setPhone(notifier.getPhone());
                                     alarmCenter.offerAlarm(alarm);
                                 } else {

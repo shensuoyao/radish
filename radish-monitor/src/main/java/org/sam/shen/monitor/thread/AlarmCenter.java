@@ -1,6 +1,9 @@
 package org.sam.shen.monitor.thread;
 
 import lombok.extern.slf4j.Slf4j;
+import org.clock.sms.builder.SendSmsBuilder;
+import org.clock.sms.builder.SmsRequestBodyBuilder;
+import org.clock.sms.entity.SmsRequestBody;
 import org.sam.shen.core.sendcloud.SendEmailClient;
 import org.sam.shen.core.util.SystemUtil;
 import org.sam.shen.core.model.Alarm;
@@ -60,9 +63,15 @@ public class AlarmCenter extends Thread {
         public void run() {
             // 发送短信或者邮件
             try {
-                SendEmailClient.sendEmail(alarm.getEmail(), "调度任务告警", alarm.getContent(), null);
+                if ("EMAIL".equals(alarm.getAlarmType())) {
+                    SendEmailClient.sendEmail(alarm.getEmail(), "调度任务告警", alarm.getContent(), null);
+                } else if ("SMS".equals(alarm.getAlarmType())) {
+                    SmsRequestBody smsRequestBody = SmsRequestBodyBuilder.createNoticeBody();
+                    smsRequestBody.addSmsContentWithTemplateKey(new String[] {alarm.getPhone()}, alarm.getTemplate(), alarm.getTemplateParams());
+                    SendSmsBuilder.create().buildRequestBody(smsRequestBody).build().send();
+                }
             } catch (Exception e) {
-                log.error("Send alarm message failed.[{}]", alarm.toString());
+                log.error("Send alarm message[{}] failed. [{}]", alarm.toString(), e.getMessage());
             }
         }
 

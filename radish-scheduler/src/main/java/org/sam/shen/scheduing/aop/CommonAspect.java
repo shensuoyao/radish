@@ -167,8 +167,8 @@ public class CommonAspect {
                     monitorInfo.setBizId(bizId);
                     extra.put("step", "1");
                 } else if (methodName.contains("triggerEvent")) {
-                    Resp<HandlerEvent> resp = (Resp<HandlerEvent>) result;
-                    String bizId = resp.getData().getEventId();
+                    Resp<List<HandlerEvent>> resp = (Resp<List<HandlerEvent>>) result;
+                    String bizId = resp.getData().stream().map(HandlerEvent::getEventId).collect(Collectors.joining(","));
                     monitorInfo.setBizId(bizId);
                     extra.put("step", "2");
                 }

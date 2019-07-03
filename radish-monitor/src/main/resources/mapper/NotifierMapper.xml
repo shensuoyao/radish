@@ -23,4 +23,11 @@
         where je.job_id = ji.id
           and je.event_id = #{eventId}
     </select>
+
+    <select id="selectAgentByEventId" resultType="java.util.Map">
+        select a.id, a.agent_name as agentName
+        from job_event je, agent a
+        where je.handler_agent_id = a.id
+            and je.event_id = #{eventId}
+    </select>
 </mapper>

@@ -79,11 +79,13 @@ public class HeartBeatMonitoring extends AbsMonitoring {
                                 alarm.setId(UUID.randomUUID().toString().replaceAll("-", ""));
                                 alarm.setAlarmType(monitorInfo.getAlarmType());
                                 alarm.setNotifier(notifier.getName());
-                                alarm.setContent(notifier.getBizName() + "[agent-" + monitorInfo.getBizId() + "]已断开连接!");
+                                alarm.setContent(notifier.getBizName() + "[AGENT-" + monitorInfo.getBizId() + "]客户端已断开连接!");
                                 if ("EMAIL".equals(alarm.getAlarmType()) && StringUtils.isNotEmpty(notifier.getEmail())) {
                                     alarm.setEmail(notifier.getEmail());
                                     alarmCenter.offerAlarm(alarm);
                                 } else if ("SMS".equals(alarm.getAlarmType()) && StringUtils.isNotEmpty(notifier.getPhone())) {
+                                    alarm.setTemplate("agent_duan");
+                                    alarm.setTemplateParams(new String[] {notifier.getBizName()});
                                     alarm.setPhone(notifier.getPhone());
                                     alarmCenter.offerAlarm(alarm);
                                 } else {

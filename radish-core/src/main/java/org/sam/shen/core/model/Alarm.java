@@ -18,7 +18,7 @@ public class Alarm implements Serializable {
 
     private String id;
 
-    // 告警内容
+    // 告警邮箱内容
     private String content;
 
     // 告警类型，短信或者邮件
@@ -32,5 +32,11 @@ public class Alarm implements Serializable {
 
     // 告警通知手机号
     private String phone;
+
+    // 告警短信模板
+    private String template;
+
+    // 告警短信模板参数
+    private String[] templateParams;
 
 }

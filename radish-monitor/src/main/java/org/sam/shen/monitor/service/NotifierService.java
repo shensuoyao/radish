@@ -7,6 +7,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+
 
 /**
  * @author clock
@@ -42,6 +44,17 @@ public class NotifierService implements ApplicationContextAware {
      */
     public static Notifier getNotifierOfJob(String eventId) {
         return notifierMapper.selectFromJob(eventId);
+    }
+
+    /**
+     * 查询执行事件的客户端信息
+     * @author clock
+     * @date 2019-07-02 17:47
+     * @param eventId 事件ID
+     * @return 客户端信息
+     */
+    public static Map<String, Object> selectAgentByEventId(String eventId) {
+        return notifierMapper.selectAgentByEventId(eventId);
     }
 
 }
