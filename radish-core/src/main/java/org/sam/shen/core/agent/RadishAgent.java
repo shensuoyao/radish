@@ -44,6 +44,15 @@ public class RadishAgent {
 
 	private static List<IHandler> handlers;
 
+	// 心跳间隔，单位毫秒
+	private static long heartBeat = 2000;
+
+	// 抢占事件时间间隔，单位毫秒
+	private static long triggerBeat = 2000;
+
+	// 处理事件时间间隔，单位毫秒
+	private static long handleEventBeat = 1000;
+
 	public RadishAgent() {
 		// 初始化默认参数
 		if (SystemUtil.osName().startsWith("Windows")) { // windows系统不能运行shell脚本，脚本目录无需设置
@@ -221,4 +230,27 @@ public class RadishAgent {
         return shFilePath;
     }
 
+	public static long getHeartBeat() {
+		return heartBeat;
+	}
+
+	public void setHeartBeat(long heartBeat) {
+		RadishAgent.heartBeat = heartBeat;
+	}
+
+	public static long getTriggerBeat() {
+		return triggerBeat;
+	}
+
+	public void setTriggerBeat(long triggerBeat) {
+		RadishAgent.triggerBeat = triggerBeat;
+	}
+
+	public static long getHandleEventBeat() {
+		return handleEventBeat;
+	}
+
+	public void setHandleEventBeat(long handleEventBeat) {
+		RadishAgent.handleEventBeat = handleEventBeat;
+	}
 }

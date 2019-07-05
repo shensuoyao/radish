@@ -98,11 +98,22 @@ public class RadishAutoConfiguration {
                 agentInfo.setAgentPort(serverPort);
             }
         }
+        // set network
         String network = this.properties.getLogViewMode();
         RadishProperties.LogViewNetty nettyProperties = this.properties.getLogViewNetty();
         agentInfo.setNetwork(network);
         if (nettyProperties != null && nettyProperties.getPort() != null) {
             agentInfo.setNettyPort(nettyProperties.getPort());
+        }
+        // set time interval
+        if (properties.getHeartBeat() != null) {
+            radishAgent.setHeartBeat(properties.getHeartBeat());
+        }
+        if (properties.getTriggerBeat() != null) {
+            radishAgent.setTriggerBeat(properties.getTriggerBeat());
+        }
+        if (properties.getHandleEventBeat() != null) {
+            radishAgent.setHandleEventBeat(properties.getHandleEventBeat());
         }
         return radishAgent;
     }

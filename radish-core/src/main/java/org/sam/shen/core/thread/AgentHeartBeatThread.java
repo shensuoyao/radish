@@ -67,7 +67,7 @@ public class AgentHeartBeatThread {
                     log.error(ex.getMessage(), ex);
                 }
                 try {
-                    TimeUnit.SECONDS.sleep(Constant.BEAT_TIMEOUT);
+                    TimeUnit.MILLISECONDS.sleep(RadishAgent.getHeartBeat());
                 } catch (InterruptedException e) {
                     log.error(e.getMessage(), e);
                     Thread.currentThread().interrupt();

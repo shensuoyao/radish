@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sam.shen.core.agent.RadishAgent;
 import org.sam.shen.core.constants.Constant;
 import org.sam.shen.core.event.HandlerEvent;
 import org.sam.shen.core.model.Resp;
@@ -65,7 +66,7 @@ public class TriggerEventThread {
                 }
 
                 try {
-                    TimeUnit.SECONDS.sleep(Constant.BEAT_TRIGGER);
+                    TimeUnit.MILLISECONDS.sleep(RadishAgent.getTriggerBeat());
                 } catch (InterruptedException e) {
                     logger.error(e.getMessage(), e);
                     Thread.currentThread().interrupt();
@@ -85,7 +86,7 @@ public class TriggerEventThread {
                 }
 
                 try {
-                    TimeUnit.SECONDS.sleep(Constant.BEAT_HANDLE_EVENT);
+                    TimeUnit.MILLISECONDS.sleep(RadishAgent.getHandleEventBeat());
                 } catch (InterruptedException e) {
                     logger.error(e.getMessage(), e);
                     Thread.currentThread().interrupt();

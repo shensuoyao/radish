@@ -13,7 +13,7 @@ public class RadishAgentSampleJava {
         // 初始化agent监听程序
         RadishAgent radishAgent = new RadishAgent();
         radishAgent.getAgentInfo().setAgentName("agent_java"); // 可以自己设置，默认是agent_[ip]
-        radishAgent.setScheduingServer("http://127.0.0.1:8888/radish-scheduing");
+        radishAgent.setScheduingServer("http://127.0.0.1:8001/radish-scheduing");
         radishAgent.start();
 
         // 由于是java启动，没有web容器，因此需要启动netty监听程序，用于server读取agent日志

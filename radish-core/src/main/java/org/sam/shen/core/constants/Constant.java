@@ -6,12 +6,6 @@ package org.sam.shen.core.constants;
   * 常量类
  */
 public class Constant {
-
-	public static final int BEAT_TIMEOUT = 2;
-
-	public static final int BEAT_TRIGGER = 2;
-
-	public static final int BEAT_HANDLE_EVENT = 2;
 	
 	public static final int SUCCESS_EXIT = 0;
 	

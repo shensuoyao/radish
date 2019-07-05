@@ -85,6 +85,24 @@
       "type": "java.lang.Integer",
       "description": "Port that log view netty bind.",
       "sourceType": "org.radish.spring.boot.autoconfigure.RadishProperties$LogViewNetty"
+    },
+    {
+      "name": "radish.heart-beat",
+      "type": "java.lang.Long",
+      "description": "Heart beat, in milliseconds.",
+      "sourceType": "org.radish.spring.boot.autoconfigure.RadishProperties"
+    },
+    {
+      "name": "radish.trigger-beat",
+      "type": "java.lang.Long",
+      "description": "Time interval that trigger events, in milliseconds.",
+      "sourceType": "org.radish.spring.boot.autoconfigure.RadishProperties"
+    },
+    {
+      "name": "radish.handle-event-beat",
+      "type": "java.lang.Long",
+      "description": "Time interval that handle event, in milliseconds.",
+      "sourceType": "org.radish.spring.boot.autoconfigure.RadishProperties"
     }
   ]
 }

@@ -26,6 +26,12 @@ public class RadishProperties {
 
     private LogViewNetty logViewNetty;
 
+    private Long heartBeat;
+
+    private Long triggerBeat;
+
+    private Long handleEventBeat;
+
     @Getter
     @Setter
     public static class Agent {
