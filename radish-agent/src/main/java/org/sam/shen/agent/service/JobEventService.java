@@ -62,13 +62,24 @@ public class JobEventService {
      * @date 2019-05-29 11:16
      */
     @Transactional(rollbackFor = Exception.class)
-    public void migrateHandledEvent() {
-        List<Map<String, Object>> events = jobEventMapper.selectHandledEvent();
+    public void migrateHandledEvent(List<Map<String, Object>> events) {
         if (events == null || events.size() < 1) {
             return;
         }
-        jobEventMapper.deleteHandledEvent();
+        jobEventMapper.deleteHandledEvent(events.stream()
+                .map(event -> String.valueOf(event.get("event_id"))).collect(Collectors.toList()));
         jobEventMapper.batchInsertEvent(events);
+    }
+
+    /**
+     * 分页查询已处理的event
+     * @author clock
+     * @date 2019-07-09 09:44
+     * @param limit 查询数量
+     * @return 已处理event
+     */
+    public List<Map<String, Object>> limitHandledEvent(Integer limit) {
+        return jobEventMapper.selectHandledEvent(limit);
     }
 
 }

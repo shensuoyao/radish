@@ -7,6 +7,10 @@ import org.sam.shen.core.handler.anno.AHandler;
 import org.sam.shen.core.model.Resp;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 /**
  * @author clock
  * @date 2019-05-28 17:25
@@ -23,12 +27,19 @@ public class MigrateToHisHandler extends AbsHandler {
 
     @Override
     public Resp<String> execute(HandlerEvent event) throws Exception {
-        try {
-            jobEventService.migrateHandledEvent();
-        } catch (Exception e) {
-            log("数据迁移失败！[" + e.getMessage() + "]");
-            return Resp.FAIL;
+        List<Map<String, Object>> handledEvent = jobEventService.limitHandledEvent(500);
+        while (handledEvent != null && handledEvent.size() > 0) {
+            try {
+                jobEventService.migrateHandledEvent(handledEvent);
+                handledEvent = jobEventService.limitHandledEvent(500);
+            } catch (Exception e) {
+                log("部分数据迁移失败！["
+                        + handledEvent.stream().map(map -> String.valueOf(map.get("event_id"))).collect(Collectors.joining(","))
+                        + "] [" + e.getMessage() + "]");
+                return Resp.FAIL;
+            }
         }
+
         return Resp.SUCCESS;
     }
 

@@ -27,6 +27,9 @@
 
     <select id="selectHandledEvent" resultType="java.util.Map">
         select * from job_event where stat = 'SUCCESS' or stat = 'FAIL' or stat = 'EXPIRED'
+        <if test="limit != null">
+            limit #{limit}
+        </if>
     </select>
 
     <insert id="batchInsertEvent" parameterType="java.util.List">
@@ -43,6 +46,9 @@
     </insert>
 
     <delete id="deleteHandledEvent">
-        delete from job_event where stat = 'SUCCESS' or stat = 'FAIL' or  stat = 'EXPIRED'
+        delete from job_event where event_id in
+        <foreach collection="events" item="event" open="(" separator="," close=")">
+            #{event}
+        </foreach>
     </delete>
 </mapper>

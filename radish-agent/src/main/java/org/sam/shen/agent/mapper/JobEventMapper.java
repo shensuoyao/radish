@@ -18,9 +18,9 @@ public interface JobEventMapper {
 
     void deleteExpiredEvent(@Param("events") List<String> events);
 
-    List<Map<String, Object>> selectHandledEvent();
+    List<Map<String, Object>> selectHandledEvent(@Param("limit") Integer limit);
 
-    void deleteHandledEvent();
+    void deleteHandledEvent(@Param("events") List<String> events);
 
     void batchInsertEvent(@Param("events") List<Map<String, Object>> events);
 }
