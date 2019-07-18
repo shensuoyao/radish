@@ -166,6 +166,8 @@ CREATE TABLE `job_event`
     `priority`          tinyint(2)    DEFAULT '0' COMMENT '任务优先级 0 - 9',
     `retry_count`       smallint(3)   DEFAULT '0' COMMENT '重试次数',
     `create_time`       datetime      DEFAULT NULL COMMENT '创建时间',
+    `trigger_time`       datetime      DEFAULT NULL COMMENT '抢占时间',
+    `handle_time`       datetime      DEFAULT NULL COMMENT '处理时间',
     PRIMARY KEY (`event_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8;

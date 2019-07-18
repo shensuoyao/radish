@@ -1,13 +1,6 @@
 package org.sam.shen.scheduing.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 import javax.annotation.Resource;
@@ -91,6 +84,7 @@ public class JobEventService {
 		// 优先级倒序排列
 		List<Map.Entry<String, Integer>> list = Lists.newArrayList(eventKeys.entrySet()); // new ArrayList<>(eventKeys.entrySet());
 		list.sort((o1, o2) -> o2.getValue().compareTo(o1.getValue()));
+		Date now = new Date();
 		// 按照优先级从高到低抢占
 		for(Map.Entry<String, Integer> mapping: list) {
 			if(redisService.hkeyExists(mapping.getKey(), String.valueOf(agentId))) {
@@ -111,6 +105,7 @@ public class JobEventService {
 						
 						// 获得锁成功
 						event.setStat(EventStatus.HANDLE);
+						event.setTriggerTime(now);
 						event.setHandlerAgentId(agentId);
 						jobEventMapper.upgradeJobEvent(event);
 						redisService.delete(mapping.getKey());
@@ -151,6 +146,8 @@ public class JobEventService {
 		}
 		// 设置事件执行日志路径
         jobEvent.setHandlerLogPath(event.getHandlerLogPath());
+		// 设置处理时间
+		jobEvent.setHandleTime(new Date());
 
 		if(resp == null || resp.getCode() == Resp.SUCCESS.getCode()) {
 			// 执行成功, event 事件的状态改为成功

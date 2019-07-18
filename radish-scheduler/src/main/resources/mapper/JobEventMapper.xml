@@ -20,6 +20,8 @@
         <result column="priority" property="priority"/>
         <result column="retry_count" property="retryCount"/>
         <result column="create_time" property="createTime"/>
+        <result column="trigger_time" property="triggerTime"/>
+        <result column="handle_time" property="handleTime"/>
         <result column="handler_log_path" property="handlerLogPath"/>
         <result column="dist_type" property="distType"/>
         <result column="event_rule" property="eventRule"/>
@@ -80,6 +82,12 @@
         <if test="handlerLogPath != null">
             <![CDATA[, handler_log_path = #{handlerLogPath}]]>
         </if>
+        <if test="triggerTime != null">
+            <![CDATA[, trigger_time = #{triggerTime}]]>
+        </if>
+        <if test="handleTime != null">
+            <![CDATA[, handle_time = #{handleTime}]]>
+        </if>
         <where>
             <![CDATA[ event_id = #{eventId} ]]>
         </where>
@@ -89,7 +97,7 @@
         <![CDATA[
             SELECT event_id, parent_event_id, job_id, parent_job_id, group_id, parent_group_id, executor_handlers,
                    handler_type, cmd, params, param_file_path, stat, handler_agent_id, priority, retry_count, create_time, handler_log_path,
-                   dist_type, event_rule
+                   dist_type, event_rule, trigger_time, handle_time
             FROM job_event
             WHERE event_id = #{eventId}
         ]]>
@@ -99,7 +107,7 @@
         <![CDATA[
             SELECT a.event_id, a.parent_event_id, a.job_id, a.parent_job_id, a.group_id, a.parent_group_id, a.executor_handlers,
                    a.handler_type, a.cmd, a.params, a.param_file_path, a.stat, a.handler_agent_id, a.priority, a.retry_count,
-                   a.create_time, a.handler_log_path, a.dist_type, a.event_rule, b.job_name
+                   a.create_time, a.trigger_time, a.handle_time, a.handler_log_path, a.dist_type, a.event_rule, b.job_name
             FROM job_event a, job_info b
             WHERE a.job_id = b.id
         ]]>
@@ -120,7 +128,7 @@
         <![CDATA[
             SELECT a.event_id, a.parent_event_id, a.job_id, a.parent_job_id, a.executor_handlers, a.group_id, a.parent_group_id,
                    a.handler_type, a.cmd, a.params, a.param_file_path, a.stat, a.handler_agent_id, a.priority, a.retry_count, a.create_time,
-                   a.handler_log_path, a.dist_type, a.event_rule
+                   a.handler_log_path, a.dist_type, a.event_rule, a.trigger_time, a.handle_time
             FROM job_event a, job_info b
             WHERE a.job_id=b.id AND a.stat<>'SUCCESS' AND a.stat<>'FAIL' AND a.stat <> 'EXPIRED' AND a.job_id=#{jobId}
         ]]>
@@ -131,7 +139,7 @@
             SELECT a.event_id, a.parent_event_id, a.job_id, a.parent_job_id, a.group_id, a.parent_group_id, a.executor_handlers,
                    a.handler_type, a.cmd, a.params, a.param_file_path, a.stat, a.handler_agent_id, a.priority, a.retry_count, a.create_time,
                    a.handler_log_path, a.dist_type, a.event_rule, b.job_name, b.admin, b.admin_phone, b.admin_email,
-                   b.handler_fail_strategy, b.crontab
+                   b.handler_fail_strategy, b.crontab, a.trigger_time, a.handle_time
             FROM job_event a, job_info b
             WHERE a.job_id=b.id
         ]]>
@@ -150,7 +158,7 @@
             SELECT a.event_id, a.parent_event_id, a.job_id, a.parent_job_id, a.group_id, a.parent_group_id, a.executor_handlers,
                    a.handler_type, a.cmd, a.params, a.param_file_path, a.stat, a.handler_agent_id, a.priority, a.retry_count, a.create_time,
                    a.handler_log_path, a.dist_type, a.event_rule, b.job_name, b.admin, b.admin_phone, b.admin_email,
-                   b.handler_fail_strategy, b.crontab
+                   b.handler_fail_strategy, b.crontab, a.trigger_time, a.handle_time
             FROM job_event a, job_info b
             WHERE a.job_id=b.id
         ]]>
@@ -204,7 +212,7 @@
         <![CDATA[
             SELECT event_id, parent_event_id, job_id, parent_job_id, group_id, parent_group_id, executor_handlers,
                 handler_type, cmd, params, param_file_path, stat, handler_agent_id, priority, retry_count, create_time, handler_log_path,
-                dist_type, event_rule
+                dist_type, event_rule, trigger_time, handle_time
             FROM job_event WHERE parent_group_id = #{pid}
         ]]>
     </select>
@@ -219,7 +227,7 @@
         <![CDATA[
             SELECT event_id, parent_event_id, job_id, parent_job_id, group_id, parent_group_id, executor_handlers,
                 handler_type, cmd, params, param_file_path, stat, handler_agent_id, priority, retry_count, create_time, handler_log_path,
-                dist_type, event_rule
+                dist_type, event_rule, trigger_time, handle_time
             FROM job_event WHERE group_id = #{groupId}
         ]]>
     </select>
