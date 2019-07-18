@@ -45,7 +45,6 @@ public class EventHandlerThread extends Thread {
 	
 	@Override
 	public void run() {
-		log.info("-----------------------------{} start-----------------------------", event.getEventId());
 		if(!runable()) {
 			return;
 		}
@@ -87,7 +86,6 @@ public class EventHandlerThread extends Thread {
 		} finally {
             handler.destroy();
             close();
-			log.info("-----------------------------{} end-----------------------------", event.getEventId());
 		}
 	}
 	

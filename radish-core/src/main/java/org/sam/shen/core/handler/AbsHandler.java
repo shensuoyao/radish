@@ -43,7 +43,7 @@ public abstract class AbsHandler implements IHandler {
 
 	@Override
 	public Resp<String> init() {
-		log.info("RADISH ------------> 初始化任务...");
+		log.info("RADISH ------------> 初始化任务:  {}", eventId.get());
 		return Resp.SUCCESS;
 	}
 
