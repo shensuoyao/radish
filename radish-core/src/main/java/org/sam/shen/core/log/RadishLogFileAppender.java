@@ -59,6 +59,12 @@ public class RadishLogFileAppender {
 			log.error("Make Log Path Failed. [{}]", logFilePath);
 		}
 		String logFileName = logFilePath.getPath().concat(File.separator).concat(logId).concat(".log");
+		File logFile = new File(logFileName);
+		try {
+			logFile.createNewFile();
+		} catch (Exception e) {
+			log.error("Make log file failed. [{}]", logFileName);
+		}
 		return logFileName;
 	}
 	

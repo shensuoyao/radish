@@ -43,7 +43,7 @@ public abstract class AbsHandler implements IHandler {
 
 	@Override
 	public Resp<String> init() {
-		log.info("RADISH ------------> 初始化任务:  {}", eventId.get());
+		log.info("RADISH ------------> 初始化任务");
 		return Resp.SUCCESS;
 	}
 
@@ -57,6 +57,7 @@ public abstract class AbsHandler implements IHandler {
 
 	@Override
 	public Resp<String> start(HandlerEvent event) throws Exception {
+		log.info("RADISH ------------> 任务执行中:  {}", event.getEventId());
 		this.setEventId(event.getEventId());
 		this.setLogFileName(RadishLogFileAppender.makeLogFile(this.getEventId()));
 		return execute(event);

@@ -35,13 +35,14 @@
     <insert id="batchInsertEvent" parameterType="java.util.List">
         insert into job_event_his(event_id, parent_event_id, job_id, parent_job_id, group_id, parent_group_id,
             executor_handlers, handler_type, cmd, params, param_file_path, stat, handler_agent_id, handler_log_path,
-            priority, retry_count, create_time, dist_type, event_rule)
+            priority, retry_count, create_time, dist_type, event_rule, trigger_time, handle_time)
         values
         <foreach collection="events" item="event" separator=",">
             (#{event.event_id}, #{event.parent_event_id}, #{event.job_id}, #{event.parent_job_id}, #{event.group_id},
              #{event.parent_group_id}, #{event.executor_handlers}, #{event.handler_type}, #{event.cmd}, #{event.params},
              #{event.param_file_path}, #{event.stat}, #{event.handler_agent_id}, #{event.handler_log_path},
-             #{event.priority}, #{event.retry_count}, #{event.create_time}, #{event.dist_type}, #{event.event_rule})
+             #{event.priority}, #{event.retry_count}, #{event.create_time}, #{event.dist_type}, #{event.event_rule},
+             #{event.trigger_time}, #{event.handle_time})
         </foreach>
     </insert>
 
