@@ -8,6 +8,7 @@
         <version>1.0.2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
+    <version>1.0.3</version>
 
     <artifactId>radish-spring-boot-starter</artifactId>
 
@@ -15,7 +16,7 @@
         <dependency>
             <groupId>org.sam.shen</groupId>
             <artifactId>radish-core</artifactId>
-            <version>1.0.2</version>
+            <version>1.0.3</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

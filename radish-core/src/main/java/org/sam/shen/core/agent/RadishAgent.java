@@ -53,6 +53,9 @@ public class RadishAgent {
 	// 处理事件时间间隔，单位毫秒
 	private static long handleEventBeat = 1000;
 
+	// 核心线程数
+	private static int corePoolSize = SystemUtil.cpuCount() + 1;
+
 	public RadishAgent() {
 		// 初始化默认参数
 		if (SystemUtil.osName().startsWith("Windows")) { // windows系统不能运行shell脚本，脚本目录无需设置
@@ -252,5 +255,13 @@ public class RadishAgent {
 
 	public void setHandleEventBeat(long handleEventBeat) {
 		RadishAgent.handleEventBeat = handleEventBeat;
+	}
+
+	public static int getCorePoolSize() {
+		return corePoolSize;
+	}
+
+	public void setCorePoolSize(int corePoolSize) {
+		RadishAgent.corePoolSize = corePoolSize;
 	}
 }

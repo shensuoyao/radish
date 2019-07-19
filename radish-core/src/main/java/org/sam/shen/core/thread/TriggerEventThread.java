@@ -5,7 +5,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
 import org.sam.shen.core.agent.RadishAgent;
-import org.sam.shen.core.constants.Constant;
 import org.sam.shen.core.event.HandlerEvent;
 import org.sam.shen.core.model.Resp;
 import org.sam.shen.core.rpc.RestRequest;

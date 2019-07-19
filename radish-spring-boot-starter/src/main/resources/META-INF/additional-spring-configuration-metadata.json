@@ -103,6 +103,12 @@
       "type": "java.lang.Long",
       "description": "Time interval that handle event, in milliseconds.",
       "sourceType": "org.radish.spring.boot.autoconfigure.RadishProperties"
+    },
+    {
+      "name": "radish.core-pool-size",
+      "type": "java.lang.Integer",
+      "description": "Max active thread pool size of executor handlers.",
+      "sourceType": "org.radish.spring.boot.autoconfigure.RadishProperties"
     }
   ]
 }

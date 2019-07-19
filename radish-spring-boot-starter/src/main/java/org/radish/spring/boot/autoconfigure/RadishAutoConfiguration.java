@@ -115,6 +115,10 @@ public class RadishAutoConfiguration {
         if (properties.getHandleEventBeat() != null) {
             radishAgent.setHandleEventBeat(properties.getHandleEventBeat());
         }
+        // set core pool size
+        if (properties.getCorePoolSize() != null) {
+            radishAgent.setCorePoolSize(properties.getCorePoolSize());
+        }
         return radishAgent;
     }
 

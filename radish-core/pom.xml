@@ -10,6 +10,7 @@
     </parent>
     <artifactId>radish-core</artifactId>
     <packaging>jar</packaging>
+    <version>1.0.3</version>
 
     <name>${project.artifactId}</name>
     <url>http://maven.apache.org</url>

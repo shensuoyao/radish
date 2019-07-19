@@ -6,9 +6,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sam.shen.core.agent.RadishAgent;
 import org.sam.shen.core.event.HandlerEvent;
 import org.sam.shen.core.handler.IHandler;
-import org.sam.shen.core.util.SystemUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +28,7 @@ public class EventHandlerThreadPool {
 	private static ConcurrentHashMap<String, EventHandlerThread> callbackThreadRepository = new ConcurrentHashMap<>();
 	
 	static {
-		fixedThreadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(SystemUtil.cpuCount() + 1);
+		fixedThreadPool = (ThreadPoolExecutor) Executors.newFixedThreadPool(RadishAgent.getCorePoolSize());
 	}
 	
 	/**
@@ -51,7 +51,7 @@ public class EventHandlerThreadPool {
 	 */
 	public static int availableCount() {
 		int count = fixedThreadPool.getMaximumPoolSize() - eventsQueue.size() - fixedThreadPool.getActiveCount();
-		return count < 0 ? 0 : count;
+		return count <= 0 ? 1 : count;
 	}
 	
 	public static void run(String rpcSubeventUrl, String rpcReportUrl) {
@@ -91,12 +91,12 @@ public class EventHandlerThreadPool {
 	/**
 	 * 等待执行的任务队列
 	 */
-	private static LinkedBlockingQueue<HandlerEvent> eventsQueue = new LinkedBlockingQueue<>(SystemUtil.cpuCount() * 3);
+	private static LinkedBlockingQueue<HandlerEvent> eventsQueue = new LinkedBlockingQueue<>(RadishAgent.getCorePoolSize() * 3);
 	
 	/**
 	 * 正在执行任务的 Handler
 	 */
-	private static ConcurrentHashMap<String, IHandler> handlerNow = new ConcurrentHashMap<String, IHandler>();
+	private static ConcurrentHashMap<String, IHandler> handlerNow = new ConcurrentHashMap<>();
 	
 	/**
 	 * @author suoyao

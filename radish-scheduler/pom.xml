@@ -21,7 +21,7 @@
         <dependency>
             <groupId>org.sam.shen</groupId>
             <artifactId>radish-core</artifactId>
-            <version>1.0.2</version>
+            <version>1.0.3</version>
         </dependency>
         <!-- radish-core End -->
         <dependency>

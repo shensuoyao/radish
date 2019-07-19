@@ -32,6 +32,8 @@ public class RadishProperties {
 
     private Long handleEventBeat;
 
+    private Integer corePoolSize;
+
     @Getter
     @Setter
     public static class Agent {
